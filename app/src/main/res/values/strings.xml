@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">MyProject</string>
+    <string name="edittext_hint">Ключевые слова для поиска вашей заявки (через пробел, с маленькой буквы)<font size="16"></font></string>
+    <string name="edittext_hint2">Другой способ связи с описанием способа. Например, "@sobaka - ссылка на мой телеграм"<font size="16"></font></string>
+    <string name="edittext_hint3">Ссылка на аккаунт в ВК<font size="16"></font></string>
+    <string name="edittext_hint4">Связь организатора команды с вами<font size="16"></font></string>
+    <string name="edittext_hint5">Если ни один из вышеперечисленных элементов вам не подходит, то опишите свой раздел здесь 1-им - 3-мя словами<font size="16"></font></string>
+    <string name="edittext_hint6">Опыт работы в данной сфере(год(а))<font size="16"></font></string>
+    <string name="edittext_hint7">Навыки, умения будущего члена команды<font size="16"></font></string>
+    <string name="edittext_hint8">Расшифровка, пояснение смысла наименования. Какой сокомандник вам нужен?<font size="16"></font></string>
+    <string name="edittext_hint9">Кого вы хотите видеть в команде?<font size="16"></font></string>
+    <string name="edittext_hint11">Для чего вы формируете команду? Зачем вам нужен этот сокомандник?<font size="16"></font></string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="desc">Image</string>
+    <string name="edittext">      Поиск<font size="16"></font></string>
+    <string name="title_activity_login">Sign in</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Имя пользователя</string>
+    <string name="prompt_password">Пароль</string>
+    <string name="action_sign_in">Войти</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+</resources>

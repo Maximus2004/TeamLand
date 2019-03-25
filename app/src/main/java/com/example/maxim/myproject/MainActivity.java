@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle("   Формирование заявки");
+        getSupportActionBar().setTitle("Формирование заявки");
     }
 
     @Override

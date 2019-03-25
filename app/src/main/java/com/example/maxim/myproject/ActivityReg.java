@@ -43,7 +43,7 @@ public class ActivityReg extends AppCompatActivity {
                 nik = findViewById(R.id.textView13);
                 nick = findViewById(R.id.editText3);
                 oSebe = findViewById(R.id.textView16);
-                sebe = findViewById(R.id.editText6);
+                sebe = findViewById(R.id.editText7);
                 String nickEdit = nick.getText().toString();
                 String oSebeEdit = sebe.getText().toString();
                 String firstEdit = theFirst.getText().toString();
@@ -83,7 +83,7 @@ public class ActivityReg extends AppCompatActivity {
                     toast.show();
                 }
                 if (k && k2 && k3 && k4) {
-                    Intent intent = new Intent(ActivityReg.this, Main2Activity.class);
+                    Intent intent = new Intent(ActivityReg.this, Main3Activity.class);
                     startActivity(intent);
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);

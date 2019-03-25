@@ -17,11 +17,13 @@
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".Main2Activity"
             android:screenOrientation="portrait" />
-        <activity android:name=".ActivityReg">
+        <activity
+            android:name=".ActivityReg"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +32,14 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login" />
+        <activity android:name=".Chosen" />
+        <activity android:name=".MyApplications" />
+        <activity
+            android:name=".Main3Activity"
+            android:label="@string/title_activity_main3"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
     </application>
 
 </manifest>

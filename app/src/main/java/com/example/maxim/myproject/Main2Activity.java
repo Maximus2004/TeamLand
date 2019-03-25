@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,14 +15,19 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class Main2Activity extends AppCompatActivity {
-
+public class Main2Activity extends AppCompatActivity{
     String[] cities3 = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     String item;
     int pos;
+    ImageButton burger;
+    String[] mCatTitles = {"Избранные", "Мои заявки", "Редактирование описания себя", "Выход"};
+    public DrawerLayout mDrawerListView;
+    public ListView mDrawerListView2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,5 +72,27 @@ public class Main2Activity extends AppCompatActivity {
         };
         spinner3.setOnItemSelectedListener(itemSelectedListener3);
         spinner3.getBackground().setColorFilter(getResources().getColor(R.color.myColor), PorterDuff.Mode.SRC_ATOP);
+        burger = findViewById(R.id.imageButton);
+        mDrawerListView = findViewById(R.id.drawer_layout);
+        mDrawerListView2 = findViewById(R.id.left_drawer);
+        // подключим адаптер для списка
+        mDrawerListView2.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, mCatTitles));
+        View.OnClickListener oclBtn = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerListView.openDrawer(GravityCompat.START);
+            }
+        };
+        // присвоим обработчик кнопке OK (btnOk)
+        burger.setOnClickListener(oclBtn);
+        // установим слушатель для щелчков по элементам списка
+        mDrawerListView2.setOnItemClickListener(new DrawerItemClickListener());
+    }
+    public void toast(int position){
+        if (position == 1){
+            Intent intent = new Intent(Main2Activity.this, Chosen.class);
+            startActivity(intent);
+        }
     }
 }

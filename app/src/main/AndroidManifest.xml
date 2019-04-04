@@ -37,9 +37,7 @@
         <activity android:name=".MyApplications" />
         <activity
             android:name=".Main3Activity"
-            android:label="@string/title_activity_main3"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"></activity>
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:label="@string/title_activity_main3"></activity>
     </application>
 
 </manifest>

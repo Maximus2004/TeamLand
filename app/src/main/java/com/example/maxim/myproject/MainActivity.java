@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                     t8.setTextColor(Color.BLACK);
                 }
                 if (mainFlag || !check && mainCount > 2 && mainFlag2) {
-                    Intent intent = new Intent(MainActivity.this, Main2Activity.class);
+                    Intent intent = new Intent(MainActivity.this, Main3Activity.class);
                     startActivity(intent);
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Заявка успешно опубликована!", Toast.LENGTH_LONG);

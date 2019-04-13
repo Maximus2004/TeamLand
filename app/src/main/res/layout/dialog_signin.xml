@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="251dp"
-        android:layout_height="145dp"
+        android:layout_height="121dp"
         android:layout_marginStart="55dp"
         android:layout_marginLeft="55dp"
         android:layout_marginTop="211dp"
@@ -21,19 +21,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/textView19"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000000"
-            android:textSize="20dp"
-            android:text="Редакирование описания" />
-
         <EditText
             android:id="@+id/editText6"
+            style="@style/Widget.MaterialComponents.TextInputEditText.OutlinedBox.Dense"
             android:layout_width="match_parent"
-            android:layout_height="116dp"
+            android:layout_height="match_parent"
             android:ems="10"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:text="Hi!" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

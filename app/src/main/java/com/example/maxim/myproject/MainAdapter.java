@@ -4,33 +4,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MyMonthAdapter extends ArrayAdapter<MyMonth> {
+public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
-    public MyMonthAdapter(Context context, MyMonth[] arr) {
+    public MainAdapter(Context context, AdapterElement[] arr) {
         super(context, R.layout.one_adapner, arr);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        final MyMonth month = getItem(position);
+        final AdapterElement month = getItem(position);
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapner, null);
         }
 
-        //как индивидуально обработать нажатие на кнопку
-
-// Заполняем адаптер
-        ((TextView) convertView.findViewById(R.id.applName)).setText(month.month);
-        ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.temp));
-        ((TextView) convertView.findViewById(R.id.experience)).setText(String.valueOf(month.days));
+        // Заполняем адаптер
+        ((TextView) convertView.findViewById(R.id.applName)).setText(month.mainName);
+        ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
+        ((TextView) convertView.findViewById(R.id.experience)).setText(String.valueOf(month.experience));
         ((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
+        ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
         final boolean[] h = {false};

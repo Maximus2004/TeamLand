@@ -1,23 +1,16 @@
 package com.example.maxim.myproject;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,7 +24,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity {
+public class CreateApplication extends AppCompatActivity {
     String item;
     String item2;
     Button btn;
@@ -65,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.create_application);
 
         btn = (Button) findViewById(R.id.btn2);
         btn2 = (Button) findViewById(R.id.button2);
@@ -76,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreateApplication.this);
                 builder.setTitle("Как выбрать раздел?")
                         .setMessage("Раздел - это тема вашего будущего проекта. То, для чего вы собираете команду. Например, я собираю команду для создания своего приложения. Значит, я должен раскрыть список под названием \"Сфера программирования\" и выбрать \"Создание приложений\". Если вы неправильно назовёте свой раздел, то не соберёте нужную вам команду, потому что ваша заявка не будет размещена в соответствующем разделе приложения. Если среди списков вы не нашли нужной вам темы, то вы должны одним, двумя или тремя словами (не больше!) выразить тему своей заявки (зачем вы собираете команду?)")
                         .setCancelable(false)
@@ -123,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         View.OnClickListener oclBtnOk3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //прошу прощения за циферки в названиях переменных((
                 mainCount++;
                 edit = findViewById(R.id.editText2);
                 name = findViewById(R.id.name);
@@ -282,14 +276,14 @@ public class MainActivity extends AppCompatActivity {
                     t8.setTextColor(Color.BLACK);
                 }
                 if (mainFlag || !check && mainCount > 2 && mainFlag2) {
-                    Intent intent = new Intent(MainActivity.this, Main3Activity.class);
+                    Intent intent = new Intent(CreateApplication.this, MostMainActivity.class);
                     startActivity(intent);
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Заявка успешно опубликована!", Toast.LENGTH_LONG);
                     toast.show();
                 }
                 if (!mainFlag) {
-                    builder5 = new AlertDialog.Builder(MainActivity.this);
+                    builder5 = new AlertDialog.Builder(CreateApplication.this);
                     builder5.setTitle("Ошибка!")
                             .setMessage(main)
                             .setCancelable(false)
@@ -318,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(CreateApplication.this);
                 builder2.setTitle("Пример заполнения формы")
                         .setMessage("1. Наименование заявки:" + "\n" + "Unity программисты" + "\n" + "2. Описание заяви:" + "\n" + "Я ищу креативных и умелых Unity программистов для создания игры. Должен быть определённый опыт работы в Unity. Желательно иметь при себе пример своей работы (код и видео ю, где ваша игра работает). Качества лидера (ответственность, креативность, инициативность) приветствуются. \n" +
                                 "3. Цель:\n" +

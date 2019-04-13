@@ -35,7 +35,7 @@
                 android:id="@+id/textView18"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Авторизация"
+                android:text="@string/avtorisation"
                 android:textColor="#000000"
                 android:textSize="23sp" />
 

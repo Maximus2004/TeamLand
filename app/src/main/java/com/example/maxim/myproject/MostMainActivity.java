@@ -27,14 +27,14 @@ import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-public class Main3Activity extends AppCompatActivity
+public class MostMainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     String item;
     int pos;
     ImageButton burger;
     ActivityReg reg = new ActivityReg();
-    String[] cities3 = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
+    String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class Main3Activity extends AppCompatActivity
         View.OnClickListener oclBtnOk = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Main3Activity.this, MainActivity.class);
+                Intent intent = new Intent(MostMainActivity.this, CreateApplication.class);
                 startActivity(intent);
             }
         };
@@ -65,7 +65,7 @@ public class Main3Activity extends AppCompatActivity
 
         Spinner spinner3 = findViewById(R.id.spinner3);
         // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
-        ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, cities3);
+        ArrayAdapter<String> adapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, searchFor);
         // Определяем разметку для использования при выборе элемента
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Применяем адаптер к элементу spinner
@@ -88,6 +88,7 @@ public class Main3Activity extends AppCompatActivity
         };
         spinner3.setOnItemSelectedListener(itemSelectedListener3);
         spinner3.getBackground().setColorFilter(getResources().getColor(R.color.myColor), PorterDuff.Mode.SRC_ATOP);
+
         burger = findViewById(R.id.imageButton);
         View.OnClickListener oclBtn = new View.OnClickListener() {
             @Override
@@ -99,6 +100,7 @@ public class Main3Activity extends AppCompatActivity
         burger.setOnClickListener(oclBtn);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
 
         setTitle("TabHost");
 
@@ -146,30 +148,30 @@ public class Main3Activity extends AppCompatActivity
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
+
         MainAdapter adapter = new MainAdapter(this, makeMonth());
         ListView lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(adapter);
     }
 
-    // Метод cоздания массива месяцев
+    // Метод cоздания массива заявок
     AdapterElement[] makeMonth() {
         AdapterElement[] arr = new AdapterElement[6];
 
-// Названия месяцев
-        String[] monthArr = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
-// Среднесуточная температура
-        String[] tempArr = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
-// Количество дней
-        String[] dayArr = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
+        String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
+        String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
+        String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
         String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
+        String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};
 
-// Сборка месяцев
+        // Сборка заявок
         for (int i = 0; i < arr.length; i++) {
             AdapterElement month = new AdapterElement();
-            month.month = monthArr[i];
-            month.temp = tempArr[i];
-            month.days = dayArr[i];
+            month.mainName = mainName[i];
+            month.ambition = ambition[i];
+            month.experience = experience[i];
             month.example = exs[i];
+            month.user = user[i];
             arr[i] = month;
         }
         return arr;
@@ -212,13 +214,13 @@ public class Main3Activity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            Intent intent = new Intent(Main3Activity.this, Chosen.class);
+            Intent intent = new Intent(MostMainActivity.this, Chosen.class);
             startActivity(intent);
         } else if (id == R.id.nav_gallery) {
-            Intent intent2 = new Intent(Main3Activity.this, MyApplications.class);
+            Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
             startActivity(intent2);
         } else if (id == R.id.nav_slideshow) {
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(Main3Activity.this);
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
             builder2.setTitle("Редактирование описания")
                     .setCancelable(false)
                     .setNegativeButton("Отредактировать",
@@ -238,7 +240,6 @@ public class Main3Activity extends AppCompatActivity
         } else if (id == R.id.nav_manage) {
 
         }
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

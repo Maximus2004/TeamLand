@@ -1,8 +1,9 @@
 package com.example.maxim.myproject;
 
-public class MyMonth {
-    String month = ""; // Название месяца
-    String temp = ""; // Средняя температура
-    String days = ""; // Количество дней
-    String example = "";
+public class AdapterElement {
+    String mainName = ""; // Название заявки
+    String ambition = ""; // Цель
+    String experience = ""; // Опыт
+    String example = ""; // Наличие примера
+    String user = ""; //Имя пользователя
 }

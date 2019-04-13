@@ -64,8 +64,7 @@
                     android:layout_height="38dp"
                     android:layout_gravity="end"
                     android:background="@null"
-                    app:srcCompat="@android:drawable/btn_star_big_off"
-                    tools:srcCompat="@android:drawable/star_off" />
+                    app:srcCompat="@android:drawable/btn_star_big_off" />
 
                 <TextView
                     android:id="@+id/writeAdout"
@@ -78,7 +77,7 @@
                     android:translationY="5dp" />
 
                 <TextView
-                    android:id="@+id/textView00"
+                    android:id="@+id/examp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="  Пример работы: есть"
@@ -106,12 +105,12 @@
                     android:translationY="-28dp" />
 
                 <Button
-                    android:id="@+id/button7"
+                    android:id="@+id/userBtn"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
-                    android:layout_width="106dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="37dp"
                     android:layout_gravity="top|center"
-                    android:layout_marginLeft="70dp"
+                    android:layout_marginLeft="43dp"
                     android:layout_marginTop="26dp"
                     android:layout_marginBottom="20dp"
                     android:text="Maximus"

@@ -23,6 +23,7 @@ public class ActivityReg extends AppCompatActivity {
     SharedPreferences sharedPreferences;
     final String SAVED_TEXT = "TEXT";
     final String SAVED_NUM = "NUMBER";
+    String oSebeEdit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +46,7 @@ public class ActivityReg extends AppCompatActivity {
                 oSebe = findViewById(R.id.textView16);
                 sebe = findViewById(R.id.editText7);
                 String nickEdit = nick.getText().toString();
-                String oSebeEdit = sebe.getText().toString();
+                oSebeEdit = sebe.getText().toString();
                 String firstEdit = theFirst.getText().toString();
                 String secondEdit = theSecond.getText().toString();
                 if (secondEdit.equals("") || !secondEdit.equals(firstEdit)) {
@@ -83,12 +84,14 @@ public class ActivityReg extends AppCompatActivity {
                     toast.show();
                 }
                 if (k && k2 && k3 && k4) {
-                    Intent intent = new Intent(ActivityReg.this, Main3Activity.class);
+                    Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
                     startActivity(intent);
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
+                    EditText edit = findViewById(R.id.editText6);
+                    edit.setText(oSebe.getText());                       
                     cont = true;
                 }
             }
@@ -110,8 +113,8 @@ public class ActivityReg extends AppCompatActivity {
     void saveData() {
         sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(SAVED_TEXT, "max");
-        editor.putString(SAVED_NUM, "9");
+        editor.putString(SAVED_TEXT, "");
+        editor.putString(SAVED_NUM, "");
         editor.commit();
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }

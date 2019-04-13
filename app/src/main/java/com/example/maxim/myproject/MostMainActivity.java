@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -32,6 +33,7 @@ public class Main3Activity extends AppCompatActivity
     String item;
     int pos;
     ImageButton burger;
+    ActivityReg reg = new ActivityReg();
     String[] cities3 = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
 
     @Override
@@ -39,7 +41,6 @@ public class Main3Activity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.most_main_activity);
         ImageButton btn = findViewById(R.id.imageBtn);
-        final ImageButton star;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -136,36 +137,23 @@ public class Main3Activity extends AppCompatActivity
         tabSpec.setIndicator("Создание приложений");
         tabHost.addTab(tabSpec);
 
+        tabSpec = tabHost.newTabSpec("tag7");
+        tabSpec.setContent(R.id.tab7);
+        tabSpec.setIndicator("Другое");
+        tabHost.addTab(tabSpec);
+
         tabHost.setCurrentTab(0);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        MyMonthAdapter adapter = new MyMonthAdapter(this, makeMonth());
+        MainAdapter adapter = new MainAdapter(this, makeMonth());
         ListView lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(adapter);
-
-        star = findViewById(R.id.imageButton0);
-        final boolean[] h = {false};
-        View.OnClickListener oclBtn3 = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!h[0]){
-                    star.setImageResource(android.R.drawable.star_on);
-                    h[0] = true;
-                }
-                else{
-                    star.setImageResource(android.R.drawable.star_off);
-                    h[0] = false;
-                }
-            }
-        };
-        // присвоим обработчик кнопке OK (btnOk)
-        star.setOnClickListener(oclBtn3);
     }
 
     // Метод cоздания массива месяцев
-    MyMonth[] makeMonth() {
-        MyMonth[] arr = new MyMonth[6];
+    AdapterElement[] makeMonth() {
+        AdapterElement[] arr = new AdapterElement[6];
 
 // Названия месяцев
         String[] monthArr = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
@@ -173,13 +161,15 @@ public class Main3Activity extends AppCompatActivity
         String[] tempArr = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
 // Количество дней
         String[] dayArr = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
+        String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
 
 // Сборка месяцев
         for (int i = 0; i < arr.length; i++) {
-            MyMonth month = new MyMonth();
+            AdapterElement month = new AdapterElement();
             month.month = monthArr[i];
             month.temp = tempArr[i];
             month.days = dayArr[i];
+            month.example = exs[i];
             arr[i] = month;
         }
         return arr;
@@ -230,19 +220,25 @@ public class Main3Activity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             AlertDialog.Builder builder2 = new AlertDialog.Builder(Main3Activity.this);
             builder2.setTitle("Редактирование описания")
-                    .setMessage(R.layout.dialog_signin)
                     .setCancelable(false)
                     .setNegativeButton("Отредактировать",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
+                                    //EditText edit = findViewById(R.id.editText6);
+                                    //edit.setText(edit.getText());
                                     dialog.cancel();
                                 }
                             });
+            LayoutInflater ltInflater = getLayoutInflater();
+            View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
             AlertDialog alert2 = builder2.create();
+            alert2.setView(view);
+            alert2.getWindow().setLayout(265, 130);
             alert2.show();
         } else if (id == R.id.nav_manage) {
 
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

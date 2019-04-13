@@ -254,7 +254,19 @@ tools:context=".Main2Activity">
                         android:layout_height="wrap_content"
                         android:text="Кнопка на четвёртой вкладке" />
                 </LinearLayout>
-            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/tab7"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/button7"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Кнопка на четвёртой вкладке" />
+            </LinearLayout>
+        </FrameLayout>
         </LinearLayout>
     </TabHost>
 

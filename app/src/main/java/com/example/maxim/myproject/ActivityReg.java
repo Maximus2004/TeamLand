@@ -24,8 +24,8 @@ public class ActivityReg extends AppCompatActivity {
     boolean cont = false;
     SharedPreferences sharedPreferences;
     // должны быть static
-    final String SAVED_TEXT = "TEXT";
-    final String SAVED_NUM = "NUMBER";
+    final static String SAVED_TEXT = "TEXT";
+    final static String SAVED_NUM = "NUMBER";
     String oSebeEdit;
 
     @Override
@@ -131,7 +131,7 @@ public class ActivityReg extends AppCompatActivity {
         // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
         // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
         // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
         editor.putString(SAVED_TEXT, "");

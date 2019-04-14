@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -50,16 +51,15 @@ public class LoginActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 // так нельзя вызывать другое активити
-                ActivityReg reg = new ActivityReg();
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
 
                 // в ActivityReg указал, как вызывать preference
-                reg.sharedPreferences = getPreferences(MODE_PRIVATE);
-                String savedText = reg.sharedPreferences.getString(reg.SAVED_TEXT, "");
-                String savedNum = reg.sharedPreferences.getString(reg.SAVED_NUM, "");
+                SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
+                String savedText = sharedPreferences.getString(ActivityReg.SAVED_TEXT, "");
+                String savedNum = sharedPreferences.getString(ActivityReg.SAVED_NUM, "");
                 pass.setText(savedText);
                 login.setText(savedNum);
                 if (loginT.equals(savedText) && passT.equals(savedNum)){

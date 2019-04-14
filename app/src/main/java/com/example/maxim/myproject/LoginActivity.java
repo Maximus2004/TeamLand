@@ -49,11 +49,14 @@ public class LoginActivity extends AppCompatActivity{
             @SuppressLint("WrongViewCast")
             @Override
             public void onClick(View v) {
+                // так нельзя вызывать другое активити
                 ActivityReg reg = new ActivityReg();
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
+
+                // в ActivityReg указал, как вызывать preference
                 reg.sharedPreferences = getPreferences(MODE_PRIVATE);
                 String savedText = reg.sharedPreferences.getString(reg.SAVED_TEXT, "");
                 String savedNum = reg.sharedPreferences.getString(reg.SAVED_NUM, "");

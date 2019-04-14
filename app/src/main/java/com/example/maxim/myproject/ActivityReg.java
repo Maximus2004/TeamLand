@@ -12,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityReg extends AppCompatActivity {
+    // сделать локальными
+    // переназвать, чтобы было понятно
     Button btnReg, btnAvto;
     EditText theFirst, theSecond, nick, sebe;
     TextView first, second, nik, oSebe;
@@ -21,6 +23,7 @@ public class ActivityReg extends AppCompatActivity {
     boolean k4 = true;
     boolean cont = false;
     SharedPreferences sharedPreferences;
+    // должны быть static
     final String SAVED_TEXT = "TEXT";
     final String SAVED_NUM = "NUMBER";
     String oSebeEdit;
@@ -29,10 +32,14 @@ public class ActivityReg extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
+
+        // никогда не вызывается
         if (cont) {
             Intent intent = new Intent(ActivityReg.this, Main2Activity.class);
             startActivity(intent);
         }
+
+        // нечитабельно, разбить метод на несколько мелких
         //не забудь про проверку на совпадение ников
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
@@ -49,6 +56,8 @@ public class ActivityReg extends AppCompatActivity {
                 oSebeEdit = sebe.getText().toString();
                 String firstEdit = theFirst.getText().toString();
                 String secondEdit = theSecond.getText().toString();
+
+                // можно сделать один if
                 if (secondEdit.equals("") || !secondEdit.equals(firstEdit)) {
                     second.setTextColor(Color.RED);
                     k = false;
@@ -78,12 +87,15 @@ public class ActivityReg extends AppCompatActivity {
                     oSebe.setTextColor(Color.BLACK);
                     k4 = true;
                 }
+
+                // сделать одним if
                 if (!k || !k2 || !k3 || !k4) {
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Форма заполенна некорректно((", Toast.LENGTH_LONG);
                     toast.show();
                 }
                 if (k && k2 && k3 && k4) {
+                    // вызов другого активити перенести в самый низ
                     Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
                     startActivity(intent);
                     Toast toast2 = Toast.makeText(getApplicationContext(),
@@ -93,6 +105,8 @@ public class ActivityReg extends AppCompatActivity {
                     EditText edit = findViewById(R.id.editText6);
                     edit.setText(oSebe.getText());                       
                     cont = true;
+                    // в конце надо вызывать finish() – активити убьется
+                    // и сюда нельзя будет вернуться кнопкой назад
                 }
             }
         };
@@ -111,8 +125,15 @@ public class ActivityReg extends AppCompatActivity {
     }
 
     void saveData() {
+        // преференсы можно сделать локальные
+        // текущий вызов достает преференсы ТОЛЬКО для активити
+        // чтобы они были для всего приложения нужно вызывать getPreferences("текст1", MODE_PRIVATE)
+        // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
+        // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
+        // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
         sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
+        // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
         editor.putString(SAVED_TEXT, "");
         editor.putString(SAVED_NUM, "");
         editor.commit();

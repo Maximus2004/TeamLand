@@ -36,6 +36,7 @@ public class MostMainActivity extends AppCompatActivity
     ActivityReg reg = new ActivityReg();
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
 
+    // очень длинный метод, разбить на мелкие
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

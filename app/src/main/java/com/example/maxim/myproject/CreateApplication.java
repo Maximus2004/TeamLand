@@ -147,6 +147,8 @@ public class CreateApplication extends AppCompatActivity {
                 String resCan = cani.getText().toString();
                 String resOpit = op1.getText().toString();
                 String resOtherVar = other.getText().toString();
+
+                // можно написать проще через !result.contains(" ") без цикла
                 for (int i = 0; i < result.length(); i++) {
                     if (result.charAt(i) != ' ') {
                         f = true;
@@ -212,11 +214,15 @@ public class CreateApplication extends AppCompatActivity {
                 } else {
                     t5.setTextColor(Color.BLACK);
                 } // всё правильно до этого момента
+
+                // тоже сделать через resHash.contains
                 for (int i = 0; i < resHash.length(); i++) {
                     if (resHash.charAt(i) != ' ') {
                         hash = true;
                     }
                 }
+
+                // можно не проверять, а просто вызвать resHash.toLowerCase()
                 for (int i = 0; i < resHash.length(); i++) {
                     for (char q = 'A'; q <= 'Z'; q++) {
                         if (resHash.charAt(i) == q) {
@@ -231,6 +237,8 @@ public class CreateApplication extends AppCompatActivity {
                         }
                     }
                 }
+
+                // тоже проверить через resHash.contains или использовать RegExp.
                 for (int i = 0; i < resHash.length(); i++) {
                     for (char q = '!'; q <= '_'; q++) {
                         if (resHash.charAt(i) == q || resHash.charAt(i) == '>' || resHash.charAt(i) == '<') {

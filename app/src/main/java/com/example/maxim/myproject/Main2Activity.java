@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class Main2Activity extends AppCompatActivity{
+    // сделать локальными
     String[] cities3 = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     String item;
     int pos;

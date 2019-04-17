@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ActivityReg extends AppCompatActivity {
+import com.google.firebase.FirebaseExceptionMapper;
+
+public class ActivityReg extends AppCompatActivity  {
     // сделать локальными
     // переназвать, чтобы было понятно
     Button btnReg, btnAvto;

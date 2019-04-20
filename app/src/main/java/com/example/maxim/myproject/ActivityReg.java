@@ -35,6 +35,12 @@ public class ActivityReg extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
 
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("message");
+
+        myRef.setValue("Hello, World!");
+
         // никогда не вызывается
         if (cont) {
             Intent intent = new Intent(ActivityReg.this, Main2Activity.class);

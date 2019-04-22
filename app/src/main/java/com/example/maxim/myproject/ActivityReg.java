@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+<<<<<<< HEAD
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -33,6 +34,26 @@ public class ActivityReg extends AppCompatActivity {
     EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
     TextView firstPasswordText, secondPasswordText, nickText, describtionText;
     private DatabaseReference mDatabase;
+=======
+import com.google.firebase.FirebaseExceptionMapper;
+
+public class ActivityReg extends AppCompatActivity  {
+    // сделать локальными
+    // переназвать, чтобы было понятно
+    Button btnReg, btnAvto;
+    EditText theFirst, theSecond, nick, sebe;
+    TextView first, second, nik, oSebe;
+    boolean k = true;
+    boolean k2 = true;
+    boolean k3 = true;
+    boolean k4 = true;
+    boolean cont = false;
+    SharedPreferences sharedPreferences;
+    // должны быть static
+    final static String SAVED_TEXT = "TEXT";
+    final static String SAVED_NUM = "NUMBER";
+    String oSebeEdit;
+>>>>>>> comments
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +63,18 @@ public class ActivityReg extends AppCompatActivity {
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("message");
+<<<<<<< HEAD
         myRef.setValue("Hello, World!");
+=======
+
+        myRef.setValue("Hello, World!");
+
+        // никогда не вызывается
+        if (cont) {
+            Intent intent = new Intent(ActivityReg.this, Main2Activity.class);
+            startActivity(intent);
+        }
+>>>>>>> comments
 
         // нечитабельно, разбить метод на несколько мелких
         //не забудь про проверку на совпадение ников
@@ -157,7 +189,7 @@ public class ActivityReg extends AppCompatActivity {
         // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
         // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
         // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
-        sharedPreferences = getPreferences(MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
         editor.putString(SAVED_LOGIN, nickEditString);

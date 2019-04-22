@@ -50,18 +50,31 @@ public class LoginActivity extends AppCompatActivity{
             @SuppressLint("WrongViewCast")
             @Override
             public void onClick(View v) {
+<<<<<<< HEAD
+=======
+                // так нельзя вызывать другое активити
+>>>>>>> comments
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
 
                 // в ActivityReg указал, как вызывать preference
+<<<<<<< HEAD
                 ActivityReg.sharedPreferences = getPreferences(MODE_PRIVATE);
                 String savedLogin = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_LOGIN, "");
                 String savedPassword = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_PASSWORD, "");
                 //pass.setText(savedLogin);
                 //login.setText(savedPassword);
                 if (loginT.equals(savedLogin) && passT.equals(savedPassword)){
+=======
+                SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
+                String savedText = sharedPreferences.getString(ActivityReg.SAVED_TEXT, "");
+                String savedNum = sharedPreferences.getString(ActivityReg.SAVED_NUM, "");
+                pass.setText(savedText);
+                login.setText(savedNum);
+                if (loginT.equals(savedText) && passT.equals(savedNum)){
+>>>>>>> comments
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Авторизация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();

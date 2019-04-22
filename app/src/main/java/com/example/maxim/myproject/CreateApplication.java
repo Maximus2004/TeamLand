@@ -64,7 +64,6 @@ public class CreateApplication extends AppCompatActivity {
         btn2 = (Button) findViewById(R.id.button2);
         btnReady = (Button) findViewById(R.id.button3);
 
-        // создаем обработчик нажатия
         View.OnClickListener oclBtnOk = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,36 +82,8 @@ public class CreateApplication extends AppCompatActivity {
                 alert.show();
             }
         };
-        // присвоим обработчик кнопке OK (btnOk)
         btn.setOnClickListener(oclBtnOk);
 
-        /*name = findViewById(R.id.name);
-        opisanie = findViewById(R.id.opisanie);
-        scroll = findViewById(R.id.scrollView2);
-
-        View.OnClickListener oclEditOpis = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                opisanie.requestFocus();
-                scroll.scrollTo(0, 0);
-            }
-        };
-        opisanie.setOnClickListener(oclEditOpis);*/
-
-        /*View.OnTouchListener oclEditName = new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // TODO Auto-generated method stub
-                name.requestFocus();
-                scroll.scrollTo(0, 0);;
-                return true;
-            }
-        };
-        name.setOnTouchListener(oclEditName);*/
-
-
-        // создаем обработчик нажатия
         View.OnClickListener oclBtnOk3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -313,7 +284,6 @@ public class CreateApplication extends AppCompatActivity {
                 }
             }
         };
-        // присвоим обработчик кнопке OK (btnOk)
         btnReady.setOnClickListener(oclBtnOk3);
 
         View.OnClickListener oclBtnOk2 = new View.OnClickListener() {
@@ -342,7 +312,6 @@ public class CreateApplication extends AppCompatActivity {
                 alert2.show();
             }
         };
-        // присвоим обработчик кнопке OK (btn)
         btn2.setOnClickListener(oclBtnOk2);
 
         button = findViewById(R.id.button);
@@ -385,7 +354,6 @@ public class CreateApplication extends AppCompatActivity {
         AdapterView.OnItemSelectedListener itemSelectedListener2 = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                // Получаем выбранный объект
                 item2 = (String) parent.getItemAtPosition(position);
                 pos2 = position;
             }

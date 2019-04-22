@@ -27,9 +27,7 @@ import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-public class MostMainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
+public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     String item;
     int pos;
     ImageButton burger;
@@ -44,6 +42,7 @@ public class MostMainActivity extends AppCompatActivity
         ImageButton btn = findViewById(R.id.imageBtn);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -61,8 +60,8 @@ public class MostMainActivity extends AppCompatActivity
                 startActivity(intent);
             }
         };
-        // присвоим обработчик кнопке OK (btnOk)
         btn.setOnClickListener(oclBtnOk);
+
 
         Spinner spinner3 = findViewById(R.id.spinner3);
         // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
@@ -71,6 +70,7 @@ public class MostMainActivity extends AppCompatActivity
         adapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Применяем адаптер к элементу spinner
         spinner3.setAdapter(adapter3);
+
 
         AdapterView.OnItemSelectedListener itemSelectedListener3 = new AdapterView.OnItemSelectedListener() {
             @Override
@@ -84,11 +84,11 @@ public class MostMainActivity extends AppCompatActivity
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
             }
         };
         spinner3.setOnItemSelectedListener(itemSelectedListener3);
         spinner3.getBackground().setColorFilter(getResources().getColor(R.color.myColor), PorterDuff.Mode.SRC_ATOP);
+
 
         burger = findViewById(R.id.imageButton);
         View.OnClickListener oclBtn = new View.OnClickListener() {
@@ -104,11 +104,8 @@ public class MostMainActivity extends AppCompatActivity
 
 
         setTitle("TabHost");
-
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
-
         tabHost.setup();
-
         TabHost.TabSpec tabSpec = tabHost.newTabSpec("tag1");
 
         tabSpec.setContent(R.id.tab1);
@@ -158,13 +155,11 @@ public class MostMainActivity extends AppCompatActivity
     // Метод cоздания массива заявок
     AdapterElement[] makeMonth() {
         AdapterElement[] arr = new AdapterElement[6];
-
         String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
         String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
         String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
         String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
         String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};
-
         // Сборка заявок
         for (int i = 0; i < arr.length; i++) {
             AdapterElement month = new AdapterElement();
@@ -191,7 +186,6 @@ public class MostMainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main3, menu);
         return true;
     }
@@ -200,7 +194,6 @@ public class MostMainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // TODO Auto-generated method stub
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -211,16 +204,15 @@ public class MostMainActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.favoriets) {
             Intent intent = new Intent(MostMainActivity.this, Chosen.class);
             startActivity(intent);
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.my_applications) {
             Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
             startActivity(intent2);
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.changing_describtion) {
             AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
             builder2.setTitle("Редактирование описания")
                     .setCancelable(false)
@@ -238,7 +230,7 @@ public class MostMainActivity extends AppCompatActivity
             alert2.setView(view);
             alert2.getWindow().setLayout(265, 130);
             alert2.show();
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.sing_out) {
 
         }
 

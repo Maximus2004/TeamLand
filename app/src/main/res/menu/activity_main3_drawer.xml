@@ -6,20 +6,20 @@
 
     <group android:checkableBehavior="none">
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/my_applications"
             app:showAsAction="always"
             android:icon="@android:drawable/ic_menu_sort_by_size"
             android:title="Мои заявки" />
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/favoriets"
             android:icon="@android:drawable/btn_star_big_on"
             android:title="Избранные" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/changing_describtion"
             android:icon="@android:drawable/ic_menu_edit"
             android:title="Изменить описание себя" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/sing_out"
             android:icon="@drawable/ic_menu_manage"
             android:title="Выход" />
     </group>

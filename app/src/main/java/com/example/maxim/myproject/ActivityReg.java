@@ -11,90 +11,94 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+
 public class ActivityReg extends AppCompatActivity {
-    // сделать локальными
-    // переназвать, чтобы было понятно
-    Button btnReg, btnAvto;
-    EditText theFirst, theSecond, nick, sebe;
-    TextView first, second, nik, oSebe;
-    boolean k = true;
-    boolean k2 = true;
-    boolean k3 = true;
-    boolean k4 = true;
-    boolean cont = false;
-    SharedPreferences sharedPreferences;
+    // не получается сделать локальными, потому что нельзя, чтобы были final
+    boolean checkingSecondPasswordEdit = true;
+    boolean checkingFirstPasswordEdit = true;
+    boolean checkingNickPasswordEdit = true;
+    boolean checkingDescribtionPasswordEdit = true;
     // должны быть static
-    final String SAVED_TEXT = "TEXT";
-    final String SAVED_NUM = "NUMBER";
-    String oSebeEdit;
+    static final String SAVED_LOGIN = "LOGIN";
+    static final String SAVED_PASSWORD = "PASSWORD";
+    static SharedPreferences sharedPreferences;
+    String nickEditString;
+    String firstPasswordEditString;
+    Button registrationButton, authButton;
+    EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
+    TextView firstPasswordText, secondPasswordText, nickText, describtionText;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
 
-        // никогда не вызывается
-        if (cont) {
-            Intent intent = new Intent(ActivityReg.this, Main2Activity.class);
-            startActivity(intent);
-        }
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("message");
+        myRef.setValue("Hello, World!");
 
         // нечитабельно, разбить метод на несколько мелких
         //не забудь про проверку на совпадение ников
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                theFirst = findViewById(R.id.editText4);
-                theSecond = findViewById(R.id.editText5);
-                first = findViewById(R.id.textView14);
-                second = findViewById(R.id.textView15);
-                nik = findViewById(R.id.textView13);
-                nick = findViewById(R.id.editText3);
-                oSebe = findViewById(R.id.textView16);
-                sebe = findViewById(R.id.editText7);
-                String nickEdit = nick.getText().toString();
-                oSebeEdit = sebe.getText().toString();
-                String firstEdit = theFirst.getText().toString();
-                String secondEdit = theSecond.getText().toString();
-
+                //исправить названия элементов на макете пока не могу, т. к. ещё не починили R.
+                theFirstPassword = findViewById(R.id.editText4);
+                theSecondPassword = findViewById(R.id.editText5);
+                firstPasswordText = findViewById(R.id.textView14);
+                secondPasswordText = findViewById(R.id.textView15);
+                nickText = findViewById(R.id.textView13);
+                nickEditText = findViewById(R.id.editText3);
+                describtionText = findViewById(R.id.textView16);
+                describtion = findViewById(R.id.editText7);
+                nickEditString = nickEditText.getText().toString();
+                String describtionEditString = describtion.getText().toString();
+                firstPasswordEditString = theFirstPassword.getText().toString();
+                String secondPasswordEditString = theSecondPassword.getText().toString();
                 // можно сделать один if
-                if (secondEdit.equals("") || !secondEdit.equals(firstEdit)) {
-                    second.setTextColor(Color.RED);
-                    k = false;
+                if (secondPasswordEditString.equals("") || !secondPasswordEditString.equals(firstPasswordEditString)) {
+                    secondPasswordText.setTextColor(Color.RED);
+                    checkingSecondPasswordEdit = false;
                 }
-                if (secondEdit.equals(firstEdit)) {
-                    second.setTextColor(Color.BLACK);
-                    k = true;
+                if (secondPasswordEditString.equals(firstPasswordEditString)) {
+                    secondPasswordText.setTextColor(Color.BLACK);
+                    checkingSecondPasswordEdit = true;
                 }
-                if (firstEdit.equals("")) {
-                    first.setTextColor(Color.RED);
-                    k2 = false;
+                if (firstPasswordEditString.equals("")) {
+                    firstPasswordText.setTextColor(Color.RED);
+                    checkingFirstPasswordEdit = false;
                 } else {
-                    first.setTextColor(Color.BLACK);
-                    k2 = true;
+                    firstPasswordText.setTextColor(Color.BLACK);
+                    checkingFirstPasswordEdit = true;
                 }
-                if (nickEdit.equals("")) {
-                    nik.setTextColor(Color.RED);
-                    k3 = false;
+                if (nickEditString.equals("")) {
+                    nickText.setTextColor(Color.RED);
+                    checkingNickPasswordEdit = false;
                 } else {
-                    nik.setTextColor(Color.BLACK);
-                    k3 = true;
+                    nickText.setTextColor(Color.BLACK);
+                    checkingNickPasswordEdit = true;
                 }
-                if (oSebeEdit.equals("")) {
-                    oSebe.setTextColor(Color.RED);
-                    k4 = false;
+                if (describtionEditString.equals("")) {
+                    describtionText.setTextColor(Color.RED);
+                    checkingDescribtionPasswordEdit = false;
                 } else {
-                    oSebe.setTextColor(Color.BLACK);
-                    k4 = true;
+                    describtionText.setTextColor(Color.BLACK);
+                    checkingDescribtionPasswordEdit = true;
                 }
-
                 // сделать одним if
-                if (!k || !k2 || !k3 || !k4) {
+                if (!checkingSecondPasswordEdit || !checkingFirstPasswordEdit || !checkingNickPasswordEdit || !checkingDescribtionPasswordEdit) {
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Форма заполенна некорректно((", Toast.LENGTH_LONG);
                     toast.show();
                 }
-                if (k && k2 && k3 && k4) {
+                if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
                     // вызов другого активити перенести в самый низ
                     Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
                     startActivity(intent);
@@ -102,16 +106,24 @@ public class ActivityReg extends AppCompatActivity {
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
-                    EditText edit = findViewById(R.id.editText6);
-                    edit.setText(oSebe.getText());                       
-                    cont = true;
-                    // в конце надо вызывать finish() – активити убьется
-                    // и сюда нельзя будет вернуться кнопкой назад
+                    //creatingUser("2", "Maximus", "09062004m");
+
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference databaseReference = database.getReference().child("users").child("bUR9KYcU7o3U12WMYalh");
+                    HashMap<String,String> user = new HashMap<>();
+                    user.put("RollNo","1");
+                    user.put("LaLaLa","Jayesh");
+                    databaseReference.setValue(user);
+
+                    //EditText edit = findViewById(R.id.editText6);
+                    //edit.setText(describtionText.getText());
+                    finish();
+                    //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
                 }
             }
         };
-        btnReg = findViewById(R.id.button4);
-        btnReg.setOnClickListener(oclBtnReg);
+        registrationButton = findViewById(R.id.button4);
+        registrationButton.setOnClickListener(oclBtnReg);
 
         View.OnClickListener oclBtn = new View.OnClickListener() {
             @Override
@@ -120,23 +132,45 @@ public class ActivityReg extends AppCompatActivity {
                 startActivity(intent);
             }
         };
-        btnAvto = findViewById(R.id.button5);
-        btnAvto.setOnClickListener(oclBtn);
+        authButton = findViewById(R.id.button5);
+        authButton.setOnClickListener(oclBtn);
+    }
+
+    @IgnoreExtraProperties
+    public class User {
+        public String username;
+        public String password;
+        public User() {
+            // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        }
+        public User(String username, String password) {
+            this.username = username;
+            this.password = password;
+        }
     }
 
     void saveData() {
         // преференсы можно сделать локальные
         // текущий вызов достает преференсы ТОЛЬКО для активити
         // чтобы они были для всего приложения нужно вызывать getPreferences("текст1", MODE_PRIVATE)
+        // не получается добавить "текст1" к getPreferences
         // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
         // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
         // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
         sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
-        editor.putString(SAVED_TEXT, "");
-        editor.putString(SAVED_NUM, "");
+        editor.putString(SAVED_LOGIN, nickEditString);
+        editor.putString(SAVED_PASSWORD, firstPasswordEditString);
         editor.commit();
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+    }
+    private void creatingUser(String userId, String name, String password){
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        writeNewUser(userId, name, password);
+    }
+    private void writeNewUser(String userId, String name, String password) {
+        User user = new User(name, password);
+        mDatabase.child("users").child(userId).setValue(user);
     }
 }

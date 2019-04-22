@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -49,20 +50,18 @@ public class LoginActivity extends AppCompatActivity{
             @SuppressLint("WrongViewCast")
             @Override
             public void onClick(View v) {
-                // так нельзя вызывать другое активити
-                ActivityReg reg = new ActivityReg();
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
 
                 // в ActivityReg указал, как вызывать preference
-                reg.sharedPreferences = getPreferences(MODE_PRIVATE);
-                String savedText = reg.sharedPreferences.getString(reg.SAVED_TEXT, "");
-                String savedNum = reg.sharedPreferences.getString(reg.SAVED_NUM, "");
-                pass.setText(savedText);
-                login.setText(savedNum);
-                if (loginT.equals(savedText) && passT.equals(savedNum)){
+                ActivityReg.sharedPreferences = getPreferences(MODE_PRIVATE);
+                String savedLogin = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_LOGIN, "");
+                String savedPassword = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_PASSWORD, "");
+                //pass.setText(savedLogin);
+                //login.setText(savedPassword);
+                if (loginT.equals(savedLogin) && passT.equals(savedPassword)){
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Авторизация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();

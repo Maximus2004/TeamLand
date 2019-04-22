@@ -39,47 +39,33 @@ import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
-public class LoginActivity extends AppCompatActivity{
+public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     EditText pass, login;
+    SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @SuppressLint("WrongViewCast")
             @Override
             public void onClick(View v) {
-<<<<<<< HEAD
-=======
-                // так нельзя вызывать другое активити
->>>>>>> comments
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
-
-                // в ActivityReg указал, как вызывать preference
-<<<<<<< HEAD
-                ActivityReg.sharedPreferences = getPreferences(MODE_PRIVATE);
-                String savedLogin = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_LOGIN, "");
-                String savedPassword = ActivityReg.sharedPreferences.getString(ActivityReg.SAVED_PASSWORD, "");
+                String savedLogin = sharedPreferences.getString(ActivityReg.SAVED_LOGIN, "");
+                String savedPassword = sharedPreferences.getString(ActivityReg.SAVED_PASSWORD, "");
                 //pass.setText(savedLogin);
                 //login.setText(savedPassword);
-                if (loginT.equals(savedLogin) && passT.equals(savedPassword)){
-=======
-                SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
-                String savedText = sharedPreferences.getString(ActivityReg.SAVED_TEXT, "");
-                String savedNum = sharedPreferences.getString(ActivityReg.SAVED_NUM, "");
-                pass.setText(savedText);
-                login.setText(savedNum);
-                if (loginT.equals(savedText) && passT.equals(savedNum)){
->>>>>>> comments
+                if (loginT.equals(savedLogin) && passT.equals(savedPassword)) {
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Авторизация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
-                }
-                else {
+                } else {
                     Toast toast3 = Toast.makeText(getApplicationContext(),
                             "Такого пароля или имени пользователя не существует в системе", Toast.LENGTH_LONG);
                     toast3.show();

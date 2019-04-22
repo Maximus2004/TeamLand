@@ -42,6 +42,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     EditText pass, login;
+    //Attempt to invoke virtual method 'android.content.SharedPreferences android.content.Context.getSharedPreference
     SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
 
     @Override

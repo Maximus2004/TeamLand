@@ -111,7 +111,7 @@ public class ActivityReg extends AppCompatActivity {
 
                     //EditText edit = findViewById(R.id.editText6);
                     //edit.setText(describtionText.getText());
-                    finish();
+                    //finish();
                     //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
                 }
             }

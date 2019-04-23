@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maxim.myproject.utils.MySharedPrefs;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
@@ -144,18 +145,11 @@ public class ActivityReg extends AppCompatActivity {
     }
 
     void saveData() {
-        // преференсы можно сделать локальные
-        // текущий вызов достает преференсы ТОЛЬКО для активити
-        // чтобы они были для всего приложения нужно вызывать getPreferences("текст1", MODE_PRIVATE)
-        // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
-        // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
-        // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
-        SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = MySharedPrefs.getAppPreferences(this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
         editor.putString(SAVED_LOGIN, nickEditString);
         editor.putString(SAVED_PASSWORD, firstPasswordEditString);
-        editor.commit();
+        editor.apply();
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
     private void creatingUser(String userId, String name, String password){

@@ -42,13 +42,19 @@ import static android.Manifest.permission.READ_CONTACTS;
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     EditText pass, login;
-    //Attempt to invoke virtual method 'android.content.SharedPreferences android.content.Context.getSharedPreference
-    SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
+    // Attempt to invoke virtual method 'android.content.SharedPreferences android.content.Context.getSharedPreference
+    // выше не полная информация об ошибки, нужно весь текст:
+    // Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'android.content.SharedPreferences android.content.Context.getSharedPreferences(java.lang.String, int)' on a null object
+    // Что примерно: ошибка нулового указателя: пытаешься вызвать метод у объекта, который null.
+    // Причина: объект context еще не готов к использованию. Надо перенести этот код в место вызыва или в onCreate
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        // вот так
+        sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
 
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @SuppressLint("WrongViewCast")
@@ -58,6 +64,8 @@ public class LoginActivity extends AppCompatActivity {
                 login = findViewById(R.id.email);
                 String passT = pass.getText().toString();
                 String loginT = login.getText().toString();
+                // или так
+                // SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
                 String savedLogin = sharedPreferences.getString(ActivityReg.SAVED_LOGIN, "");
                 String savedPassword = sharedPreferences.getString(ActivityReg.SAVED_PASSWORD, "");
                 //pass.setText(savedLogin);

@@ -107,13 +107,12 @@ public class ActivityReg extends AppCompatActivity {
 
                     mDatabase = FirebaseDatabase.getInstance().getReference();
                     writeNewUser("0", nickEditString, firstPasswordEditString, describtionEditString);
-                            Log.d("APP", "Я зашёл в onCreate()");
-                            Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Я зашёл в onCreate()", Toast.LENGTH_SHORT);
-                            toast.show();
-                        }
-                Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                startActivity(intent);
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                                    "Я зашёл в условие обработки нажатия на 'регистрацию'", Toast.LENGTH_SHORT);
+                    toast.show();
+                    Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
+                    startActivity(intent);
+                }
 
                 }
                 //finish();

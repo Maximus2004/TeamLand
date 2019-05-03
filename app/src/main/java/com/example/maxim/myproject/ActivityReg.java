@@ -12,9 +12,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -36,6 +39,8 @@ public class ActivityReg extends AppCompatActivity {
     private DatabaseReference mDatabase;
     String mainCountClientsString;
     int mainCountClientsInt = 0;
+    boolean flag = true;
+    String dataSnapshot2 = "0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,32 +98,61 @@ public class ActivityReg extends AppCompatActivity {
                 // сделать одним if
                 if (!checkingSecondPasswordEdit || !checkingFirstPasswordEdit || !checkingNickPasswordEdit || !checkingDescribtionPasswordEdit) {
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Форма заполенна некорректно((", Toast.LENGTH_LONG);
+                            "Форма заполенна некорректно", Toast.LENGTH_LONG);
                     toast.show();
                 }
+                // если я уберу это условие, то добавление пользователей не будет работать))
                 if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
-                    // вызов другого активити перенести в самый ни
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
-
                     mDatabase = FirebaseDatabase.getInstance().getReference();
-                    writeNewUser("0", nickEditString, firstPasswordEditString, describtionEditString);
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Я зашёл в условие обработки нажатия на 'регистрацию'", Toast.LENGTH_SHORT);
-                    toast.show();
-                    Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                    startActivity(intent);
                 }
+                ValueEventListener listenerAtOnce = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT);
+                        toast.show();
+                        for (int i = 0; i < Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()); i++) {    //i < id
+                            if (dataSnapshot.child("client" + String.valueOf(i)).child("login").getValue().toString().equals(nickEditString)) {
+                                flag = false;
+                            }
+                        }
+                        if (!flag) {
+                            Toast toast9 = Toast.makeText(getApplicationContext(),
+                                    "Ники совпали", Toast.LENGTH_SHORT);
+                            toast9.show();
+                            flag = true;
+                        } else if (flag && checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
+                            Toast toast9 = Toast.makeText(getApplicationContext(),
+                                    "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT);
+                            toast9.show();
+                            mainCountClientsInt++;
+                            mainCountClientsString = String.valueOf(mainCountClientsInt);
+                            mDatabase = FirebaseDatabase.getInstance().getReference();
+                            dataSnapshot2 = dataSnapshot.child("maxId").getValue().toString();
+                            writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
+                            mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
+                            Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
+                            startActivity(intent);
+                        }
+                    }
 
-                }
-                //finish();
-                //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
-
-
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                };
+                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+            }
+            //finish();
+            //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
         };
         registrationButton = findViewById(R.id.button4);
         registrationButton.setOnClickListener(oclBtnReg);
@@ -149,9 +183,10 @@ public class ActivityReg extends AppCompatActivity {
         editor.commit();
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
+
     private void writeNewUser(String userId, String login, String password, String description) {
         User user = new User(userId, login, password, description);
-        mDatabase.child("client" + mainCountClientsString).setValue(user);
+        mDatabase.child("client" + dataSnapshot2);
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Зашёл в writeNewUser", Toast.LENGTH_SHORT);
         toast.show();

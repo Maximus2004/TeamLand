@@ -1,24 +1,26 @@
 package com.example.maxim.myproject;
 
-//@IgnoreExtraProperties
+import com.google.firebase.database.IgnoreExtraProperties;
+
+@IgnoreExtraProperties
 public class User {
-    public String firstName;
-    public String lastName;
-    public String userName;
-    public String phone;
-    public String gender;
-    public int age;
+
+    public String userId;
+    public String login;
+    public String password;
+    public String description;
 
     public User() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String firstName, String lastName, String userName, String phone, String gender, int age) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.userName = userName;
-        this.phone = phone;
-        this.gender = gender;
-        this.age = age;
+    public User(String userId, String login, String password, String description) {
+        this.userId = userId;
+        this.login = login;
+        this.password = password;
+        this.description = description;
     }
+
 }
+
 

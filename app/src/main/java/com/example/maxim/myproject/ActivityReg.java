@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,10 +29,13 @@ public class ActivityReg extends AppCompatActivity {
     static final String SAVED_PASSWORD = "PASSWORD";
     String nickEditString;
     String firstPasswordEditString;
+    String describtionEditString;
     Button registrationButton, authButton;
     EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
     TextView firstPasswordText, secondPasswordText, nickText, describtionText;
     private DatabaseReference mDatabase;
+    String mainCountClientsString;
+    int mainCountClientsInt = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,7 @@ public class ActivityReg extends AppCompatActivity {
                 describtionText = findViewById(R.id.textView16);
                 describtion = findViewById(R.id.editText7);
                 nickEditString = nickEditText.getText().toString();
-                String describtionEditString = describtion.getText().toString();
+                describtionEditString = describtion.getText().toString();
                 firstPasswordEditString = theFirstPassword.getText().toString();
                 String secondPasswordEditString = theSecondPassword.getText().toString();
                 // можно сделать один if
@@ -93,28 +97,29 @@ public class ActivityReg extends AppCompatActivity {
                     toast.show();
                 }
                 if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
-                    // вызов другого активити перенести в самый низ
-                    Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                    startActivity(intent);
+                    // вызов другого активити перенести в самый ни
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
-                    //creatingUser("2", "Maximus", "09062004m");
+                    mainCountClientsInt++;
+                    mainCountClientsString = String.valueOf(mainCountClientsInt);
 
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference databaseReference = database.getReference().child("users").child("bUR9KYcU7o3U12WMYalh");
-                    HashMap<String,String> user = new HashMap<>();
-                    user.put("RollNo","1");
-                    user.put("LaLaLa","Jayesh");
-                    databaseReference.setValue(user);
+                    mDatabase = FirebaseDatabase.getInstance().getReference();
+                    writeNewUser("0", nickEditString, firstPasswordEditString, describtionEditString);
+                            Log.d("APP", "Я зашёл в onCreate()");
+                            Toast toast = Toast.makeText(getApplicationContext(),
+                                    "Я зашёл в onCreate()", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
+                startActivity(intent);
 
-                    //EditText edit = findViewById(R.id.editText6);
-                    //edit.setText(describtionText.getText());
-                    //finish();
-                    //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
                 }
-            }
+                //finish();
+                //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
+
+
         };
         registrationButton = findViewById(R.id.button4);
         registrationButton.setOnClickListener(oclBtnReg);
@@ -128,19 +133,6 @@ public class ActivityReg extends AppCompatActivity {
         };
         authButton = findViewById(R.id.button5);
         authButton.setOnClickListener(oclBtn);
-    }
-
-    @IgnoreExtraProperties
-    public class User {
-        public String username;
-        public String password;
-        public User() {
-            // Default constructor required for calls to DataSnapshot.getValue(User.class)
-        }
-        public User(String username, String password) {
-            this.username = username;
-            this.password = password;
-        }
     }
 
     void saveData() {
@@ -158,12 +150,11 @@ public class ActivityReg extends AppCompatActivity {
         editor.commit();
         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
     }
-    private void creatingUser(String userId, String name, String password){
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        writeNewUser(userId, name, password);
-    }
-    private void writeNewUser(String userId, String name, String password) {
-        User user = new User(name, password);
-        mDatabase.child("users").child(userId).setValue(user);
+    private void writeNewUser(String userId, String login, String password, String description) {
+        User user = new User(userId, login, password, description);
+        mDatabase.child("client" + mainCountClientsString).setValue(user);
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Зашёл в writeNewUser", Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

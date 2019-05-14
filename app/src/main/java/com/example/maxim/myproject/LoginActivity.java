@@ -34,6 +34,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +46,69 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
+    DatabaseReference mDatabase;
+    boolean isUserRegistrated = true;
+    EditText pass, login;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        View.OnClickListener oclBtnReg = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pass = findViewById(R.id.password);
+                login = findViewById(R.id.email);
+                final String passT = pass.getText().toString();
+                final String loginT = login.getText().toString();
+                ValueEventListener listenerAtOnce = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
+                        int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
+                        for (int i = 0; i < maxId; i++) {    //i < id
+                            Object login = dataSnapshot.child("client" + i).child("login").getValue();
+                            Object password = dataSnapshot.child("client" + i).child("password").getValue();
+                            if (login != null && password != null && login.toString().equals(loginT) && password.toString().equals(passT)) {
+                                // нашли похожий, останавливаем цикл
+                                isUserRegistrated = false;
+                                break;
+                            }
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                };
+                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+                if (isUserRegistrated){
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Такого пользователя не существует", Toast.LENGTH_SHORT);
+                    toast.show();
+                } else{
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Вход успешно выполнен", Toast.LENGTH_SHORT);
+                    toast.show();
+                    Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+                    startActivity(intent);
+                    // финишируем активити при успешной авторизации
+                    finish();
+                }
+            }
+        };
+        btnLogin = findViewById(R.id.email_sign_in_button);
+        btnLogin.setOnClickListener(oclBtnReg);
+    }
+}
+
+
+
+//бывший код (только содержимое класса)
+
+    /*Button btnLogin;
     EditText pass, login;
     // Attempt to invoke virtual method 'android.content.SharedPreferences android.content.Context.getSharedPreference
     // выше не полная информация об ошибки, нужно весь текст:
@@ -57,7 +125,6 @@ public class LoginActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
 
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
-            @SuppressLint("WrongViewCast")
             @Override
             public void onClick(View v) {
                 pass = findViewById(R.id.password);
@@ -83,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
         };
         btnLogin = findViewById(R.id.email_sign_in_button);
         btnLogin.setOnClickListener(oclBtnReg);
-    }
-}
+    }*/
 
 

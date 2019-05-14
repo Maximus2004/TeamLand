@@ -3,9 +3,8 @@ package com.example.maxim.myproject;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,31 +15,28 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-
 public class ActivityReg extends AppCompatActivity {
+    // должны быть static
+    static final String SAVED_LOGIN = "LOGIN";
+    static final String SAVED_PASSWORD = "PASSWORD";
     // не получается сделать локальными, потому что нельзя, чтобы были final
     boolean checkingSecondPasswordEdit = true;
     boolean checkingFirstPasswordEdit = true;
     boolean checkingNickPasswordEdit = true;
     boolean checkingDescribtionPasswordEdit = true;
-    // должны быть static
-    static final String SAVED_LOGIN = "LOGIN";
-    static final String SAVED_PASSWORD = "PASSWORD";
     String nickEditString;
     String firstPasswordEditString;
     String describtionEditString;
     Button registrationButton, authButton;
     EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
     TextView firstPasswordText, secondPasswordText, nickText, describtionText;
-    private DatabaseReference mDatabase;
     String mainCountClientsString;
     int mainCountClientsInt = 0;
-    boolean flag = true;
+    boolean isLoginAlreadyInUse = true;
     String dataSnapshot2 = "0";
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,60 +96,70 @@ public class ActivityReg extends AppCompatActivity {
                     Toast toast = Toast.makeText(getApplicationContext(),
                             "Форма заполенна некорректно", Toast.LENGTH_LONG);
                     toast.show();
-                }
-                // если я уберу это условие, то добавление пользователей не будет работать))
-                if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
+                } else { // а если так? и я передвинул закрывающую скобку в нужное место
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
+                    // зачем эти два поля?
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
                     mDatabase = FirebaseDatabase.getInstance().getReference();
-                }
-                ValueEventListener listenerAtOnce = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT);
-                        toast.show();
-                        for (int i = 0; i < Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()); i++) {    //i < id
-                            if (dataSnapshot.child("client" + String.valueOf(i)).child("login").getValue().toString().equals(nickEditString)) {
-                                flag = false;
+
+                    ValueEventListener listenerAtOnce = new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
+                            // сбрасываем флаг
+                            isLoginAlreadyInUse = false;
+                            // так более читабельное
+                            int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
+                            for (int i = 0; i < maxId; i++) {    //i < id
+                                // можно не приводить i к String, в таком виде тоже сработает
+                                Object entity = dataSnapshot.child("client" + i).child("login").getValue();
+                                // entity может быть NULL
+                                // потому что из-за разных тестов maxId стал больше, чем есть записей
+                                if (entity != null && entity.toString().equals(nickEditString)) {
+                                    // нашли похожий, останавливаем цикл
+                                    isLoginAlreadyInUse = true;
+                                    break;
+                                }
+                            }
+
+                            if (isLoginAlreadyInUse) {
+                                Toast.makeText(getApplicationContext(), "Ники совпали", Toast.LENGTH_SHORT).show();
+
+                                // не вижу смысл этого условия – выше его уже проверили и тупо сюда не попадем
+                                // по хорошему ник надо проверять там же, где ввод проверяется, а не тут
+//                            } else if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
+                                mainCountClientsInt++;
+                                mainCountClientsString = String.valueOf(mainCountClientsInt);
+                                mDatabase = FirebaseDatabase.getInstance().getReference();
+                                // очень странная логика с dataSnapshot2
+                                dataSnapshot2 = dataSnapshot.child("maxId").getValue().toString();
+                                writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
+                                mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
+                                Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
+                                startActivity(intent);
+                                // финишируем активити при успешной регистрации
+                                finish();
                             }
                         }
-                        if (!flag) {
-                            Toast toast9 = Toast.makeText(getApplicationContext(),
-                                    "Ники совпали", Toast.LENGTH_SHORT);
-                            toast9.show();
-                            flag = true;
-                        } else if (flag && checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
-                            Toast toast9 = Toast.makeText(getApplicationContext(),
-                                    "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT);
-                            toast9.show();
-                            mainCountClientsInt++;
-                            mainCountClientsString = String.valueOf(mainCountClientsInt);
-                            mDatabase = FirebaseDatabase.getInstance().getReference();
-                            dataSnapshot2 = dataSnapshot.child("maxId").getValue().toString();
-                            writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
-                            mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
-                            Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                            startActivity(intent);
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast toast = Toast.makeText(getApplicationContext(),
-                                "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
-                };
-                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Toast toast = Toast.makeText(getApplicationContext(),
+                                    "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
+                            toast.show();
+                        }
+                    };
+                    mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+                }
             }
-            //finish();
-            //как сделать так, чтобы на активность регитстрации вообще нельзя было попасть, пока пользователь не нажмёт на кнопку выхода?
         };
+
         registrationButton = findViewById(R.id.button4);
         registrationButton.setOnClickListener(oclBtnReg);
 
@@ -162,10 +168,15 @@ public class ActivityReg extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ActivityReg.this, LoginActivity.class);
                 startActivity(intent);
+                // финишируем активити при переходе на логин
+                // но вернуться на него можно будет только после перезапуска приложения
+                // наверное, нужна кнопка перехода на регистрацию с LoginACtivity? :)
+                finish();
             }
         };
         authButton = findViewById(R.id.button5);
         authButton.setOnClickListener(oclBtn);
+
     }
 
     void saveData() {
@@ -186,7 +197,7 @@ public class ActivityReg extends AppCompatActivity {
 
     private void writeNewUser(String userId, String login, String password, String description) {
         User user = new User(userId, login, password, description);
-        mDatabase.child("client" + dataSnapshot2);
+        mDatabase.child("client" + dataSnapshot2).setValue(user);
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Зашёл в writeNewUser", Toast.LENGTH_SHORT);
         toast.show();

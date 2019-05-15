@@ -41,6 +41,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 else{
                     star.setImageResource(android.R.drawable.btn_star_big_off);
                     h[0] = false;
+
                 }
             }
         };

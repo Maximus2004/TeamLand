@@ -26,6 +26,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     String item;
@@ -150,6 +151,19 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         MainAdapter adapter = new MainAdapter(this, makeMonth());
         ListView lv = (ListView) findViewById(R.id.listView);
         lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //если раскомментировать строки ниже, то всё так же не работает
+//                if (view.getId() == R.id.buttonMore) {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            position, Toast.LENGTH_SHORT);
+                    toast.show();
+  //              }
+            }
+
+        });
     }
 
     // Метод cоздания массива заявок

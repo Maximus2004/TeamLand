@@ -86,7 +86,7 @@
                     android:translationY="194dp" />
 
                 <Button
-                    android:id="@+id/button0"
+                    android:id="@+id/buttonMore"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"
                     android:layout_width="wrap_content"
                     android:layout_height="37dp"

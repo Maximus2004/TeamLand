@@ -38,6 +38,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +47,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
-    DatabaseReference mDatabase;
+    private DatabaseReference mDatabase;
     boolean isUserRegistrated = true;
     EditText pass, login;
 
@@ -83,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                         toast.show();
                     }
                 };
+                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
                 if (isUserRegistrated){
                     Toast toast = Toast.makeText(getApplicationContext(),

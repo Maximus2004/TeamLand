@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,12 +29,21 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     String item;
     int pos;
     ImageButton burger;
     ActivityReg reg = new ActivityReg();
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
+    DatabaseReference mDatabase;
 
     // очень длинный метод, разбить на мелкие
     @Override
@@ -156,20 +166,74 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //если раскомментировать строки ниже, то всё так же не работает
-//                if (view.getId() == R.id.buttonMore) {
+                if (view.getId() == R.id.buttonMore) {
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            position, Toast.LENGTH_SHORT);
+                            "" + position, Toast.LENGTH_SHORT);
                     toast.show();
-  //              }
+                }
             }
 
         });
     }
 
-    // Метод cоздания массива заявок
     AdapterElement[] makeMonth() {
+        final AdapterElement[][] arr = new AdapterElement[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                ArrayList mainNames = new ArrayList();
+                ArrayList ambitions = new ArrayList();
+                ArrayList experiences = new ArrayList();
+                ArrayList examples = new ArrayList();
+                ArrayList users = new ArrayList();
+                ArrayList applicationIdes = new ArrayList();
+                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
+                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiences.add(dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examples.add(dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("user").getValue().toString());
+                        applicationIdes.add(i + "");
+                    }
+                }
+                arr[0] = new AdapterElement[users.size()];
+                /*String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
+                String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
+                String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
+                String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
+                String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};*/
+                // Сборка заявок
+                for (int i = 0; i < arr[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = mainNames.get(i).toString();
+                    month.ambition = ambitions.get(i).toString();
+                    month.experience = experiences.get(i).toString();
+                    month.example = examples.get(i).toString();
+                    month.user = users.get(i).toString();
+                    month.applicationId = applicationIdes.get(i).toString();
+                    arr[0][i] = month;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+        return arr[0];
+    }
+    // предыдущий код
+    // Метод cоздания массива заявок
+    /*AdapterElement[] makeMonth() {
         AdapterElement[] arr = new AdapterElement[6];
-        String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
+        ArrayList mainNames = new ArrayList();
+        mainNames.add("Васька");
+        for (int i = 0; i <)
+            String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
         String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
         String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
         String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
@@ -185,7 +249,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             arr[i] = month;
         }
         return arr;
-    }
+    }*/
 
 
     @Override

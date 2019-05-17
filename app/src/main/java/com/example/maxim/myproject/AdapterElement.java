@@ -6,4 +6,5 @@ public class AdapterElement {
     String experience = ""; // Опыт
     String example = ""; // Наличие примера
     String user = ""; //Имя пользователя
+    String applicationId = ""; //и так понятно))
 }

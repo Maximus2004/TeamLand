@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,16 +16,24 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.IOException;
 
-public class CreateApplication extends AppCompatActivity {
+public class CreateApplication extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     String item;
     String item2;
     Button btn;
@@ -32,7 +41,7 @@ public class CreateApplication extends AppCompatActivity {
     int count2 = 0;
     TextView t1, t2, t11, t4, t5, t6, text, t8;
     Button btn2;
-    EditText edit;
+    EditText purposeEditText;
     int mainCount = 0;
     Button button;
     ScrollView scroll;
@@ -43,6 +52,7 @@ public class CreateApplication extends AppCompatActivity {
     boolean itemFlag1, itemFlag2 = false;
     String main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Наприер, 'unityпрограммист'" + "\n";
     boolean words, words2 = true;
+    boolean isExample = false;
     AlertDialog.Builder builder5;
     int pos, pos2, h;
     boolean flag = false;
@@ -54,11 +64,19 @@ public class CreateApplication extends AppCompatActivity {
     static final int GALLERY_REQUEST = 1;
     String[] cities = {"Сфера программирования:", "Создание игр", "Создание сайтов", "Создание приложений"};
     String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интеренете", "Оффлайн бизнес"};
+    DatabaseReference mDatabase;
+    String exampleText = "";
+    String resOpit, resName, resCan, resOther, resOpis, resHash, resVK, resCont, resOtherVar, resPurpose, mainItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_application);
+
+        Switch exampleSwitch = (Switch) findViewById(R.id.example);
+        if (exampleSwitch != null) {
+            exampleSwitch.setOnCheckedChangeListener(this);
+        }
 
         btn = (Button) findViewById(R.id.btn2);
         btn2 = (Button) findViewById(R.id.button2);
@@ -89,7 +107,7 @@ public class CreateApplication extends AppCompatActivity {
             public void onClick(View v) {
                 //прошу прощения за циферки в названиях переменных((
                 mainCount++;
-                edit = findViewById(R.id.editText2);
+                purposeEditText = findViewById(R.id.editText2);
                 name = findViewById(R.id.name);
                 hashs = findViewById(R.id.hashTegs);
                 opisanie = findViewById(R.id.opisanie);
@@ -100,7 +118,7 @@ public class CreateApplication extends AppCompatActivity {
                 contact = findViewById(R.id.phone);
                 vkText = findViewById(R.id.vk);
                 op1 = findViewById(R.id.experience);
-                String result = edit.getText().toString();
+                String result = purposeEditText.getText().toString();
                 t1 = findViewById(R.id.textView2);
                 t6 = findViewById(R.id.textView6);
                 t2 = findViewById(R.id.textView3);
@@ -109,15 +127,16 @@ public class CreateApplication extends AppCompatActivity {
                 t5 = findViewById(R.id.textView5);
                 t8 = findViewById(R.id.textView8);
                 int j = 0;
-                String resName = name.getText().toString();
-                String resOpis = opisanie.getText().toString();
-                String resHash = hashs.getText().toString();
-                String resVK = vkText.getText().toString();
-                String resCont = contact.getText().toString();
-                String resOther = othe.getText().toString();
-                String resCan = cani.getText().toString();
-                String resOpit = op1.getText().toString();
-                String resOtherVar = other.getText().toString();
+                resName = name.getText().toString();
+                resOpis = opisanie.getText().toString();
+                resHash = hashs.getText().toString();
+                resVK = vkText.getText().toString();
+                resCont = contact.getText().toString();
+                resOther = othe.getText().toString();
+                resCan = cani.getText().toString();
+                resOpit = op1.getText().toString();
+                resOtherVar = other.getText().toString();
+                resPurpose = purposeEditText.getText().toString();
 
                 // можно написать проще через !result.contains(" ") без цикла
                 for (int i = 0; i < result.length(); i++) {
@@ -125,7 +144,7 @@ public class CreateApplication extends AppCompatActivity {
                         f = true;
                     }
                 }
-                if (edit.equals("") || !f) {
+                if (purposeEditText.equals("") || !f) {
                     mainFlag = false;
                     mainFlag2 = false;
                     t11.setTextColor(Color.RED);
@@ -225,14 +244,6 @@ public class CreateApplication extends AppCompatActivity {
                 } else {
                     t6.setTextColor(Color.BLACK);
                 }
-                if (!flag && count == 0) {
-                    button.setBackgroundColor(Color.RED);
-                    mainFlag = false;
-                    check = false;
-                    main += "\n"+"Вы не загрузили пример вашей работы (это не обязательно, но благодаря примеру, у будущих сокомандников возрастёт доверие к вам (это поможет вам собрать команду)). Чтобы перейти дальше нажмите 'Понятно, исправлю' и 'Готово'" + "\n";
-                } else {
-                    button.setBackgroundColor(Color.BLUE);
-                }
                 for (int i = 0; i < resOtherVar.length(); i++) {
                     if (resOtherVar.charAt(i) == ' ') {
                         j++;
@@ -255,11 +266,38 @@ public class CreateApplication extends AppCompatActivity {
                     t8.setTextColor(Color.BLACK);
                 }
                 if (mainFlag || !check && mainCount > 2 && mainFlag2) {
+                    Toast.makeText(getApplicationContext(), "Все поля верно заполнены", Toast.LENGTH_SHORT).show();
+                    mDatabase = FirebaseDatabase.getInstance().getReference();
+                    if (isExample) {
+                        exampleText = "есть";
+                    } else {
+                        exampleText = "нет";
+                    }
+                    if (pos == 0 && resOtherVar.equals("")) {
+                        mainItem = item2;
+                    } else if (pos2 == 0 && resOtherVar.equals("")) {
+                        mainItem = item;
+                    } else if (pos == 0 && pos2 == 0) {
+                        mainItem = resOtherVar;
+                    }
+                    ValueEventListener listenerAtOnce = new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                            mDatabase = FirebaseDatabase.getInstance().getReference();
+                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), "Maximus", exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
+                            mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                        }
+                    };
+
+                    mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
                     Intent intent = new Intent(CreateApplication.this, MostMainActivity.class);
                     startActivity(intent);
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Заявка успешно опубликована!", Toast.LENGTH_LONG);
-                    toast.show();
                 }
                 if (!mainFlag) {
                     builder5 = new AlertDialog.Builder(CreateApplication.this);
@@ -270,7 +308,7 @@ public class CreateApplication extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             dialog.cancel();
-                                            main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Наприер, 'unityпрограммист'" + "\n";
+                                            main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Например, 'unityпрограммист'" + "\n";
                                         }
                                     });
                     AlertDialog alert5 = builder5.create();
@@ -314,17 +352,6 @@ public class CreateApplication extends AppCompatActivity {
         };
         btn2.setOnClickListener(oclBtnOk2);
 
-        button = findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-                photoPickerIntent.setType("image/*");
-                startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
-            }
-        });
-
         Spinner spinner = (Spinner) findViewById(R.id.razdelProgram);
         Spinner spinner2 = (Spinner) findViewById(R.id.spinner2);
         // Создаем адаптер ArrayAdapter с помощью массива строк и стандартной разметки элемета spinner
@@ -366,14 +393,25 @@ public class CreateApplication extends AppCompatActivity {
         spinner2.setOnItemSelectedListener(itemSelectedListener2);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setTitle("Формирование заявки");
+
+        getSupportActionBar().
+
+                setDisplayHomeAsUpEnabled(true);
+
+        getSupportActionBar().
+
+                setDisplayShowHomeEnabled(true);
+
+        getSupportActionBar().
+
+                setTitle("Формирование заявки");
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent
+            imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
         Bitmap bitmap = null;
@@ -403,6 +441,23 @@ public class CreateApplication extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void writeNewApplication(String applicationId, String creator,
+                                     String example, String experience, String name, String purpose, String section, String other, String phone, String vk, String can, String descriptionApplication) {
+        Application application = new Application(applicationId, creator, example, experience, name, purpose, section, other, phone, vk, can, descriptionApplication);
+        mDatabase.child("applications").child("application"+applicationId).setValue(application);
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);
+        toast.show();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked)
+            isExample = true;
+        else
+            isExample = false;
     }
 }
 

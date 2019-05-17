@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:descendantFocusability="blocksDescendants"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
@@ -56,6 +57,17 @@
                     android:paddingBottom="20dp"
                     android:text="  Цель"
                     android:textColor="#710c65"
+                    android:textSize="18dp" />
+
+                <TextView
+                    android:id="@+id/applicationID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="148dp"
+                    android:layout_gravity="left|center"
+                    android:gravity="top"
+                    android:paddingBottom="20dp"
+                    android:text=""
+                    android:textColor="#ffffff"
                     android:textSize="18dp" />
 
                 <ImageButton

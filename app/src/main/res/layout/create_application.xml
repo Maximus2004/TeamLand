@@ -199,15 +199,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="32dp" />
 
-            <Button
-                android:id="@+id/button"
-                style="@style/Widget.AppCompat.Button.Colored"
+            <Switch
+                android:id="@+id/example"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:elevation="6dp"
-                android:stateListAnimator="@null"
-                android:text="Загрузить изображение - пример вашей работы"
-                android:translationZ="4dp" />
+                android:text="Готов(-а) предоставить пример своей работы в данной сфере?"
+                android:textSize="17sp"/>
 
             <Space
                 android:layout_width="match_parent"

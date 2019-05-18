@@ -38,7 +38,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
         ((TextView) convertView.findViewById(R.id.experience)).setText(String.valueOf(month.experience));
         ((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
-        ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
+//        ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);

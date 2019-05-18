@@ -44,6 +44,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     ActivityReg reg = new ActivityReg();
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
+    ListView lv;
 
     // очень длинный метод, разбить на мелкие
     @Override
@@ -158,10 +159,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
-        MainAdapter adapter = new MainAdapter(this, makeMonth());
-        ListView lv = (ListView) findViewById(R.id.listView);
-        lv.setAdapter(adapter);
-
+        lv = findViewById(R.id.listView);
+        makeMonth();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -176,7 +175,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         });
     }
 
-    AdapterElement[] makeMonth() {
+    private void makeMonth() {
         final AdapterElement[][] arr = new AdapterElement[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
@@ -194,11 +193,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
                         experiences.add(dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
                         examples.add(dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
-                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("user").getValue().toString());
+//                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("user").getValue().toString());
                         applicationIdes.add(i + "");
                     }
                 }
-                arr[0] = new AdapterElement[users.size()];
+                arr[0] = new AdapterElement[mainNames.size()];
+//                arr[0] = new AdapterElement[users.size()];
                 /*String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
                 String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
                 String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
@@ -211,10 +211,13 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     month.ambition = ambitions.get(i).toString();
                     month.experience = experiences.get(i).toString();
                     month.example = examples.get(i).toString();
-                    month.user = users.get(i).toString();
+//                    month.user = users.get(i).toString();
                     month.applicationId = applicationIdes.get(i).toString();
                     arr[0][i] = month;
                 }
+
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
+                lv.setAdapter(adapter);
             }
 
             @Override
@@ -224,7 +227,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         };
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-        return arr[0];
     }
     // предыдущий код
     // Метод cоздания массива заявок

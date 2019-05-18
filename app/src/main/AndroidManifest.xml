@@ -37,7 +37,8 @@
         <activity android:name=".MyApplications" />
         <activity
             android:name=".MostMainActivity"
-            android:label="@string/title_activity_main3"></activity>
+            android:label="@string/title_activity_main3" />
+        <activity android:name=".moreAboutApplication"></activity>
     </application>
 
 </manifest>

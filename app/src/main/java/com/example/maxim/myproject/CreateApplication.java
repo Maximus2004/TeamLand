@@ -294,8 +294,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     };
 
                     mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                    Intent intent = new Intent(CreateApplication.this, MostMainActivity.class);
-                    startActivity(intent);
+                    // оно уже открыто, просто закрой это activity.
+                    finish();
                 }
                 if (!mainFlag) {
                     builder5 = new AlertDialog.Builder(CreateApplication.this);

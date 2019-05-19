@@ -1,37 +1,13 @@
 package com.example.maxim.myproject;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -40,15 +16,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
-
 public class LoginActivity extends AppCompatActivity {
     Button btnLogin;
     private DatabaseReference mDatabase;
-    boolean isUserRegistrated = true;
+    // больше не нужно, но если захочешь использовать назови лучше isUserExists = false.
+//    boolean isUserRegistrated = true;
     EditText pass, login;
     String userName;
 
@@ -56,6 +28,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,11 +47,26 @@ public class LoginActivity extends AppCompatActivity {
                             Object password = dataSnapshot.child("client" + i).child("password").getValue();
                             if (login != null && password != null && login.toString().equals(loginT) && password.toString().equals(passT)) {
                                 // нашли совпадение, останавливаем цикл
-                                isUserRegistrated = false;
                                 userName = loginT;
-                                break;
+                                // уведомляем пользователя, что все успешно прошло
+                                Toast toast = Toast.makeText(getApplicationContext(),
+                                        "Вход успешно выполнен", Toast.LENGTH_SHORT);
+                                toast.show();
+                                // переходим на главный экран
+                                Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+                                startActivity(intent);
+                                // финишируем активити при успешной авторизации
+                                finish();
+                                // уходим из метода, так как все успешно
+                                return;
                             }
                         }
+
+                        // такого юзера нет, сообщаем пользователю
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Такого пользователя не существует", Toast.LENGTH_SHORT);
+                        toast.show();
+
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -86,23 +75,10 @@ public class LoginActivity extends AppCompatActivity {
                         toast.show();
                     }
                 };
-                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                if (isUserRegistrated){
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Такого пользователя не существует", Toast.LENGTH_SHORT);
-                    toast.show();
-                } else{
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Вход успешно выполнен", Toast.LENGTH_SHORT);
-                    toast.show();
-                    Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
-                    startActivity(intent);
-                    // финишируем активити при успешной авторизации
-                    finish();
-                }
             }
         };
+
         btnLogin = findViewById(R.id.email_sign_in_button);
         btnLogin.setOnClickListener(oclBtnReg);
     }

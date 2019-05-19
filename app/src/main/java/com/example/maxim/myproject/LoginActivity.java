@@ -50,6 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     boolean isUserRegistrated = true;
     EditText pass, login;
+    String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +72,9 @@ public class LoginActivity extends AppCompatActivity {
                             Object login = dataSnapshot.child("client" + i).child("login").getValue();
                             Object password = dataSnapshot.child("client" + i).child("password").getValue();
                             if (login != null && password != null && login.toString().equals(loginT) && password.toString().equals(passT)) {
-                                // нашли похожий, останавливаем цикл
+                                // нашли совпадение, останавливаем цикл
                                 isUserRegistrated = false;
+                                userName = loginT;
                                 break;
                             }
                         }

@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -39,17 +40,13 @@ import java.util.ArrayList;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     String item;
-    int pos;
+    int pos, clientDescriptionI;
     ImageButton burger;
-    ActivityReg reg = new ActivityReg();
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
-    ArrayList mainNames;
-    ArrayList ambitions;
-    ArrayList experiences;
-    ArrayList examples;
-    ArrayList users;
-    ArrayList applicationIdes;
+    LoginActivity loginActivity = new LoginActivity();
+    EditText edit;
+    ListView lv;
 
     // очень длинный метод, разбить на мелкие
     @Override
@@ -57,9 +54,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.most_main_activity);
         ImageButton btn = findViewById(R.id.imageBtn);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -116,10 +113,204 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         };
         // присвоим обработчик кнопке OK (btnOk)
         burger.setOnClickListener(oclBtn);
+
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        tabHostMethod();
+
+        ValueEventListener listenerAtOnceUserName = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                TextView headerView = findViewById(R.id.headerTextView);
+                headerView.setText(loginActivity.userName);
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnceUserName);
+
+        lv = findViewById(R.id.listView);
+        makeMonth();
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //если раскомментировать строки ниже, то всё так же не работает
+                //if (view.getId() == R.id.buttonMore) {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "" + position, Toast.LENGTH_SHORT);
+                    toast.show();
+                //}
+            }
+
+        });
+    }
+
+    private void makeMonth() {
+        final AdapterElement[][] arr = new AdapterElement[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                ArrayList mainNames = new ArrayList();
+                ArrayList ambitions = new ArrayList();
+                ArrayList experiences = new ArrayList();
+                ArrayList examples = new ArrayList();
+                ArrayList users = new ArrayList();
+                ArrayList applicationIdes = new ArrayList();
+                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
+                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdes.add(i + "");
+                    }
+                }
+                arr[0] = new AdapterElement[mainNames.size()];
+//                arr[0] = new AdapterElement[users.size()];
+                /*String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
+                String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
+                String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
+                String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
+                String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};*/
+                // Сборка заявок
+                for (int i = 0; i < arr[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = mainNames.get(i).toString();
+                    month.ambition = ambitions.get(i).toString();
+                    month.experience = experiences.get(i).toString();
+                    month.example = examples.get(i).toString();
+                    month.user = users.get(i).toString();
+                    month.applicationId = applicationIdes.get(i).toString();
+                    arr[0][i] = month;
+                }
+
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
+                lv.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+    // предыдущий код
+    // Метод cоздания массива заявок
+    /*AdapterElement[] makeMonth() {
+        AdapterElement[] arr = new AdapterElement[6];
+        ArrayList mainNames = new ArrayList();
+        mainNames.add("Васька");
+        for (int i = 0; i <)
+            String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
+        String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
+        String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
+        String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
+        String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};
+        // Сборка заявок
+        for (int i = 0; i < arr.length; i++) {
+            AdapterElement month = new AdapterElement();
+            month.mainName = mainName[i];
+            month.ambition = ambition[i];
+            month.experience = experience[i];
+            month.example = exs[i];
+            month.user = user[i];
+            arr[i] = month;
+        }
+        return arr;
+    }*/
 
 
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main3, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @SuppressLint("ResourceType")
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.favoriets) {
+            Intent intent = new Intent(MostMainActivity.this, Chosen.class);
+            startActivity(intent);
+        } else if (id == R.id.my_applications) {
+            Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
+            startActivity(intent2);
+        } else if (id == R.id.changing_describtion) {
+            edit = findViewById(R.id.editText6);
+            ValueEventListener listenerAtOnceDescription = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    //edit.setText(loginActivity.userName);
+                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++){
+                        if (dataSnapshot.child("client"+i).child("login").getValue() != null && dataSnapshot.child("client"+i).child("login").getValue() == loginActivity.userName){
+                            clientDescriptionI = i;
+                            break;
+                        }
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            };
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            mDatabase.addListenerForSingleValueEvent(listenerAtOnceDescription);
+            AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
+            builder2.setTitle("Редактирование описания")
+                    .setCancelable(false)
+                    .setNegativeButton("Отредактировать",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    mDatabase.child("client"+clientDescriptionI).child("description").setValue(edit.getText());
+                                    dialog.cancel();
+                                }
+                            });
+            LayoutInflater ltInflater = getLayoutInflater();
+            View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
+            AlertDialog alert2 = builder2.create();
+            alert2.setView(view);
+            alert2.getWindow().setLayout(265, 130);
+            alert2.show();
+        } else if (id == R.id.sing_out) {
+            finish();
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    void tabHostMethod() {
         setTitle("TabHost");
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
         tabHost.setup();
@@ -162,168 +353,5 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         tabHost.setCurrentTab(0);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
-        MainAdapter adapter = new MainAdapter(this, makeMonth());
-        ListView lv = (ListView) findViewById(R.id.listView);
-        lv.setAdapter(adapter);
-
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //если раскомментировать строки ниже, то всё так же не работает
-                //if (view.getId() == R.id.buttonMore) {
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "" + position, Toast.LENGTH_SHORT);
-                    toast.show();
-                //}
-            }
-
-        });
-    }
-
-    AdapterElement[] makeMonth() {
-        final AdapterElement[][] arr = new AdapterElement[1][1];
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                mainNames = new ArrayList();
-                ambitions = new ArrayList();
-                experiences = new ArrayList();
-                examples = new ArrayList();
-                users = new ArrayList();
-                applicationIdes = new ArrayList();
-                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
-                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
-                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
-                        experiences.add(dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
-                        examples.add(dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
-                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("user").getValue().toString());
-                        applicationIdes.add(i + "");
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-        arr[0] = new AdapterElement[6];
-        /*String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
-                String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
-                String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
-                String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
-                String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};*/
-        // Сборка заявок
-        for (int i = 0; i < arr[0].length; i++) {
-            AdapterElement month = new AdapterElement();
-            month.mainName = mainNames.get(i).toString();
-            month.ambition = ambitions.get(i).toString();
-            month.experience = experiences.get(i).toString();
-            month.example = examples.get(i).toString();
-            month.user = users.get(i).toString();
-            month.applicationId = applicationIdes.get(i).toString();
-            arr[0][i] = month;
-        }
-        return arr[0];
-    }
-
-    void fullArrayLists(){
-
-    }
-    // предыдущий код
-    // Метод cоздания массива заявок
-    /*AdapterElement[] makeMonth() {
-        AdapterElement[] arr = new AdapterElement[6];
-        ArrayList mainNames = new ArrayList();
-        mainNames.add("Васька");
-        for (int i = 0; i <)
-            String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
-        String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
-        String[] experience = {"  Опыт: 0", "  Опыт: 6", "  Опыт: 1", "  Опыт: 2", "  Опыт: 3", "  Опыт: 9"};
-        String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
-        String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};
-        // Сборка заявок
-        for (int i = 0; i < arr.length; i++) {
-            AdapterElement month = new AdapterElement();
-            month.mainName = mainName[i];
-            month.ambition = ambition[i];
-            month.experience = experience[i];
-            month.example = exs[i];
-            month.user = user[i];
-            arr[i] = month;
-        }
-        return arr;
-    }*/
-
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main3, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // TODO Auto-generated method stub
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressLint("ResourceType")
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.favoriets) {
-            Intent intent = new Intent(MostMainActivity.this, Chosen.class);
-            startActivity(intent);
-        } else if (id == R.id.my_applications) {
-            Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
-            startActivity(intent2);
-        } else if (id == R.id.changing_describtion) {
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
-            builder2.setTitle("Редактирование описания")
-                    .setCancelable(false)
-                    .setNegativeButton("Отредактировать",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    //EditText edit = findViewById(R.id.editText6);
-                                    //edit.setText(edit.getText());
-                                    dialog.cancel();
-                                }
-                            });
-            LayoutInflater ltInflater = getLayoutInflater();
-            View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
-            AlertDialog alert2 = builder2.create();
-            alert2.setView(view);
-            alert2.getWindow().setLayout(265, 130);
-            alert2.show();
-        } else if (id == R.id.sing_out) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }

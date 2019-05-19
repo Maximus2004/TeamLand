@@ -2,10 +2,7 @@ package com.example.maxim.myproject;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -18,8 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -31,42 +26,30 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-
 public class CreateApplication extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
-    String item;
-    String item2;
-    Button btn;
-    int count = 0;
-    int count2 = 0;
-    TextView t1, t2, t11, t4, t5, t6, text, t8;
-    Button btn2;
+    String item, item2;
+    Button btn, btnReady, btn2;
+    TextView t2, t3, t11, t4, t5, t6, text, t8;
     EditText purposeEditText;
     int mainCount = 0;
-    Button button;
-    ScrollView scroll;
-    boolean check = true;
-    boolean h2, h3 = true;
-    EditText name, cani, op1, other, hashs, contact, vkText, othe;
-    EditText opisanie;
-    boolean itemFlag1, itemFlag2 = false;
+    boolean check, h2 = true;
+    EditText name, cani, op1, other, hashs, contact, vkText, othe, opisanie;
     String main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Наприер, 'unityпрограммист'" + "\n";
     boolean words, words2 = true;
-    boolean isExample = false;
     AlertDialog.Builder builder5;
-    int pos, pos2, h;
-    boolean flag = false;
-    boolean f, o, n, u, op = false;
+    int pos, pos2, userI3;
+    boolean isExample = false;
+    boolean checkingSpaces, numberOfWords, n, u, op = false;
     boolean hash = false;
-    boolean mainFlag = true;
-    boolean mainFlag2 = true;
-    Button btnReady;
-    static final int GALLERY_REQUEST = 1;
+    boolean mainFlag, mainFlag2 = true;
+    //static final int GALLERY_REQUEST = 1;
     String[] cities = {"Сфера программирования:", "Создание игр", "Создание сайтов", "Создание приложений"};
     String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интеренете", "Оффлайн бизнес"};
     DatabaseReference mDatabase;
     String exampleText = "";
     String resOpit, resName, resCan, resOther, resOpis, resHash, resVK, resCont, resOtherVar, resPurpose, mainItem;
+    LoginActivity loginActivityCreateApplicationLogin = new LoginActivity();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,9 +102,9 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 vkText = findViewById(R.id.vk);
                 op1 = findViewById(R.id.experience);
                 String result = purposeEditText.getText().toString();
-                t1 = findViewById(R.id.textView2);
+                t2 = findViewById(R.id.textView2);
                 t6 = findViewById(R.id.textView6);
-                t2 = findViewById(R.id.textView3);
+                t3 = findViewById(R.id.textView3);
                 t11 = findViewById(R.id.textView11);
                 t4 = findViewById(R.id.textView4);
                 t5 = findViewById(R.id.textView5);
@@ -138,13 +121,13 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 resOtherVar = other.getText().toString();
                 resPurpose = purposeEditText.getText().toString();
 
-                // можно написать проще через !result.contains(" ") без цикла
+                // написать через !result.contains(" ") без цикла
                 for (int i = 0; i < result.length(); i++) {
                     if (result.charAt(i) != ' ') {
-                        f = true;
+                        checkingSpaces = true;
                     }
                 }
-                if (purposeEditText.equals("") || !f) {
+                if (purposeEditText.equals("") || !checkingSpaces) {
                     mainFlag = false;
                     mainFlag2 = false;
                     t11.setTextColor(Color.RED);
@@ -167,16 +150,16 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 }
                 for (int i = 0; i < resOpis.length(); i++) {
                     if (resOpis.charAt(i) != ' ') {
-                        o = true;
+                        numberOfWords = true;
                     }
                 }
-                if (resOpis.equals("") || !o) {
+                if (resOpis.equals("") || !numberOfWords) {
                     mainFlag = false;
                     mainFlag2 = false;
-                    t2.setTextColor(Color.RED);
+                    t3.setTextColor(Color.RED);
                     main += "\n" + "Поле 'Описание заявки' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
                 } else {
-                    t2.setTextColor(Color.BLACK);
+                    t3.setTextColor(Color.BLACK);
                 }
                 for (int i = 0; i < resName.length(); i++) {
                     if (resName.charAt(i) != ' ') {
@@ -186,10 +169,10 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 if (name.equals("") || !n) {
                     mainFlag = false;
                     mainFlag2 = false;
-                    t1.setTextColor(Color.RED);
+                    t2.setTextColor(Color.RED);
                     main += "\n" + "Поле 'Наименование вашей заявки' или не заполенено (надо обязатльно <- это исправить), или там перечислено сразу несколько специальностей (так лучше не делать, потому что возрастает вероятность того, что вы не соберёте команду)" + "\n";
                 } else {
-                    t1.setTextColor(Color.BLACK);
+                    t2.setTextColor(Color.BLACK);
                 }
                 for (int i = 0; i < resOpit.length(); i++) {
                     if (resOpit.charAt(i) != ' ') {
@@ -203,16 +186,16 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     main += "\n" + "Поле 'Требуемый опыт работы' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
                 } else {
                     t5.setTextColor(Color.BLACK);
-                } // всё правильно до этого момента
+                }
 
-                // тоже сделать через resHash.contains
+                // сделать через resHash.contains
                 for (int i = 0; i < resHash.length(); i++) {
                     if (resHash.charAt(i) != ' ') {
                         hash = true;
                     }
                 }
 
-                // можно не проверять, а просто вызвать resHash.toLowerCase()
+                // вызвать resHash.toLowerCase()
                 for (int i = 0; i < resHash.length(); i++) {
                     for (char q = 'A'; q <= 'Z'; q++) {
                         if (resHash.charAt(i) == q) {
@@ -228,7 +211,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     }
                 }
 
-                // тоже проверить через resHash.contains или использовать RegExp.
+                // проверить через resHash.contains или использовать RegExp.
                 for (int i = 0; i < resHash.length(); i++) {
                     for (char q = '!'; q <= '_'; q++) {
                         if (resHash.charAt(i) == q || resHash.charAt(i) == '>' || resHash.charAt(i) == '<') {
@@ -284,8 +267,15 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                            //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что по-моему тут всё правильно
+                            for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == loginActivityCreateApplicationLogin.userName) {
+                                    userI3 = i;
+                                    break;
+                                }
+                            }
                             mDatabase = FirebaseDatabase.getInstance().getReference();
-                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), "Maximus", exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
+                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client"+ String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
                             mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                         }
 
@@ -393,23 +383,13 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         spinner2.setOnItemSelectedListener(itemSelectedListener2);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
-
-        getSupportActionBar().
-
-                setDisplayHomeAsUpEnabled(true);
-
-        getSupportActionBar().
-
-                setDisplayShowHomeEnabled(true);
-
-        getSupportActionBar().
-
-                setTitle("Формирование заявки");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setTitle("Формирование заявки");
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, Intent
             imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
@@ -430,7 +410,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     imageView.setImageBitmap(bitmap);
                 }
         }
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

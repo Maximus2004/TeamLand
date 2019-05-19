@@ -18,21 +18,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class ActivityReg extends AppCompatActivity {
-    // должны быть static
     static final String SAVED_LOGIN = "LOGIN";
     static final String SAVED_PASSWORD = "PASSWORD";
-    // не получается сделать локальными, потому что нельзя, чтобы были final
     boolean checkingSecondPasswordEdit = true;
     boolean checkingFirstPasswordEdit = true;
     boolean checkingNickPasswordEdit = true;
     boolean checkingDescribtionPasswordEdit = true;
-    String nickEditString;
-    String firstPasswordEditString;
-    String describtionEditString;
+    String firstPasswordEditString, describtionEditString, nickEditString, mainCountClientsString;
     Button registrationButton, authButton;
     EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
     TextView firstPasswordText, secondPasswordText, nickText, describtionText;
-    String mainCountClientsString;
     int mainCountClientsInt = 0;
     boolean isLoginAlreadyInUse = true;
     String dataSnapshot2 = "0";
@@ -43,65 +38,22 @@ public class ActivityReg extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
 
-        // нечитабельно, разбить метод на несколько мелких
-        //не забудь про проверку на совпадение ников
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //исправить названия элементов на макете пока не могу, т. к. ещё не починили R.
-                theFirstPassword = findViewById(R.id.editText4);
-                theSecondPassword = findViewById(R.id.editText5);
-                firstPasswordText = findViewById(R.id.textView14);
-                secondPasswordText = findViewById(R.id.textView15);
-                nickText = findViewById(R.id.textView13);
-                nickEditText = findViewById(R.id.editText3);
-                describtionText = findViewById(R.id.textView16);
-                describtion = findViewById(R.id.editText7);
-                nickEditString = nickEditText.getText().toString();
-                describtionEditString = describtion.getText().toString();
-                firstPasswordEditString = theFirstPassword.getText().toString();
-                String secondPasswordEditString = theSecondPassword.getText().toString();
-                // можно сделать один if
-                if (secondPasswordEditString.equals("") || !secondPasswordEditString.equals(firstPasswordEditString)) {
-                    secondPasswordText.setTextColor(Color.RED);
-                    checkingSecondPasswordEdit = false;
-                }
-                if (secondPasswordEditString.equals(firstPasswordEditString)) {
-                    secondPasswordText.setTextColor(Color.BLACK);
-                    checkingSecondPasswordEdit = true;
-                }
-                if (firstPasswordEditString.equals("")) {
-                    firstPasswordText.setTextColor(Color.RED);
-                    checkingFirstPasswordEdit = false;
-                } else {
-                    firstPasswordText.setTextColor(Color.BLACK);
-                    checkingFirstPasswordEdit = true;
-                }
-                if (nickEditString.equals("")) {
-                    nickText.setTextColor(Color.RED);
-                    checkingNickPasswordEdit = false;
-                } else {
-                    nickText.setTextColor(Color.BLACK);
-                    checkingNickPasswordEdit = true;
-                }
-                if (describtionEditString.equals("")) {
-                    describtionText.setTextColor(Color.RED);
-                    checkingDescribtionPasswordEdit = false;
-                } else {
-                    describtionText.setTextColor(Color.BLACK);
-                    checkingDescribtionPasswordEdit = true;
-                }
-                // сделать одним if
+                checkSecondPassword();
+                checkNicks();
+                checkDescription();
+
                 if (!checkingSecondPasswordEdit || !checkingFirstPasswordEdit || !checkingNickPasswordEdit || !checkingDescribtionPasswordEdit) {
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Форма заполенна некорректно", Toast.LENGTH_LONG);
+                            "Форма заполенна некорректно", Toast.LENGTH_SHORT);
                     toast.show();
-                } else { // а если так? и я передвинул закрывающую скобку в нужное место
+                } else {
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
                     saveData();
-                    // зачем эти два поля?
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
                     mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -109,16 +61,12 @@ public class ActivityReg extends AppCompatActivity {
                     ValueEventListener listenerAtOnce = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
                             // сбрасываем флаг
                             isLoginAlreadyInUse = false;
-                            // так более читабельное
                             int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
                             for (int i = 0; i < maxId; i++) {    //i < id
-                                // можно не приводить i к String, в таком виде тоже сработает
                                 Object entity = dataSnapshot.child("client" + i).child("login").getValue();
-                                // entity может быть NULL
-                                // потому что из-за разных тестов maxId стал больше, чем есть записей
                                 if (entity != null && entity.toString().equals(nickEditString)) {
                                     // нашли похожий, останавливаем цикл
                                     isLoginAlreadyInUse = true;
@@ -127,13 +75,11 @@ public class ActivityReg extends AppCompatActivity {
                             }
 
                             if (isLoginAlreadyInUse) {
-                                Toast.makeText(getApplicationContext(), "Ники совпали", Toast.LENGTH_SHORT).show();
-
-                                // не вижу смысл этого условия – выше его уже проверили и тупо сюда не попадем
-                                // по хорошему ник надо проверять там же, где ввод проверяется, а не тут
-//                            } else if (checkingSecondPasswordEdit && checkingFirstPasswordEdit && checkingNickPasswordEdit && checkingDescribtionPasswordEdit) {
+                                Toast.makeText(getApplicationContext(), "Поменяйте имя пользователя", Toast.LENGTH_LONG).show();
+                                nickText.setTextColor(Color.RED);
                             } else {
-                                Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
+                                nickText.setTextColor(Color.BLACK);
                                 mainCountClientsInt++;
                                 mainCountClientsString = String.valueOf(mainCountClientsInt);
                                 mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -151,7 +97,7 @@ public class ActivityReg extends AppCompatActivity {
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
+                                    "Возникла ошибка", Toast.LENGTH_SHORT);
                             toast.show();
                         }
                     };
@@ -168,9 +114,6 @@ public class ActivityReg extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ActivityReg.this, LoginActivity.class);
                 startActivity(intent);
-                // финишируем активити при переходе на логин
-                // но вернуться на него можно будет только после перезапуска приложения
-                // наверное, нужна кнопка перехода на регистрацию с LoginACtivity? :)
                 finish();
             }
         };
@@ -188,7 +131,7 @@ public class ActivityReg extends AppCompatActivity {
         // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
         SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        // складываешь НИЧЕГО в преференсы, а нужно сохранять логин/пв
+
         editor.putString(SAVED_LOGIN, nickEditString);
         editor.putString(SAVED_PASSWORD, firstPasswordEditString);
         editor.commit();
@@ -198,8 +141,57 @@ public class ActivityReg extends AppCompatActivity {
     private void writeNewUser(String userId, String login, String password, String description) {
         User user = new User(userId, login, password, description);
         mDatabase.child("client" + dataSnapshot2).setValue(user);
-        Toast toast = Toast.makeText(getApplicationContext(),
+        /*Toast toast = Toast.makeText(getApplicationContext(),
                 "Зашёл в writeNewUser", Toast.LENGTH_SHORT);
-        toast.show();
+        toast.show();*/
+    }
+
+    void checkSecondPassword() {
+        firstPasswordText = findViewById(R.id.textView14);
+        secondPasswordText = findViewById(R.id.textView15);
+        firstPasswordEditString = theFirstPassword.getText().toString();
+        String secondPasswordEditString = theSecondPassword.getText().toString();
+        if (secondPasswordEditString.equals("") || !secondPasswordEditString.equals(firstPasswordEditString)) {
+            secondPasswordText.setTextColor(Color.RED);
+            checkingSecondPasswordEdit = false;
+        }
+        if (secondPasswordEditString.equals(firstPasswordEditString)) {
+            secondPasswordText.setTextColor(Color.BLACK);
+            checkingSecondPasswordEdit = true;
+        }
+
+        if (firstPasswordEditString.equals("")) {
+            firstPasswordText.setTextColor(Color.RED);
+            checkingFirstPasswordEdit = false;
+        } else {
+            firstPasswordText.setTextColor(Color.BLACK);
+            checkingFirstPasswordEdit = true;
+        }
+    }
+
+    void checkNicks() {
+        nickText = findViewById(R.id.textView13);
+        nickEditText = findViewById(R.id.editText3);
+        nickEditString = nickEditText.getText().toString();
+        if (nickEditString.equals("")) {
+            nickText.setTextColor(Color.RED);
+            checkingNickPasswordEdit = false;
+        } else {
+            nickText.setTextColor(Color.BLACK);
+            checkingNickPasswordEdit = true;
+        }
+    }
+
+    void checkDescription() {
+        describtionText = findViewById(R.id.textView16);
+        describtion = findViewById(R.id.editText7);
+        describtionEditString = describtion.getText().toString();
+        if (describtionEditString.equals("")) {
+            describtionText.setTextColor(Color.RED);
+            checkingDescribtionPasswordEdit = false;
+        } else {
+            describtionText.setTextColor(Color.BLACK);
+            checkingDescribtionPasswordEdit = true;
+        }
     }
 }

@@ -8,17 +8,17 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,12 +39,16 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String TAG = "MostMainActivity";
+    public static final String PARAM_USER_NAME = TAG + ".username";
     String item;
+    String userName = null;
     int pos, clientDescriptionI;
     ImageButton burger;
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
-    LoginActivity loginActivity = new LoginActivity();
+    // так нельзя работать с activity
+//    LoginActivity loginActivity = new LoginActivity();
     EditText edit;
     ListView lv;
 
@@ -53,6 +57,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.most_main_activity);
+
+        // достаем информацию, переданную из LoginActivity, если она есть
+        // если такого параметра нет, то будет null
+        Intent intent = getIntent();
+        userName =  intent.getStringExtra(PARAM_USER_NAME);
+
         ImageButton btn = findViewById(R.id.imageBtn);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -71,6 +81,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MostMainActivity.this, CreateApplication.class);
+                intent.putExtra(CreateApplication.PARAM_USER_NAME, userName);
                 startActivity(intent);
             }
         };
@@ -120,9 +131,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnceUserName = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                TextView headerView = findViewById(R.id.headerTextView);
-                headerView.setText(loginActivity.userName);
+                if(userName != null) {
+                    TextView headerView = findViewById(R.id.headerTextView);
+                    headerView.setText(userName);
+                }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -139,9 +153,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //если раскомментировать строки ниже, то всё так же не работает
                 //if (view.getId() == R.id.buttonMore) {
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "" + position, Toast.LENGTH_SHORT);
-                    toast.show();
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "" + position, Toast.LENGTH_SHORT);
+                toast.show();
                 //}
             }
 
@@ -189,7 +203,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     arr[0][i] = month;
                 }
 
-                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
                 lv.setAdapter(adapter);
             }
 
@@ -225,7 +239,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         }
         return arr;
     }*/
-
 
 
     @Override
@@ -273,8 +286,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     //из-за закомментированной строчки приложение вылетает при нажатии на данный пункт
                     //edit.setText(loginActivity.userName);
-                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++){
-                        if (dataSnapshot.child("client"+i).child("login").getValue() != null && dataSnapshot.child("client"+i).child("login").getValue() == loginActivity.userName){
+                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                        if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
                             clientDescriptionI = i;
                             break;
                         }
@@ -286,7 +299,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             .setNegativeButton("Отредактировать",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            mDatabase.child("client"+clientDescriptionI).child("description").setValue(edit.getText());
+                                            mDatabase.child("client" + clientDescriptionI).child("description").setValue(edit.getText());
                                             dialog.cancel();
                                         }
                                     });
@@ -297,6 +310,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     alert2.getWindow().setLayout(265, 130);
                     alert2.show();
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -312,6 +326,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     void tabHostMethod() {
         setTitle("TabHost");
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);

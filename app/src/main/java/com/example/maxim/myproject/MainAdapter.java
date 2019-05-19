@@ -22,10 +22,11 @@ import com.google.firebase.database.ValueEventListener;
 public class MainAdapter extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
     int userI, userI2;
-    LoginActivity loginActivityMainAdapter = new LoginActivity();
+    String userName;
 
-    public MainAdapter(Context context, AdapterElement[] arr) {
+    public MainAdapter(Context context, AdapterElement[] arr, String userName) {
         super(context, R.layout.one_adapner, arr);
+        this.userName = userName;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == loginActivityMainAdapter.userName) {
+                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
                                     userI2 = i;
                                     break;
                                 }

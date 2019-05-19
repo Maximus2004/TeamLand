@@ -22,7 +22,8 @@ public class LoginActivity extends AppCompatActivity {
     // больше не нужно, но если захочешь использовать назови лучше isUserExists = false.
 //    boolean isUserRegistrated = true;
     EditText pass, login;
-    String userName;
+    // так нельзя "передавать" данные между activity
+//    String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,15 +46,17 @@ public class LoginActivity extends AppCompatActivity {
                         for (int i = 0; i < maxId; i++) {    //i < id
                             Object login = dataSnapshot.child("client" + i).child("login").getValue();
                             Object password = dataSnapshot.child("client" + i).child("password").getValue();
-                            if (login != null && password != null && login.toString().equals(loginT) && password.toString().equals(passT)) {
+                            if (login != null && password != null && login.equals(loginT) && password.toString().equals(passT)) {
                                 // нашли совпадение, останавливаем цикл
-                                userName = loginT;
+//                                userName = loginT;
                                 // уведомляем пользователя, что все успешно прошло
                                 Toast toast = Toast.makeText(getApplicationContext(),
                                         "Вход успешно выполнен", Toast.LENGTH_SHORT);
                                 toast.show();
                                 // переходим на главный экран
                                 Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+                                // передаем логин пользователя в главное активити
+                                intent.putExtra(MostMainActivity.PARAM_USER_NAME, login.toString());
                                 startActivity(intent);
                                 // финишируем активити при успешной авторизации
                                 finish();

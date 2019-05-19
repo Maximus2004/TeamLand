@@ -49,7 +49,7 @@ public class moreAboutApplication extends AppCompatActivity {
                 phone = findViewById(R.id.phoneApplication);
                 vk = findViewById(R.id.vkApplication);
                 otherContacts = findViewById(R.id.otherContactsApplication);
-                name.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("name").getValue().toString());
+                /*name.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("name").getValue().toString());
                 applicationDescription.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("description").getValue().toString());
                 purpose.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("purpose").getValue().toString());
                 can.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("can").getValue().toString());
@@ -61,7 +61,7 @@ public class moreAboutApplication extends AppCompatActivity {
                 sector.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("section").getValue().toString());
                 phone.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("phone").getValue().toString());
                 vk.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("vk").getValue().toString());
-                otherContacts.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("other").getValue().toString());
+                otherContacts.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("other").getValue().toString());*/
             }
 
             @Override

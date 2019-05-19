@@ -36,9 +36,11 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                        userId = i;
-                        break;
+                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
+                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+                            userId = i;
+                            break;
+                        }
                     }
                 }
             }

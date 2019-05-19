@@ -42,8 +42,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     public static final String TAG = "CreateApplication";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
-    private static final String TAG = "MostMainActivity";
-    public static final String PARAM_USER_NAME = TAG + ".username";
     String item;
     String userName = null;
     int pos;
@@ -206,7 +204,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     arr[0][i] = month;
                 }
 
-                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
+//                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
                 MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MostMainActivity.this);

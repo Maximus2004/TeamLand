@@ -27,6 +27,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class CreateApplication extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+    public static final String TAG = "CreateApplication";
+    public static final String PARAM_USER_NAME = TAG + ".username";
+
     String item, item2;
     Button btn, btnReady, btn2;
     TextView t2, t3, t11, t4, t5, t6, text, t8;
@@ -47,14 +50,19 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интеренете", "Оффлайн бизнес"};
     DatabaseReference mDatabase;
     String exampleText = "";
+    String userName;
     String resOpit, resName, resCan, resOther, resOpis, resHash, resVK, resCont, resOtherVar, resPurpose, mainItem;
-    LoginActivity loginActivityCreateApplicationLogin = new LoginActivity();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_application);
+
+        // достаем информацию, переданную из MostMainActivity, если она есть
+        // если такого параметра нет, то будет null
+        Intent intent = getIntent();
+        userName = intent.getStringExtra(PARAM_USER_NAME);
 
         Switch exampleSwitch = (Switch) findViewById(R.id.example);
         if (exampleSwitch != null) {
@@ -267,15 +275,15 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                            //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что по-моему тут всё правильно
+                            //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что, по-моему, тут всё правильно
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == loginActivityCreateApplicationLogin.userName) {
+                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
                                     userI3 = i;
                                     break;
                                 }
                             }
                             mDatabase = FirebaseDatabase.getInstance().getReference();
-                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client"+ String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
+                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client"+ String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
                             mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                         }
 
@@ -286,8 +294,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     };
 
                     mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                    Intent intent = new Intent(CreateApplication.this, MostMainActivity.class);
-                    startActivity(intent);
+                    finish();
                 }
                 if (!mainFlag) {
                     builder5 = new AlertDialog.Builder(CreateApplication.this);
@@ -424,8 +431,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     }
 
     private void writeNewApplication(String applicationId, String creator,
-                                     String example, String experience, String name, String purpose, String section, String other, String phone, String vk, String can, String descriptionApplication) {
-        Application application = new Application(applicationId, creator, example, experience, name, purpose, section, other, phone, vk, can, descriptionApplication);
+                                     String example, String experience, String name, String purpose, String section, String hashs, String other, String phone, String vk, String can, String descriptionApplication) {
+        Application application = new Application(applicationId, creator, example, experience, name, purpose, section, hashs, other, phone, vk, can, descriptionApplication);
         mDatabase.child("applications").child("application"+applicationId).setValue(application);
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);

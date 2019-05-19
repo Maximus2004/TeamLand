@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     boolean isUserRegistrated = true;
     EditText pass, login;
-    String userName;
+    //String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +71,10 @@ public class LoginActivity extends AppCompatActivity {
                         for (int i = 0; i < maxId; i++) {    //i < id
                             Object login = dataSnapshot.child("client" + i).child("login").getValue();
                             Object password = dataSnapshot.child("client" + i).child("password").getValue();
-                            if (login != null && password != null && login.toString().equals(loginT) && password.toString().equals(passT)) {
+                            if (login != null && password != null && login.equals(loginT) && password.toString().equals(passT)) {
                                 // нашли совпадение, останавливаем цикл
                                 isUserRegistrated = false;
-                                userName = loginT;
+                                //userName = loginT;
                                 break;
                             }
                         }
@@ -98,6 +98,8 @@ public class LoginActivity extends AppCompatActivity {
                     toast.show();
                     Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
                     startActivity(intent);
+                    // передаем логин пользователя в главное активити
+                    intent.putExtra(MostMainActivity.PARAM_USER_NAME, login.toString());
                     // финишируем активити при успешной авторизации
                     finish();
                 }

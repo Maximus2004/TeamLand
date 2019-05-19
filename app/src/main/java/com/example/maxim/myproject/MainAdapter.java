@@ -2,6 +2,7 @@ package com.example.maxim.myproject;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -22,10 +23,16 @@ import com.google.firebase.database.ValueEventListener;
 public class MainAdapter extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
     int userI, userI2;
+    UserActionListener listener;
     LoginActivity loginActivityMainAdapter = new LoginActivity();
+    moreAboutApplication moreActivity = new moreAboutApplication();
 
     public MainAdapter(Context context, AdapterElement[] arr) {
         super(context, R.layout.one_adapner, arr);
+    }
+
+    public void setUserActionListener(UserActionListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -104,27 +111,15 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
 
         final Button more = convertView.findViewById(R.id.buttonMore);
-        View.OnClickListener oclBtn0 = new View.OnClickListener() {
+        View.OnClickListener oclBtnMore = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ValueEventListener listenerAtOnce = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Toast.makeText(getContext(), dataSnapshot.child("applications").child("application" + month.applicationId).child("vk").getValue().toString(), Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-                    }
-                };
-
-                mDatabase = FirebaseDatabase.getInstance().getReference();
-                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
+                // если есть слушатель, передаем ему действие
+                if (listener != null)
+                    listener.onShowMoreClick(month.applicationId);
             }
         };
-        more.setOnClickListener(oclBtn0);
+        more.setOnClickListener(oclBtnMore);
 
         final Button user = convertView.findViewById(R.id.userBtn);
         View.OnClickListener oclBtnUser = new View.OnClickListener() {
@@ -166,5 +161,11 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         };
         user.setOnClickListener(oclBtnUser);
         return convertView;
+    }
+    /**
+     * Создаем интерфейс "слушателя", который будет реализовывать наше активити
+     */
+    public interface UserActionListener {
+        public void onShowMoreClick(String applicationId);
     }
 }

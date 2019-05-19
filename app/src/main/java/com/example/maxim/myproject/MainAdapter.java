@@ -21,12 +21,31 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainAdapter extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
-    int userI, userI2;
-    String userName;
+    int userI;
+    int userId;
 
-    public MainAdapter(Context context, AdapterElement[] arr, String userName) {
+    public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
         super(context, R.layout.one_adapner, arr);
-        this.userName = userName;
+
+        // этому лучше быть здесь – сущность БД у тебя одна на все элементы, каждый раз вызывать нет смысла
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        // давайка получим  userId заранее (он же не будет меняться :)
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
+                        userId = i;
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -47,28 +66,22 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         final boolean[] h = {false};
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ValueEventListener listenerAtOnceStar;
                 if (!h[0]) {
                     star.setImageResource(android.R.drawable.btn_star_big_on);
                     h[0] = true;
-                    ValueEventListener listenerAtOnceStar = new ValueEventListener() {
+                    listenerAtOnceStar = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
-                                    userI2 = i;
-                                    break;
-                                }
-                            }
-                            mDatabase.child("client" + userI2).child("favourites").child("favourite" + dataSnapshot
-                                    .child("client" + userI2).child("maxFavourite").getValue()).setValue(month.applicationId);
-                            int j = Integer.parseInt(dataSnapshot.child("client" + userI2).child("maxFavourite").getValue().toString()) + 1;
-                            mDatabase.child("client" + userI2).child("maxFavourite")
-                                    .setValue(j);
+                            // увеличиваем maxFav, правда не знаю, зачем это теперь может пригодиться)))
+                            Object maxFavourite = dataSnapshot.child("client" + userId).child("maxFavourite").getValue();
+                            // сохраняем, что юзер лайкнул конкретную аппу
+                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            mDatabase.child("client" + userId).child("maxFavourite").setValue(Integer.parseInt(maxFavourite.toString()) + 1);
                         }
 
                         @Override
@@ -76,19 +89,17 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                             Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
                         }
                     };
-                    mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar);
-
                 } else {
                     star.setImageResource(android.R.drawable.btn_star_big_off);
                     h[0] = false;
-                    ValueEventListener listenerAtOnceStar2 = new ValueEventListener() {
+                    listenerAtOnceStar = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            int j2 = Integer.parseInt(dataSnapshot.child("client" + userI2).child("maxFavourite").getValue().toString()) - 1;
-                            mDatabase.child("client" + userI2).child("maxFavourite")
-                                    .setValue(j2);
-                            mDatabase.child("client" + userI2).child("favourites").child("favourite" + dataSnapshot
-                                    .child("client" + userI2).child("maxFavourite").getValue()).removeValue();
+                            // уменьшаем maxFav
+                            int updatedMaxFav = Integer.parseInt(dataSnapshot.child("client" + userId).child("maxFavourite").getValue().toString()) - 1;
+                            mDatabase.child("client" + userId).child("maxFavourite").setValue(updatedMaxFav);
+                            // удаляем убранный лайк с аппы из БД
+                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
                         }
 
                         @Override
@@ -96,8 +107,9 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
                         }
                     };
-                    mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar2);
                 }
+
+                mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar);
             }
         };
         // присвоим обработчик кнопке

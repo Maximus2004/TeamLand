@@ -39,14 +39,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainAdapter.UserActionListener {
-<<<<<<< HEAD
     public static final String TAG = "CreateApplication";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
-=======
     private static final String TAG = "MostMainActivity";
     public static final String PARAM_USER_NAME = TAG + ".username";
->>>>>>> NewProject/fixes
     String item;
     String userName = null;
     int pos;
@@ -209,11 +206,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     arr[0][i] = month;
                 }
 
-<<<<<<< HEAD
                 MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
-=======
                 MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
->>>>>>> NewProject/fixes
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MostMainActivity.this);
                 lv.setAdapter(adapter);
@@ -389,10 +383,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
-<<<<<<< HEAD
-=======
 
->>>>>>> NewProject/fixes
+
     @Override
     public void onShowMoreClick(final String applicationId) {
         // нажали на кнопку, а действие сюда прилетело

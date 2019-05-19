@@ -271,6 +271,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             ValueEventListener listenerAtOnceDescription = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    //из-за закомментированной строчки приложение вылетает при нажатии на данный пункт
                     //edit.setText(loginActivity.userName);
                     for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++){
                         if (dataSnapshot.child("client"+i).child("login").getValue() != null && dataSnapshot.child("client"+i).child("login").getValue() == loginActivity.userName){
@@ -278,6 +279,23 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             break;
                         }
                     }
+                    // а из-за строчек ниже приложение вылетает при нажатии на кнопку "Отредактировать"
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
+                    builder2.setTitle("Редактирование описания")
+                            .setCancelable(false)
+                            .setNegativeButton("Отредактировать",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            mDatabase.child("client"+clientDescriptionI).child("description").setValue(edit.getText());
+                                            dialog.cancel();
+                                        }
+                                    });
+                    LayoutInflater ltInflater = getLayoutInflater();
+                    View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
+                    AlertDialog alert2 = builder2.create();
+                    alert2.setView(view);
+                    alert2.getWindow().setLayout(265, 130);
+                    alert2.show();
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -286,22 +304,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             };
             mDatabase = FirebaseDatabase.getInstance().getReference();
             mDatabase.addListenerForSingleValueEvent(listenerAtOnceDescription);
-            AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
-            builder2.setTitle("Редактирование описания")
-                    .setCancelable(false)
-                    .setNegativeButton("Отредактировать",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    mDatabase.child("client"+clientDescriptionI).child("description").setValue(edit.getText());
-                                    dialog.cancel();
-                                }
-                            });
-            LayoutInflater ltInflater = getLayoutInflater();
-            View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
-            AlertDialog alert2 = builder2.create();
-            alert2.setView(view);
-            alert2.getWindow().setLayout(265, 130);
-            alert2.show();
         } else if (id == R.id.sing_out) {
             finish();
         }

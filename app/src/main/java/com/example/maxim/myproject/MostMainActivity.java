@@ -8,17 +8,17 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,15 +39,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainAdapter.UserActionListener {
+<<<<<<< HEAD
     public static final String TAG = "CreateApplication";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
+=======
+    private static final String TAG = "MostMainActivity";
+    public static final String PARAM_USER_NAME = TAG + ".username";
+>>>>>>> NewProject/fixes
     String item;
-    int pos, clientDescriptionI;
+    String userName = null;
+    int pos;
     ImageButton burger;
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
-    LoginActivity loginActivity = new LoginActivity();
+    // так нельзя работать с activity
+//    LoginActivity loginActivity = new LoginActivity();
     EditText edit;
     ListView lv;
 
@@ -56,6 +63,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.most_main_activity);
+
+        // достаем информацию, переданную из LoginActivity, если она есть
+        // если такого параметра нет, то будет null
+        Intent intent = getIntent();
+        userName = intent.getStringExtra(PARAM_USER_NAME);
+
         ImageButton btn = findViewById(R.id.imageBtn);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -74,6 +87,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MostMainActivity.this, CreateApplication.class);
+                intent.putExtra(CreateApplication.PARAM_USER_NAME, userName);
                 startActivity(intent);
             }
         };
@@ -123,9 +137,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnceUserName = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                TextView headerView = findViewById(R.id.headerTextView);
-                headerView.setText(loginActivity.userName);
+                if (userName != null) {
+                    TextView headerView = findViewById(R.id.headerTextView);
+                    headerView.setText(userName);
+                }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -142,9 +159,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //если раскомментировать строки ниже, то всё так же не работает
                 //if (view.getId() == R.id.buttonMore) {
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "" + position, Toast.LENGTH_SHORT);
-                    toast.show();
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "" + position, Toast.LENGTH_SHORT);
+                toast.show();
                 //}
             }
 
@@ -192,7 +209,11 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     arr[0][i] = month;
                 }
 
+<<<<<<< HEAD
                 MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
+=======
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+>>>>>>> NewProject/fixes
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MostMainActivity.this);
                 lv.setAdapter(adapter);
@@ -230,7 +251,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         }
         return arr;
     }*/
-
 
 
     @Override
@@ -272,18 +292,20 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
             startActivity(intent2);
         } else if (id == R.id.changing_describtion) {
-            edit = findViewById(R.id.editText6);
             ValueEventListener listenerAtOnceDescription = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    //из-за закомментированной строчки приложение вылетает при нажатии на данный пункт
-                    //edit.setText(loginActivity.userName);
-                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++){
-                        if (dataSnapshot.child("client"+i).child("login").getValue() != null && dataSnapshot.child("client"+i).child("login").getValue() == loginActivity.userName){
-                            clientDescriptionI = i;
+                    int clientId = -1;
+                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                        // == userName нельзя проверять. String проверять только через equals
+                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+                            clientId = i;
                             break;
                         }
                     }
+
+                    final DatabaseReference description = mDatabase.child("client" + clientId).child("description");
+
                     // а из-за строчек ниже приложение вылетает при нажатии на кнопку "Отредактировать"
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
                     builder2.setTitle("Редактирование описания")
@@ -291,17 +313,22 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             .setNegativeButton("Отредактировать",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            mDatabase.child("client"+clientDescriptionI).child("description").setValue(edit.getText());
+                                            description.setValue(edit.getText().toString());
                                             dialog.cancel();
                                         }
                                     });
                     LayoutInflater ltInflater = getLayoutInflater();
                     View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
+                    // только так ты можешь получить нужный тебе editText, потому что он лежит только в этом лейауте
+                    // раньше ты пытался найти его на активити MostMainActivity
+                    edit = view.findViewById(R.id.editText6);
+                    edit.setText("Тут нужно отобразить описание пользователя из БД");
                     AlertDialog alert2 = builder2.create();
                     alert2.setView(view);
                     alert2.getWindow().setLayout(265, 130);
                     alert2.show();
                 }
+
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -317,6 +344,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     void tabHostMethod() {
         setTitle("TabHost");
         TabHost tabHost = (TabHost) findViewById(R.id.tabHost);
@@ -361,6 +389,10 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> NewProject/fixes
     @Override
     public void onShowMoreClick(final String applicationId) {
         // нажали на кнопку, а действие сюда прилетело

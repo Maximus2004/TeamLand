@@ -3,10 +3,10 @@ package com.example.maxim.myproject;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
@@ -277,13 +277,21 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
                             //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что, по-моему, тут всё правильно
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+<<<<<<< HEAD
                                 if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
+=======
+                                if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+>>>>>>> NewProject/fixes
                                     userI3 = i;
                                     break;
                                 }
                             }
                             mDatabase = FirebaseDatabase.getInstance().getReference();
+<<<<<<< HEAD
                             writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client"+ String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+=======
+                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
+>>>>>>> NewProject/fixes
                             mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                         }
 
@@ -294,6 +302,10 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     };
 
                     mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+<<<<<<< HEAD
+=======
+                    // оно уже открыто, просто закрой это activity.
+>>>>>>> NewProject/fixes
                     finish();
                 }
                 if (!mainFlag) {
@@ -431,9 +443,15 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     }
 
     private void writeNewApplication(String applicationId, String creator,
+<<<<<<< HEAD
                                      String example, String experience, String name, String purpose, String section, String hashs, String other, String phone, String vk, String can, String descriptionApplication) {
         Application application = new Application(applicationId, creator, example, experience, name, purpose, section, hashs, other, phone, vk, can, descriptionApplication);
         mDatabase.child("applications").child("application"+applicationId).setValue(application);
+=======
+                                     String example, String experience, String name, String purpose, String section, String other, String phone, String vk, String can, String descriptionApplication) {
+        Application application = new Application(applicationId, creator, example, experience, name, purpose, section, other, phone, vk, can, descriptionApplication);
+        mDatabase.child("applications").child("application" + applicationId).setValue(application);
+>>>>>>> NewProject/fixes
         Toast toast = Toast.makeText(getApplicationContext(),
                 "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);
         toast.show();

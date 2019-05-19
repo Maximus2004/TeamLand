@@ -43,7 +43,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     public static final String PARAM_USER_NAME = TAG + ".username";
     String item;
     String userName = null;
-    int pos, clientDescriptionI;
+    int pos;
     ImageButton burger;
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
@@ -61,7 +61,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         // достаем информацию, переданную из LoginActivity, если она есть
         // если такого параметра нет, то будет null
         Intent intent = getIntent();
-        userName =  intent.getStringExtra(PARAM_USER_NAME);
+        userName = intent.getStringExtra(PARAM_USER_NAME);
 
         ImageButton btn = findViewById(R.id.imageBtn);
 
@@ -131,7 +131,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnceUserName = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(userName != null) {
+                if (userName != null) {
                     TextView headerView = findViewById(R.id.headerTextView);
                     headerView.setText(userName);
                 }
@@ -280,18 +280,20 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
             startActivity(intent2);
         } else if (id == R.id.changing_describtion) {
-            edit = findViewById(R.id.editText6);
             ValueEventListener listenerAtOnceDescription = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    //из-за закомментированной строчки приложение вылетает при нажатии на данный пункт
-                    //edit.setText(loginActivity.userName);
+                    int clientId = -1;
                     for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                        if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
-                            clientDescriptionI = i;
+                        // == userName нельзя проверять. String проверять только через equals
+                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+                            clientId = i;
                             break;
                         }
                     }
+
+                    final DatabaseReference description = mDatabase.child("client" + clientId).child("description");
+
                     // а из-за строчек ниже приложение вылетает при нажатии на кнопку "Отредактировать"
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
                     builder2.setTitle("Редактирование описания")
@@ -299,12 +301,16 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             .setNegativeButton("Отредактировать",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            mDatabase.child("client" + clientDescriptionI).child("description").setValue(edit.getText());
+                                            description.setValue(edit.getText().toString());
                                             dialog.cancel();
                                         }
                                     });
                     LayoutInflater ltInflater = getLayoutInflater();
                     View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
+                    // только так ты можешь получить нужный тебе editText, потому что он лежит только в этом лейауте
+                    // раньше ты пытался найти его на активити MostMainActivity
+                    edit = view.findViewById(R.id.editText6);
+                    edit.setText("Тут нужно отобразить описание пользователя из БД");
                     AlertDialog alert2 = builder2.create();
                     alert2.setView(view);
                     alert2.getWindow().setLayout(265, 130);

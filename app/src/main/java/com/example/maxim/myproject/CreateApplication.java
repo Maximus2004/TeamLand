@@ -277,7 +277,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
                             //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что по-моему тут всё правильно
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
+                                if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
                                     userI3 = i;
                                     break;
                                 }

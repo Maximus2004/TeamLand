@@ -38,7 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainAdapter.UserActionListener {
     private static final String TAG = "MostMainActivity";
     public static final String PARAM_USER_NAME = TAG + ".username";
     String item;
@@ -204,6 +204,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 }
 
                 MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapter.setUserActionListener(MostMainActivity.this);
                 lv.setAdapter(adapter);
             }
 
@@ -376,5 +378,22 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         tabHost.setCurrentTab(0);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    @Override
+    public void onShowMoreClick(final String applicationId) {
+        // нажали на кнопку, а действие сюда прилетело
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(MostMainActivity.this, dataSnapshot.child("applications").child("application" + applicationId).child("vk").getValue().toString(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MostMainActivity.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
 }

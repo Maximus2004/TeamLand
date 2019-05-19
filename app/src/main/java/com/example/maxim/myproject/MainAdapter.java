@@ -24,6 +24,8 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
     int userI;
     int userId;
 
+    UserActionListener listener;
+
     public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
         super(context, R.layout.one_adapner, arr);
 
@@ -46,6 +48,10 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void setUserActionListener(UserActionListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -120,20 +126,10 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         View.OnClickListener oclBtn0 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ValueEventListener listenerAtOnce = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Toast.makeText(getContext(), dataSnapshot.child("applications").child("application" + month.applicationId).child("vk").getValue().toString(), Toast.LENGTH_LONG).show();
-                    }
+                // если есть слушатель, передаем ему действие
+                if (listener != null)
+                    listener.onShowMoreClick(month.applicationId);
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-                    }
-                };
-
-                mDatabase = FirebaseDatabase.getInstance().getReference();
-                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
                 Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
             }
         };
@@ -179,5 +175,12 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         };
         user.setOnClickListener(oclBtnUser);
         return convertView;
+    }
+
+    /**
+     * Создаем интерфейс "слушателя", который будет реализовывать наше активити
+     */
+    public interface UserActionListener {
+        public void onShowMoreClick(String applicationId);
     }
 }

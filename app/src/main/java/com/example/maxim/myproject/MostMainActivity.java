@@ -43,6 +43,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     public static final String PARAM_USER_NAME = TAG + ".username";
 
     String item;
+    String searchText;
     String userName = null;
     int pos;
     ImageButton burger;
@@ -52,6 +53,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 //    LoginActivity loginActivity = new LoginActivity();
     EditText edit;
     ListView lv;
+    boolean controlBurger = true;
 
     // очень длинный метод, разбить на мелкие
     @Override
@@ -120,7 +122,13 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         View.OnClickListener oclBtn = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawer.openDrawer(GravityCompat.START);
+                if (controlBurger)
+                    drawer.openDrawer(GravityCompat.START);
+                else{
+                    makeMonth();
+                    controlBurger = true;
+                    burger.setImageResource(R.drawable.huray);
+                }
             }
         };
         // присвоим обработчик кнопке OK (btnOk)
@@ -161,6 +169,69 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             }
 
         });
+
+        ImageButton btnSearch = findViewById(R.id.btnSearch);
+        View.OnClickListener oclBtnSearch = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makeApplicationForSearch();
+                burger.setImageResource(R.drawable.back2);
+                controlBurger = false;
+            }
+        };
+        btnSearch.setOnClickListener(oclBtnSearch);
+    }
+
+    private void makeApplicationForSearch() {
+        final EditText searchEditText = findViewById(R.id.searchEditText);
+        searchText = searchEditText.getText().toString();
+        final AdapterElement[][] arr = new AdapterElement[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                ArrayList mainNames = new ArrayList();
+                ArrayList ambitions = new ArrayList();
+                ArrayList experiences = new ArrayList();
+                ArrayList examples = new ArrayList();
+                ArrayList users = new ArrayList();
+                ArrayList applicationIdes = new ArrayList();
+                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue() != null && searchText.equals(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString())) {
+                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdes.add(i + "");
+                    }
+                }
+                arr[0] = new AdapterElement[mainNames.size()];
+                // Сборка заявок
+                for (int i = 0; i < arr[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = mainNames.get(i).toString();
+                    month.ambition = ambitions.get(i).toString();
+                    month.experience = experiences.get(i).toString();
+                    month.example = examples.get(i).toString();
+                    month.user = users.get(i).toString();
+                    month.applicationId = applicationIdes.get(i).toString();
+                    arr[0][i] = month;
+                }
+
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapter.setUserActionListener(MostMainActivity.this);
+                lv.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
 
     private void makeMonth() {
@@ -314,7 +385,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     // только так ты можешь получить нужный тебе editText, потому что он лежит только в этом лейауте
                     // раньше ты пытался найти его на активити MostMainActivity
                     edit = view.findViewById(R.id.editText6);
-                    edit.setText("Тут нужно отобразить описание пользователя из БД");
+                    edit.setText(dataSnapshot.child("client"+clientId).child("description").getValue().toString());
                     AlertDialog alert2 = builder2.create();
                     alert2.setView(view);
                     alert2.getWindow().setLayout(265, 130);
@@ -389,7 +460,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(MostMainActivity.this, dataSnapshot.child("applications").child("application" + applicationId).child("vk").getValue().toString(), Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MostMainActivity.this, moreAboutApplication.class);
+                intent.putExtra("applId", applicationId);
+                startActivity(intent);
             }
 
             @Override

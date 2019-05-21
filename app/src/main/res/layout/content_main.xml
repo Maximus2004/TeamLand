@@ -31,7 +31,8 @@ tools:context=".Main2Activity">
         android:layout_width="355dp"
         android:layout_height="match_parent"
         android:scrollX="13dp"
-        tools:layout_editor_absoluteX="100dp">
+        tools:layout_editor_absoluteX="100dp"
+        android:windowSoftInputMode="adjustResize">
 
         <android.support.v7.widget.CardView
             android:id="@+id/card"
@@ -44,7 +45,7 @@ tools:context=".Main2Activity">
             tools:layout_editor_absoluteY="12dp">
 
             <EditText
-                android:id="@+id/myEditText"
+                android:id="@+id/searchEditText"
                 android:layout_width="212dp"
                 android:layout_height="38dp"
                 android:layout_gravity="center|start"
@@ -92,7 +93,7 @@ tools:context=".Main2Activity">
                 app:layout_constraintVertical_bias="1.0" />
 
             <ImageButton
-                android:id="@+id/imageButton3"
+                android:id="@+id/btnSearch"
                 android:layout_width="38dp"
                 android:layout_height="38dp"
                 android:layout_gravity="center|end"
@@ -152,7 +153,8 @@ tools:context=".Main2Activity">
             <HorizontalScrollView
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
-                android:scrollbars="none">
+                android:scrollbars="none"
+                android:windowSoftInputMode="adjustResize">
 
                 <LinearLayout
                     android:layout_width="wrap_content"

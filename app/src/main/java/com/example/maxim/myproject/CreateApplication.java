@@ -277,17 +277,17 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
                             //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что, по-моему, тут всё правильно
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == userName) {
-                                    if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                                        userI3 = i;
-                                        break;
-                                    }
+                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().toString().equals(userName)) {
+                                    userI3 = i;
+                                    Toast.makeText(getApplicationContext(), "записал в id user = "+userI3, Toast.LENGTH_SHORT).show();
+                                    break;
                                 }
-                                mDatabase = FirebaseDatabase.getInstance().getReference();
-                                writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
-                                //writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
-                                mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                             }
+                            mDatabase = FirebaseDatabase.getInstance().getReference();
+                            Toast.makeText(getApplicationContext(), "Записал в БД creator = " + dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), Toast.LENGTH_SHORT).show();
+                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+                            //writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
+                            mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                         }
 
                         @Override
@@ -443,17 +443,17 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         other, String phone, String vk, String can, String descriptionApplication){
             Application application = new Application(applicationId, creator, example, experience, name, purpose, section, other, phone, vk, can, descriptionApplication);
             mDatabase.child("applications").child("application" + applicationId).setValue(application);*/
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);
-            toast.show();
-        }
-
-        @Override
-        public void onCheckedChanged (CompoundButton buttonView,boolean isChecked){
-            if (isChecked)
-                isExample = true;
-            else
-                isExample = false;
-        }
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);
+        toast.show();
     }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked)
+            isExample = true;
+        else
+            isExample = false;
+    }
+}
 

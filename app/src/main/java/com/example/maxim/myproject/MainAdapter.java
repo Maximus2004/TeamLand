@@ -86,10 +86,10 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // увеличиваем maxFav, правда не знаю, зачем это теперь может пригодиться)))
-                            Object maxFavourite = dataSnapshot.child("client" + userId).child("maxFavourite").getValue();
+                            //Object maxFavourite = dataSnapshot.child("client" + userId).child("maxFavourite").getValue();
                             // сохраняем, что юзер лайкнул конкретную аппу
                             mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
-                            mDatabase.child("client" + userId).child("maxFavourite").setValue(Integer.parseInt(maxFavourite.toString()) + 1);
+                            //mDatabase.child("client" + userId).child("maxFavourite").setValue(Integer.parseInt(maxFavourite.toString()) + 1);
                         }
 
                         @Override
@@ -104,8 +104,8 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // уменьшаем maxFav
-                            int updatedMaxFav = Integer.parseInt(dataSnapshot.child("client" + userId).child("maxFavourite").getValue().toString()) - 1;
-                            mDatabase.child("client" + userId).child("maxFavourite").setValue(updatedMaxFav);
+                            //int updatedMaxFav = Integer.parseInt(dataSnapshot.child("client" + userId).child("maxFavourite").getValue().toString()) - 1;
+                            //mDatabase.child("client" + userId).child("maxFavourite").setValue(updatedMaxFav);
                             // удаляем убранный лайк с аппы из БД
                             mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
                         }
@@ -145,7 +145,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                            if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue() == month.user) {
+                            if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().equals(month.user)) {
                                 userI = i;
                                 break;
                             }

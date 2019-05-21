@@ -61,6 +61,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 pass = findViewById(R.id.password);
                 login = findViewById(R.id.email);
+                //int[] cats = new int[10];
+                //final AdapterElement[] array = new AdapterElement[1];
+                //array[0] = new AdapterElement();
                 final String passT = pass.getText().toString();
                 final String loginT = login.getText().toString();
                 ValueEventListener listenerAtOnce = new ValueEventListener() {
@@ -74,7 +77,14 @@ public class LoginActivity extends AppCompatActivity {
                             if (login != null && password != null && login.equals(loginT) && password.toString().equals(passT)) {
                                 // нашли совпадение, останавливаем цикл
                                 isUserRegistrated = false;
+                                Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+                                intent.putExtra(CreateApplication.PARAM_USER_NAME, loginT);
+                                intent.putExtra(Chosen.user_name, loginT);
+                                Toast.makeText(getApplicationContext(), "положил в intent "+loginT, Toast.LENGTH_SHORT).show();
+                                startActivity(intent);
                                 //userName = loginT;
+                                //MainAdapter adapter = new MainAdapter(LoginActivity.this, array, loginT);
+                                // выставляем слушателя в адаптер (слушатель – наше активити)
                                 break;
                             }
                         }

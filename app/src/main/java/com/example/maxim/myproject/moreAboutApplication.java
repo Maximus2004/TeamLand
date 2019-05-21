@@ -1,9 +1,11 @@
 package com.example.maxim.myproject;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,9 +22,9 @@ public class moreAboutApplication extends AppCompatActivity {
     TextView applicationDescription, name, purpose, can, experience, hashs, example, sector, phone, vk, otherContacts;
     DatabaseReference mDatabase;
 
-    public moreAboutApplication(String applicationId) {
-        this.mainapplicationID = applicationId;
-    }
+    //public moreAboutApplication(String applicationId) {
+      //  this.mainapplicationID = applicationId;
+    //}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,8 @@ public class moreAboutApplication extends AppCompatActivity {
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Intent intent = getIntent();
+                mainapplicationID = intent.getStringExtra("applId");
                 name = findViewById(R.id.applicationName);
                 applicationDescription = findViewById(R.id.descriptionApplication);
                 purpose = findViewById(R.id.purposeApplication);
@@ -49,8 +53,8 @@ public class moreAboutApplication extends AppCompatActivity {
                 phone = findViewById(R.id.phoneApplication);
                 vk = findViewById(R.id.vkApplication);
                 otherContacts = findViewById(R.id.otherContactsApplication);
-                /*name.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("name").getValue().toString());
-                applicationDescription.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("description").getValue().toString());
+                name.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("name").getValue().toString());
+                applicationDescription.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("descriptionApplication").getValue().toString());
                 purpose.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("purpose").getValue().toString());
                 can.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("can").getValue().toString());
                 experience.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("experience").getValue().toString());
@@ -61,7 +65,7 @@ public class moreAboutApplication extends AppCompatActivity {
                 sector.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("section").getValue().toString());
                 phone.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("phone").getValue().toString());
                 vk.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("vk").getValue().toString());
-                otherContacts.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("other").getValue().toString());*/
+                otherContacts.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("other").getValue().toString());
             }
 
             @Override
@@ -72,12 +76,14 @@ public class moreAboutApplication extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
-
-    void moreStructure(String applicationID) {
-
-    }
-
-    void getApplicationId(String applicationId) {
-        mainapplicationID = applicationId;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

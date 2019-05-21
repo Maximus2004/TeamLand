@@ -78,7 +78,7 @@ public class ActivityReg extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Поменяйте имя пользователя", Toast.LENGTH_LONG).show();
                                 nickText.setTextColor(Color.RED);
                             } else {
-                                //Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
                                 nickText.setTextColor(Color.BLACK);
                                 mainCountClientsInt++;
                                 mainCountClientsString = String.valueOf(mainCountClientsInt);
@@ -87,6 +87,9 @@ public class ActivityReg extends AppCompatActivity {
                                 dataSnapshot2 = dataSnapshot.child("maxId").getValue().toString();
                                 writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
                                 mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
+                                Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
+                                intent2.putExtra(CreateApplication.PARAM_USER_NAME, nickEditString);
+                                startActivity(intent2);
                                 Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
                                 startActivity(intent);
                                 // финишируем активити при успешной регистрации
@@ -149,6 +152,8 @@ public class ActivityReg extends AppCompatActivity {
     void checkSecondPassword() {
         firstPasswordText = findViewById(R.id.textView14);
         secondPasswordText = findViewById(R.id.textView15);
+        theFirstPassword = findViewById(R.id.editText4);
+        theSecondPassword = findViewById(R.id.editText5);
         firstPasswordEditString = theFirstPassword.getText().toString();
         String secondPasswordEditString = theSecondPassword.getText().toString();
         if (secondPasswordEditString.equals("") || !secondPasswordEditString.equals(firstPasswordEditString)) {

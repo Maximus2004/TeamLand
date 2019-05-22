@@ -39,7 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainAdapter.UserActionListener {
-    public static final String TAG = "CreateApplication";
+    public static final String TAG = "MostMainActivity";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
     String item;
@@ -350,6 +350,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         if (id == R.id.favoriets) {
             Intent intent = new Intent(MostMainActivity.this, Chosen.class);
+            intent.putExtra(Chosen.PARAM_USER_NAME, userName);
             startActivity(intent);
         } else if (id == R.id.my_applications) {
             Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);

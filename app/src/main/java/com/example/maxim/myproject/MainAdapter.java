@@ -74,22 +74,20 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
-        final boolean[] h = {false};
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ValueEventListener listenerAtOnceStar;
-                if (!h[0]) {
-                    star.setImageResource(android.R.drawable.btn_star_big_on);
-                    h[0] = true;
-                    listenerAtOnceStar = new ValueEventListener() {
+                ValueEventListener listenerAtOnceStar = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            // увеличиваем maxFav, правда не знаю, зачем это теперь может пригодиться)))
-                            //Object maxFavourite = dataSnapshot.child("client" + userId).child("maxFavourite").getValue();
-                            // сохраняем, что юзер лайкнул конкретную аппу
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
-                            //mDatabase.child("client" + userId).child("maxFavourite").setValue(Integer.parseInt(maxFavourite.toString()) + 1);
+                            boolean isStarActive = dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null;
+                            if (!isStarActive) {
+                                star.setImageResource(android.R.drawable.btn_star_big_on);
+                                mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            } else {
+                                star.setImageResource(android.R.drawable.btn_star_big_off);
+                                mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                            }
                         }
 
                         @Override
@@ -97,26 +95,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                             Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
                         }
                     };
-                } else {
-                    star.setImageResource(android.R.drawable.btn_star_big_off);
-                    h[0] = false;
-                    listenerAtOnceStar = new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            // уменьшаем maxFav
-                            //int updatedMaxFav = Integer.parseInt(dataSnapshot.child("client" + userId).child("maxFavourite").getValue().toString()) - 1;
-                            //mDatabase.child("client" + userId).child("maxFavourite").setValue(updatedMaxFav);
-                            // удаляем убранный лайк с аппы из БД
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                        }
-                    };
-                }
-
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar);
             }
         };

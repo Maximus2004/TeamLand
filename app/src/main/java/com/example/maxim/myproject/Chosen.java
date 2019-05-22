@@ -1,13 +1,9 @@
 package com.example.maxim.myproject;
 
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -21,11 +17,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-import static com.example.maxim.myproject.MostMainActivity.PARAM_USER_NAME;
-
-public class Chosen extends AppCompatActivity implements MainAdapter.UserActionListener{
+public class Chosen extends AppCompatActivity implements MainAdapter.UserActionListener {
+    public static String TAG = "Chosen";
+    public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
-    public static String user_name = "TAG";
     ListView lv;
     String userName;
 
@@ -34,7 +29,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chosen);
         Intent intent = getIntent();
-        userName = intent.getStringExtra(user_name);
+        userName = intent.getStringExtra(PARAM_USER_NAME);
 
         Toolbar toolbar2 = findViewById(R.id.toolbarChosen);
         setSupportActionBar(toolbar2);

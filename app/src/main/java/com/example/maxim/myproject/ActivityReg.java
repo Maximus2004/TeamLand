@@ -88,7 +88,7 @@ public class ActivityReg extends AppCompatActivity {
                                 writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
                                 mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
                                 Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
-                                intent2.putExtra(CreateApplication.PARAM_USER_NAME, nickEditString);
+                                intent2.putExtra(MostMainActivity.PARAM_USER_NAME, nickEditString);
                                 startActivity(intent2);
                                 Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
                                 startActivity(intent);

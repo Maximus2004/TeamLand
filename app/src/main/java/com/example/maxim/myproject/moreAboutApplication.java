@@ -40,8 +40,7 @@ public class moreAboutApplication extends AppCompatActivity {
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Intent intent = getIntent();
-                mainapplicationID = intent.getStringExtra("applId");
+
                 name = findViewById(R.id.applicationName);
                 applicationDescription = findViewById(R.id.descriptionApplication);
                 purpose = findViewById(R.id.purposeApplication);

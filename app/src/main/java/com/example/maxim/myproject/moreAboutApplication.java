@@ -31,6 +31,9 @@ public class moreAboutApplication extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_about_application);
 
+        Intent intent = getIntent();
+        mainapplicationID = intent.getStringExtra("applId");
+
         Toolbar toolbarMore = findViewById(R.id.toolbarMore);
         setSupportActionBar(toolbarMore);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

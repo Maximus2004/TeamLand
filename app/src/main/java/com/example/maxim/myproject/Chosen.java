@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,8 +22,10 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
     public static String TAG = "Chosen";
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
+    int userId;
     ListView lv;
     String userName;
+    ImageButton star;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         setContentView(R.layout.activity_chosen);
         Intent intent = getIntent();
         userName = intent.getStringExtra(PARAM_USER_NAME);
+        //star = findViewById(R.id.imageButton0);
 
         Toolbar toolbar2 = findViewById(R.id.toolbarChosen);
         setSupportActionBar(toolbar2);
@@ -50,6 +54,14 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
+                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+                            userId = i;
+                            break;
+                        }
+                    }
+                }
                 ArrayList mainNames = new ArrayList();
                 ArrayList ambitions = new ArrayList();
                 ArrayList experiences = new ArrayList();
@@ -57,13 +69,14 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
                 ArrayList users = new ArrayList();
                 ArrayList applicationIdes = new ArrayList();
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("client"+userId).child("favourites").child("favourite"+i).getValue() != null) {
                         mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
                         ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
                         experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
                         examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
                         users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
                         applicationIdes.add(i + "");
+                        //star.setImageResource(android.R.drawable.btn_star_big_on);
                     }
                 }
                 arr[0] = new AdapterElement[mainNames.size()];

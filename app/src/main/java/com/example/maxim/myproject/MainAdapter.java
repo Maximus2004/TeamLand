@@ -23,8 +23,8 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
     int userI;
     int userId;
-
     UserActionListener listener;
+    boolean starFlag = false;
 
     public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
         super(context, R.layout.one_adapner, arr);
@@ -72,6 +72,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
         ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
+        //((ImageButton) convertView.findViewById(R.id.imageButton0)).setImageResource(android.R.drawable.btn_star_big_off);
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
@@ -80,13 +81,15 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 ValueEventListener listenerAtOnceStar = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            boolean isStarActive = dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null;
-                            if (!isStarActive) {
+                            //boolean isStarActive = dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null;
+                            if (!starFlag) {
                                 star.setImageResource(android.R.drawable.btn_star_big_on);
                                 mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                                starFlag = true;
                             } else {
                                 star.setImageResource(android.R.drawable.btn_star_big_off);
                                 mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                                starFlag = false;
                             }
                         }
 
@@ -101,6 +104,21 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         // присвоим обработчик кнопке
         star.setOnClickListener(oclBtn3);
 
+        ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.child("client"+userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
+                    star.setImageResource(android.R.drawable.btn_star_big_on);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
         final Button more = convertView.findViewById(R.id.buttonMore);
         View.OnClickListener oclBtn0 = new View.OnClickListener() {

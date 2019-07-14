@@ -1,22 +1,109 @@
 package com.example.maxim.myproject;
 
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.Toast;
 
-public class MyApplications extends AppCompatActivity {
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
+public class MyApplications extends AppCompatActivity implements MainAdapter.UserActionListener {
+    public static String TAG = "MyApplications";
+    public static String PARAM_USER_NAME = TAG + ".userName";
+    DatabaseReference mDatabase;
+    int userId;
+    ListView lv;
+    String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_applications);
-        Toolbar toolbar2 = (Toolbar) findViewById(R.id.toolbarAppl);
+        Intent intent = getIntent();
+        userName = intent.getStringExtra(PARAM_USER_NAME);
+
+        Toolbar toolbar2 = findViewById(R.id.toolbarAppl);
         setSupportActionBar(toolbar2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Мои заявки");
+
+        lv = findViewById(R.id.listViewApplications);
+        makeMonth();
     }
+
+    private void makeMonth() {
+        final AdapterElement[][] arr = new AdapterElement[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange makeMonth", Toast.LENGTH_SHORT).show();
+                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
+                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
+                            userId = i;
+                            break;
+                        }
+                    }
+                }
+                ArrayList mainNames = new ArrayList();
+                ArrayList ambitions = new ArrayList();
+                ArrayList experiences = new ArrayList();
+                ArrayList examples = new ArrayList();
+                ArrayList users = new ArrayList();
+                ArrayList applicationIdes = new ArrayList();
+                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null &&
+                            dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString().equals(dataSnapshot.child("client" + userId).child("login").getValue().toString())) {
+                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdes.add(i + "");
+                        //star.setImageResource(android.R.drawable.btn_star_big_on);
+                    }
+                }
+                arr[0] = new AdapterElement[experiences.size()];
+                // Сборка заявок
+                for (int i = 0; i < arr[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = mainNames.get(i).toString();
+                    month.ambition = ambitions.get(i).toString();
+                    month.experience = experiences.get(i).toString();
+                    month.example = examples.get(i).toString();
+                    month.user = users.get(i).toString();
+                    month.applicationId = applicationIdes.get(i).toString();
+                    arr[0][i] = month;
+                }
+
+
+                AdapterApplications adapter = new AdapterApplications(MyApplications.this, arr[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapter.setUserActionListener(MyApplications.this);
+                lv.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -26,5 +113,24 @@ public class MyApplications extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onShowMoreClick(final String applicationId) {
+        // нажали на кнопку, а действие сюда прилетело
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Intent intent = new Intent(MyApplications.this, moreAboutApplication.class);
+                intent.putExtra("applId", applicationId);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(MyApplications.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
 }

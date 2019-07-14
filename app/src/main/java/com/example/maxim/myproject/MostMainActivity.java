@@ -37,15 +37,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MostMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MainAdapter.UserActionListener {
     public static final String TAG = "MostMainActivity";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
-    String item;
-    String searchText;
+    ArrayList hashtegs, hashtegsDBList;
+    String searchText, oneWord, item, oneWordDB;
     String userName = null;
+    int numberOfSpaces2, iSpace2, numberOfRavno, indexApplication;
+    Map<Integer, Integer> hashMap = new HashMap<>();
     int pos;
+    //int[][] mas2;
+    ArrayList mas = new ArrayList();
+    AlertDialog.Builder builderHashtegs;
     ImageButton burger;
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
@@ -124,7 +133,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             public void onClick(View v) {
                 if (controlBurger)
                     drawer.openDrawer(GravityCompat.START);
-                else{
+                else {
                     makeMonth();
                     controlBurger = true;
                     burger.setImageResource(R.drawable.huray);
@@ -174,15 +183,206 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         View.OnClickListener oclBtnSearch = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                makeApplicationForSearch();
-                burger.setImageResource(R.drawable.back2);
-                controlBurger = false;
+                if (pos == 0) {
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Выберите критерий поиска (чёрный треугольник справа)", Toast.LENGTH_LONG);
+                    toast.show();
+                } else if (pos == 1) {
+                    builderHashtegs = new AlertDialog.Builder(MostMainActivity.this);
+                    builderHashtegs.setTitle("Поиск по хэштегам")
+                            .setMessage("Осуществляя поиск по хэштегам указывайте их через пробел без использования посторонних символов." + "\n" + "Например, если вам надо упомянуть в стороке поиска следующие хэштеги: приложения, создание приложения, опытный специалист, программист, то вам следует указать эти хэштеги в слудующем виде: приложения созданиеприложения опытныйспециалист программист. Без специальных символов. ")
+                            .setCancelable(false)
+                            .setNegativeButton("Понятно",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                    Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
+                    makeApplicationForSearchByHashtegs();
+                    AlertDialog alertHashtegs = builderHashtegs.create();
+                    alertHashtegs.show();
+                    burger.setImageResource(R.drawable.back2);
+                    controlBurger = false;
+                } else {
+                    makeApplicationForSearchByWords();
+                    burger.setImageResource(R.drawable.back2);
+                    controlBurger = false;
+                }
             }
         };
         btnSearch.setOnClickListener(oclBtnSearch);
     }
 
-    private void makeApplicationForSearch() {
+    private void makeApplicationForSearchByHashtegs() {
+        Toast.makeText(getApplicationContext(), "Зашёл в функцию byHashtegs", Toast.LENGTH_SHORT).show();
+        final EditText searchEditText = findViewById(R.id.searchEditText);
+        searchText = searchEditText.getText().toString();
+        hashtegs = new ArrayList(); // массив отдельных хэштегов из EditText
+        hashtegsDBList = new ArrayList(); // массив отдельных хэштегов из заявки в БД
+        oneWord = ""; // сюда записывается одно слово из множества хештегов
+        final AdapterElement[][] arr = new AdapterElement[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                ArrayList mainNames = new ArrayList();
+                ArrayList ambitions = new ArrayList();
+                ArrayList experiences = new ArrayList();
+                ArrayList examples = new ArrayList();
+                ArrayList users = new ArrayList();
+                ArrayList applicationIdes = new ArrayList();
+                int iSpace = 0;
+                int numberOfSpaces = 0; // кол-во пробелов в строке из EditText
+                for (int i = 0; i < searchText.length(); i++) {
+                    if (searchText.charAt(i) == ' ')
+                        numberOfSpaces++;
+                }
+                //  игр gam
+                for (int i = 0; i < numberOfSpaces + 1; i++) { // до 2-х
+                    if (i > 0)
+                        iSpace++;
+                    while (iSpace < searchText.length() && searchText.charAt(iSpace) != ' ') {
+                        oneWord += searchText.charAt(iSpace);
+                        iSpace++;
+                    }
+                    hashtegs.add(oneWord);
+                    oneWord = "";
+                }
+                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").child("hashs").getValue() != null) {
+                        String hashtegsDB = dataSnapshot.child("applications").child("application" + i + "").child("hashs").getValue().toString();
+                        Toast.makeText(getApplicationContext(), "Зашёл в цикл разбиения на слова", Toast.LENGTH_SHORT).show();
+                        iSpace2 = 0;
+                        numberOfSpaces2 = 0;
+                        for (int i2 = 0; i2 < hashtegsDB.length(); i2++) {
+                            if (hashtegsDB.charAt(i2) == ' ')
+                                numberOfSpaces2++;
+                        }
+                        //  игра game play
+                        for (int i3 = 0; i3 < numberOfSpaces2 + 1; i3++) {
+                            if (i3 > 0)
+                                iSpace2++;
+                            while (iSpace2 < hashtegsDB.length() && hashtegsDB.charAt(iSpace2) != ' ') {
+                                oneWordDB += hashtegsDB.charAt(iSpace2);
+                                iSpace2++;
+                            }
+                            hashtegsDBList.add(oneWordDB);
+                            oneWordDB = "";
+                        }
+                        numberOfRavno = 0;
+                        indexApplication = i;
+                        //mas2 = new int[Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 2][hashtegs.size() + 10]; // второй параметр - кол-во совпадений, первый параметр - id заявки с таким кол-вом совпадений
+                        // ate, рот       - hashtegs
+                        // рот, ест, кот  - hashtegsDBList
+                        for (int j = 0; j < hashtegs.size(); j++) {
+                            for (int iCheck = 0; iCheck < hashtegsDBList.size(); iCheck++) {
+                                if (hashtegs.get(j).toString().equals(hashtegsDBList.get(iCheck).toString())) {
+                                    numberOfRavno++;
+                                }
+                            }
+                        }
+                        if (numberOfRavno > 0) {
+                            hashMap.put(indexApplication, numberOfRavno); // кладём в hashMap индекс заявки и кол-во совпадний её хэштегов с хэштегами из EditText в строке поиска
+                            //mas2[indexApplication][0] = numberOfRavno;
+                            mas.add(numberOfRavno);  // ArrayList только с кол-вом совпадений
+                        }
+                        numberOfRavno = 0;
+                        //index++;
+                    }
+                    for (int indexx = 0; indexx < hashtegsDBList.size(); indexx++) {
+                        hashtegsDBList.remove(indexx);
+                    }
+                }
+                int begin, beginI = 0;
+                Arrays.sort(mas.toArray(), Collections.reverseOrder()); // сортируем массив по убыванию
+                // до этого момента всё верно
+                for (int i = 0; i < mas.size(); i++) {
+                    for (Map.Entry entry : hashMap.entrySet()) {
+                        if (mas.get(i) != null && entry.getValue() != null && mas.get(i) == entry.getValue()) {
+                            Toast.makeText(getApplicationContext(), "Добавил заявку под индексом " + entry.getKey().toString(), Toast.LENGTH_SHORT).show();
+                            mainNames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                            ambitions.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                            experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                            examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                            users.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                            applicationIdes.add(entry.getKey() + "");
+                        }
+                    }
+                    begin = Integer.parseInt(mas.get(i).toString());
+                    while (i + 1 < mas.size() && Integer.parseInt(mas.get(i + 1).toString()) == begin) {
+                        mas.remove(i + 1);
+                        i++;
+                    } // очищаем другие элементы mas с таким же кол-вом совпадений, читобы не было повтороений
+                    //i = beginI;
+                }
+
+                /*for (int i = 0; i < mas.size(); i++) {
+                    if (hashMap != null) {
+                        for (Map.Entry entry : hashMap.entrySet()) {
+                            if (entry.getValue() != null && mas.get(i) == entry.getValue()) {
+                                Toast.makeText(getApplicationContext(), "Добавил заявку под индексом " + entry.getKey().toString(), Toast.LENGTH_SHORT).show();
+                                mainNames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitions.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                users.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdes.add(entry.getKey() + "");
+                                hashMap.remove(entry.getKey());
+                            }
+                        }
+                    }
+                }*/
+
+                /*for (int i0 = 0; i0 < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 3; i0++) {
+                    for (Map.Entry entry : hashMap.entrySet()) {
+                        if (entry.getValue() == mas.get(i0)) {
+                            mainNames.add(dataSnapshot.child("applications").child("application" + i0 + "").child("name").getValue().toString());
+                            ambitions.add(dataSnapshot.child("applications").child("application" + i0 + "").child("purpose").getValue().toString());
+                            experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i0 + "").child("experience").getValue().toString());
+                            examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i0 + "").child("example").getValue().toString());
+                            users.add(dataSnapshot.child("applications").child("application" + i0 + "").child("creator").getValue().toString());
+                            applicationIdes.add(i0 + "");
+                        }
+                    }
+                }*/
+                arr[0] = new AdapterElement[mainNames.size()];
+                // Сборка заявок
+                for (int i = 0; i < arr[0].length; i++) {
+                    Toast.makeText(getApplicationContext(), "Собрал заявку номер: " + i, Toast.LENGTH_SHORT).show();
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = mainNames.get(i).toString();
+                    month.ambition = ambitions.get(i).toString();
+                    month.experience = experiences.get(i).toString();
+                    month.example = examples.get(i).toString();
+                    month.user = users.get(i).toString();
+                    month.applicationId = applicationIdes.get(i).toString();
+                    arr[0][i] = month;
+                }
+
+                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapter.setUserActionListener(MostMainActivity.this);
+                lv.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+        for (int indexxx = 0; indexxx < hashtegs.size(); indexxx++) {
+            hashtegs.remove(indexxx);
+        }
+        hashMap.clear();
+        for (int indexMas = 0; indexMas < mas.size(); indexMas++) {
+            mas.remove(indexMas);
+        }
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    private void makeApplicationForSearchByWords() {
         final EditText searchEditText = findViewById(R.id.searchEditText);
         searchText = searchEditText.getText().toString();
         final AdapterElement[][] arr = new AdapterElement[1][1];
@@ -353,8 +553,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             intent.putExtra(Chosen.PARAM_USER_NAME, userName);
             startActivity(intent);
         } else if (id == R.id.my_applications) {
-            Intent intent2 = new Intent(MostMainActivity.this, MyApplications.class);
-            startActivity(intent2);
+            Intent intentApplications = new Intent(MostMainActivity.this, MyApplications.class);
+            intentApplications.putExtra(MyApplications.PARAM_USER_NAME, userName);
+            startActivity(intentApplications);
         } else if (id == R.id.changing_describtion) {
             ValueEventListener listenerAtOnceDescription = new ValueEventListener() {
                 @Override
@@ -386,7 +587,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     // только так ты можешь получить нужный тебе editText, потому что он лежит только в этом лейауте
                     // раньше ты пытался найти его на активити MostMainActivity
                     edit = view.findViewById(R.id.editText6);
-                    edit.setText(dataSnapshot.child("client"+clientId).child("description").getValue().toString());
+                    edit.setText(dataSnapshot.child("client" + clientId).child("description").getValue().toString());
                     AlertDialog alert2 = builder2.create();
                     alert2.setView(view);
                     alert2.getWindow().setLayout(265, 130);

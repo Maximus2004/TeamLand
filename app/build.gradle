@@ -10,7 +10,7 @@ android {
         versionName "1.0"
     }
     dexOptions {
-        javaMaxHeapSize "1g"
+        javaMaxHeapSize "3g"
     }
     buildTypes {
         release {

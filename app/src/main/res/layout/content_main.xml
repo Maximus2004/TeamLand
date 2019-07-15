@@ -202,11 +202,10 @@ tools:context=".Main2Activity">
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/button2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Кнопка на второй вкладке" />
+                    <ListView
+                        android:id="@+id/listView2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -214,11 +213,11 @@ tools:context=".Main2Activity">
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/button3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Кнопка на третьей вкладке" />
+                    <ListView
+                        android:id="@+id/listView3"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -226,11 +225,11 @@ tools:context=".Main2Activity">
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/button4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Кнопка на четвёртой вкладке" />
+                    <ListView
+                        android:id="@+id/listView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -238,11 +237,11 @@ tools:context=".Main2Activity">
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/button5"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Кнопка на четвёртой вкладке" />
+                    <ListView
+                        android:id="@+id/listView5"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -250,11 +249,11 @@ tools:context=".Main2Activity">
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <Button
-                        android:id="@+id/button6"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Кнопка на четвёртой вкладке" />
+                    <ListView
+                        android:id="@+id/listView6"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
                 </LinearLayout>
 
             <LinearLayout
@@ -262,11 +261,11 @@ tools:context=".Main2Activity">
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <Button
-                    android:id="@+id/button7"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Кнопка на четвёртой вкладке" />
+                <ListView
+                    android:id="@+id/listView7"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
             </LinearLayout>
         </FrameLayout>
         </LinearLayout>

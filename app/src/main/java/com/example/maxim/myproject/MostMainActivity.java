@@ -61,7 +61,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     // так нельзя работать с activity
 //    LoginActivity loginActivity = new LoginActivity();
     EditText edit;
-    ListView lv;
+    ListView lv, lv2, lv3, lv4, lv5, lv6, lv7;
     boolean controlBurger = true;
 
     // очень длинный метод, разбить на мелкие
@@ -164,6 +164,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceUserName);
 
         lv = findViewById(R.id.listView);
+        lv2 = findViewById(R.id.listView2);
+        lv3 = findViewById(R.id.listView3);
+        lv4 = findViewById(R.id.listView4);
+        lv5 = findViewById(R.id.listView5);
+        lv6 = findViewById(R.id.listView6);
+        lv7 = findViewById(R.id.listView7);
         makeMonth();
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -221,17 +227,59 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         hashtegs = new ArrayList(); // массив отдельных хэштегов из EditText
         hashtegsDBList = new ArrayList(); // массив отдельных хэштегов из заявки в БД
         oneWord = ""; // сюда записывается одно слово из множества хештегов
-        final AdapterElement[][] arr = new AdapterElement[1][1];
+        final AdapterElement[][] arrBuisness = new AdapterElement[1][1];
+        final AdapterElement[][] arrAll = new AdapterElement[1][1];
+        final AdapterElement[][] arrInternet = new AdapterElement[1][1];
+        final AdapterElement[][] arrGames = new AdapterElement[1][1];
+        final AdapterElement[][] arrSites = new AdapterElement[1][1];
+        final AdapterElement[][] arrApps = new AdapterElement[1][1];
+        final AdapterElement[][] arrOther = new AdapterElement[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                ArrayList mainNames = new ArrayList();
-                ArrayList ambitions = new ArrayList();
-                ArrayList experiences = new ArrayList();
-                ArrayList examples = new ArrayList();
-                ArrayList users = new ArrayList();
-                ArrayList applicationIdes = new ArrayList();
+                ArrayList mainNamesInternet = new ArrayList();
+                ArrayList ambitionsInternet = new ArrayList();
+                ArrayList experiencesInternet = new ArrayList();
+                ArrayList examplesInternet = new ArrayList();
+                ArrayList usersInternet = new ArrayList();
+                ArrayList applicationIdesInternet = new ArrayList();
+                ArrayList mainNamesBuisness = new ArrayList();
+                ArrayList ambitionsBuisness = new ArrayList();
+                ArrayList experiencesBuisness = new ArrayList();
+                ArrayList examplesBuisness = new ArrayList();
+                ArrayList usersBuisness = new ArrayList();
+                ArrayList applicationIdesBuisness = new ArrayList();
+                ArrayList mainNamesGames = new ArrayList();
+                ArrayList ambitionsGames = new ArrayList();
+                ArrayList experiencesGames = new ArrayList();
+                ArrayList examplesGames = new ArrayList();
+                ArrayList usersGames = new ArrayList();
+                ArrayList applicationIdesGames = new ArrayList();
+                ArrayList mainNamesSites = new ArrayList();
+                ArrayList ambitionsSites = new ArrayList();
+                ArrayList experiencesSites = new ArrayList();
+                ArrayList examplesSites = new ArrayList();
+                ArrayList usersSites = new ArrayList();
+                ArrayList applicationIdesSites = new ArrayList();
+                ArrayList mainNamesApps = new ArrayList();
+                ArrayList ambitionsApps = new ArrayList();
+                ArrayList experiencesApps = new ArrayList();
+                ArrayList examplesApps = new ArrayList();
+                ArrayList usersApps = new ArrayList();
+                ArrayList applicationIdesApps = new ArrayList();
+                ArrayList mainNamesOther = new ArrayList();
+                ArrayList ambitionsOther = new ArrayList();
+                ArrayList experiencesOther = new ArrayList();
+                ArrayList examplesOther = new ArrayList();
+                ArrayList usersOther = new ArrayList();
+                ArrayList applicationIdesOther = new ArrayList();
+                ArrayList mainNamesAll = new ArrayList();
+                ArrayList ambitionsAll = new ArrayList();
+                ArrayList experiencesAll = new ArrayList();
+                ArrayList examplesAll = new ArrayList();
+                ArrayList usersAll = new ArrayList();
+                ArrayList applicationIdesAll = new ArrayList();
                 int iSpace = 0;
                 int numberOfSpaces = 0; // кол-во пробелов в строке из EditText
                 for (int i = 0; i < searchText.length(); i++) {
@@ -294,27 +342,79 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         hashtegsDBList.remove(indexx);
                     }
                 }
-                int begin, beginI = 0;
+                int begin = 0;
                 Arrays.sort(mas.toArray(), Collections.reverseOrder()); // сортируем массив по убыванию
                 // до этого момента всё верно
                 for (int i = 0; i < mas.size(); i++) {
                     for (Map.Entry entry : hashMap.entrySet()) {
                         if (mas.get(i) != null && entry.getValue() != null && mas.get(i) == entry.getValue()) {
-                            Toast.makeText(getApplicationContext(), "Добавил заявку под индексом " + entry.getKey().toString(), Toast.LENGTH_SHORT).show();
-                            mainNames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
-                            ambitions.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
-                            experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
-                            examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
-                            users.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
-                            applicationIdes.add(entry.getKey() + "");
+                            if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").getValue() != null && dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue().equals("Бизнес в интернете")) {
+                                mainNamesInternet.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsInternet.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesInternet.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesInternet.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersInternet.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesInternet.add(entry.getKey() + "");
+                            } else if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue().equals("Оффлайн бизнес")) {
+                                mainNamesBuisness.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsBuisness.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesBuisness.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesBuisness.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersBuisness.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesBuisness.add(entry.getKey() + "");
+                            } else if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue().equals("Создание игр")) {
+                                mainNamesGames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsGames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesGames.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesGames.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersGames.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesGames.add(entry.getKey() + "");
+                            } else if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue().equals("Создание сайтов")) {
+                                mainNamesSites.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsSites.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesSites.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesSites.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersSites.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesSites.add(entry.getKey() + "");
+                            } else if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue().equals("Создание приложений")) {
+                                mainNamesApps.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsApps.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesApps.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesApps.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersApps.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesApps.add(entry.getKey() + "");
+                            } else {
+                                if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").getValue() != null) {
+                                    mainNamesOther.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                    ambitionsOther.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                    experiencesOther.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                    examplesOther.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                    usersOther.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                    applicationIdesOther.add(entry.getKey() + "");
+                                }
+                            }
+                            if (dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("section").getValue() != null) {
+                                mainNamesAll.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("name").getValue().toString());
+                                ambitionsAll.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("purpose").getValue().toString());
+                                experiencesAll.add("  Опыт: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("experience").getValue().toString());
+                                examplesAll.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("example").getValue().toString());
+                                usersAll.add(dataSnapshot.child("applications").child("application" + entry.getKey() + "").child("creator").getValue().toString());
+                                applicationIdesAll.add(entry.getKey() + "");
+                            }
                         }
                     }
+                    arrAll[0] = new AdapterElement[mainNamesAll.size()];
+                    arrInternet[0] = new AdapterElement[mainNamesInternet.size()];
+                    arrBuisness[0] = new AdapterElement[mainNamesBuisness.size()];
+                    arrGames[0] = new AdapterElement[mainNamesGames.size()];
+                    arrSites[0] = new AdapterElement[mainNamesSites.size()];
+                    arrApps[0] = new AdapterElement[mainNamesApps.size()];
+                    arrOther[0] = new AdapterElement[mainNamesOther.size()];
                     begin = Integer.parseInt(mas.get(i).toString());
                     while (i + 1 < mas.size() && Integer.parseInt(mas.get(i + 1).toString()) == begin) {
                         mas.remove(i + 1);
                         i++;
                     } // очищаем другие элементы mas с таким же кол-вом совпадений, читобы не было повтороений
-                    //i = beginI;
                 }
 
                 /*for (int i = 0; i < mas.size(); i++) {
@@ -346,24 +446,105 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         }
                     }
                 }*/
-                arr[0] = new AdapterElement[mainNames.size()];
-                // Сборка заявок
-                for (int i = 0; i < arr[0].length; i++) {
-                    Toast.makeText(getApplicationContext(), "Собрал заявку номер: " + i, Toast.LENGTH_SHORT).show();
+                for (int i = 0; i < arrAll[0].length; i++) {
                     AdapterElement month = new AdapterElement();
-                    month.mainName = mainNames.get(i).toString();
-                    month.ambition = ambitions.get(i).toString();
-                    month.experience = experiences.get(i).toString();
-                    month.example = examples.get(i).toString();
-                    month.user = users.get(i).toString();
-                    month.applicationId = applicationIdes.get(i).toString();
-                    arr[0][i] = month;
+                    month.mainName = mainNamesAll.get(i).toString();
+                    month.ambition = ambitionsAll.get(i).toString();
+                    month.experience = experiencesAll.get(i).toString();
+                    month.example = examplesAll.get(i).toString();
+                    month.user = usersAll.get(i).toString();
+                    month.applicationId = applicationIdesAll.get(i).toString();
+                    arrAll[0][i] = month;
+                }
+                for (int i = 0; i < arrBuisness[0].length; i++) {
+                    AdapterElement month2 = new AdapterElement();
+                    month2.mainName = mainNamesBuisness.get(i).toString();
+                    month2.ambition = ambitionsBuisness.get(i).toString();
+                    month2.experience = experiencesBuisness.get(i).toString();
+                    month2.example = examplesBuisness.get(i).toString();
+                    month2.user = usersBuisness.get(i).toString();
+                    month2.applicationId = applicationIdesBuisness.get(i).toString();
+                    arrBuisness[0][i] = month2;
+                }
+                for (int i = 0; i < arrGames[0].length; i++) {
+                    AdapterElement month3 = new AdapterElement();
+                    month3.mainName = mainNamesGames.get(i).toString();
+                    month3.ambition = ambitionsGames.get(i).toString();
+                    month3.experience = experiencesGames.get(i).toString();
+                    month3.example = examplesGames.get(i).toString();
+                    month3.user = usersGames.get(i).toString();
+                    month3.applicationId = applicationIdesGames.get(i).toString();
+                    arrGames[0][i] = month3;
+                }
+                for (int i = 0; i < arrSites[0].length; i++) {
+                    AdapterElement month4 = new AdapterElement();
+                    month4.mainName = mainNamesSites.get(i).toString();
+                    month4.ambition = ambitionsSites.get(i).toString();
+                    month4.experience = experiencesSites.get(i).toString();
+                    month4.example = examplesSites.get(i).toString();
+                    month4.user = usersSites.get(i).toString();
+                    month4.applicationId = applicationIdesSites.get(i).toString();
+                    arrSites[0][i] = month4;
+                }
+                for (int i = 0; i < arrInternet[0].length; i++) {
+                    AdapterElement month4 = new AdapterElement();
+                    month4.mainName = mainNamesInternet.get(i).toString();
+                    month4.ambition = ambitionsInternet.get(i).toString();
+                    month4.experience = experiencesInternet.get(i).toString();
+                    month4.example = examplesInternet.get(i).toString();
+                    month4.user = usersInternet.get(i).toString();
+                    month4.applicationId = applicationIdesInternet.get(i).toString();
+                    arrInternet[0][i] = month4;
+                }
+                for (int i = 0; i < arrApps[0].length; i++) {
+                    AdapterElement month5 = new AdapterElement();
+                    month5.mainName = mainNamesApps.get(i).toString();
+                    month5.ambition = ambitionsApps.get(i).toString();
+                    month5.experience = experiencesApps.get(i).toString();
+                    month5.example = examplesApps.get(i).toString();
+                    month5.user = usersApps.get(i).toString();
+                    month5.applicationId = applicationIdesApps.get(i).toString();
+                    arrApps[0][i] = month5;
+                }
+                for (int i = 0; i < arrOther[0].length; i++) {
+                    AdapterElement month6 = new AdapterElement();
+                    month6.mainName = mainNamesOther.get(i).toString();
+                    month6.ambition = ambitionsOther.get(i).toString();
+                    month6.experience = experiencesOther.get(i).toString();
+                    month6.example = examplesOther.get(i).toString();
+                    month6.user = usersOther.get(i).toString();
+                    month6.applicationId = applicationIdesOther.get(i).toString();
+                    arrOther[0][i] = month6;
                 }
 
-                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+                MainAdapter adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
-                adapter.setUserActionListener(MostMainActivity.this);
-                lv.setAdapter(adapter);
+                adapterAll.setUserActionListener(MostMainActivity.this);
+                lv.setAdapter(adapterAll);
+                MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterBuisness.setUserActionListener(MostMainActivity.this);
+                lv2.setAdapter(adapterBuisness);
+                MainAdapter adapterGames = new MainAdapter(MostMainActivity.this, arrGames[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterGames.setUserActionListener(MostMainActivity.this);
+                lv3.setAdapter(adapterGames);
+                MainAdapter adapterSites = new MainAdapter(MostMainActivity.this, arrSites[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterSites.setUserActionListener(MostMainActivity.this);
+                lv4.setAdapter(adapterSites);
+                MainAdapter adapterInternet = new MainAdapter(MostMainActivity.this, arrInternet[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterInternet.setUserActionListener(MostMainActivity.this);
+                lv5.setAdapter(adapterInternet);
+                MainAdapter adapterApps = new MainAdapter(MostMainActivity.this, arrApps[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterApps.setUserActionListener(MostMainActivity.this);
+                lv6.setAdapter(adapterApps);
+                MainAdapter adapterOther = new MainAdapter(MostMainActivity.this, arrOther[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterOther.setUserActionListener(MostMainActivity.this);
+                lv7.setAdapter(adapterOther);
             }
 
             @Override
@@ -435,28 +616,121 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void makeMonth() {
-        final AdapterElement[][] arr = new AdapterElement[1][1];
+        final AdapterElement[][] arrBuisness = new AdapterElement[1][1];
+        final AdapterElement[][] arrAll = new AdapterElement[1][1];
+        final AdapterElement[][] arrInternet = new AdapterElement[1][1];
+        final AdapterElement[][] arrGames = new AdapterElement[1][1];
+        final AdapterElement[][] arrSites = new AdapterElement[1][1];
+        final AdapterElement[][] arrApps = new AdapterElement[1][1];
+        final AdapterElement[][] arrOther = new AdapterElement[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                ArrayList mainNames = new ArrayList();
-                ArrayList ambitions = new ArrayList();
-                ArrayList experiences = new ArrayList();
-                ArrayList examples = new ArrayList();
-                ArrayList users = new ArrayList();
-                ArrayList applicationIdes = new ArrayList();
+                ArrayList mainNamesInternet = new ArrayList();
+                ArrayList ambitionsInternet = new ArrayList();
+                ArrayList experiencesInternet = new ArrayList();
+                ArrayList examplesInternet = new ArrayList();
+                ArrayList usersInternet = new ArrayList();
+                ArrayList applicationIdesInternet = new ArrayList();
+                ArrayList mainNamesBuisness = new ArrayList();
+                ArrayList ambitionsBuisness = new ArrayList();
+                ArrayList experiencesBuisness = new ArrayList();
+                ArrayList examplesBuisness = new ArrayList();
+                ArrayList usersBuisness = new ArrayList();
+                ArrayList applicationIdesBuisness = new ArrayList();
+                ArrayList mainNamesGames = new ArrayList();
+                ArrayList ambitionsGames = new ArrayList();
+                ArrayList experiencesGames = new ArrayList();
+                ArrayList examplesGames = new ArrayList();
+                ArrayList usersGames = new ArrayList();
+                ArrayList applicationIdesGames = new ArrayList();
+                ArrayList mainNamesSites = new ArrayList();
+                ArrayList ambitionsSites = new ArrayList();
+                ArrayList experiencesSites = new ArrayList();
+                ArrayList examplesSites = new ArrayList();
+                ArrayList usersSites = new ArrayList();
+                ArrayList applicationIdesSites = new ArrayList();
+                ArrayList mainNamesApps = new ArrayList();
+                ArrayList ambitionsApps = new ArrayList();
+                ArrayList experiencesApps = new ArrayList();
+                ArrayList examplesApps = new ArrayList();
+                ArrayList usersApps = new ArrayList();
+                ArrayList applicationIdesApps = new ArrayList();
+                ArrayList mainNamesOther = new ArrayList();
+                ArrayList ambitionsOther = new ArrayList();
+                ArrayList experiencesOther = new ArrayList();
+                ArrayList examplesOther = new ArrayList();
+                ArrayList usersOther = new ArrayList();
+                ArrayList applicationIdesOther = new ArrayList();
+                ArrayList mainNamesAll = new ArrayList();
+                ArrayList ambitionsAll = new ArrayList();
+                ArrayList experiencesAll = new ArrayList();
+                ArrayList examplesAll = new ArrayList();
+                ArrayList usersAll = new ArrayList();
+                ArrayList applicationIdesAll = new ArrayList();
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
-                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
-                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
-                        experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
-                        examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
-                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
-                        applicationIdes.add(i + "");
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("applications").child("application" + i + "").child("section").getValue().equals("Бизнес в интернете")) {
+                        mainNamesInternet.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsInternet.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesInternet.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesInternet.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersInternet.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesInternet.add(i + "");
+                    } else if (dataSnapshot.child("applications").child("application" + i + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + i + "").child("section").getValue().equals("Оффлайн бизнес")) {
+                        mainNamesBuisness.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsBuisness.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesBuisness.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesBuisness.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersBuisness.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesBuisness.add(i + "");
+                    } else if (dataSnapshot.child("applications").child("application" + i + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + i + "").child("section").getValue().equals("Создание игр")) {
+                        mainNamesGames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsGames.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesGames.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesGames.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersGames.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesGames.add(i + "");
+                    } else if (dataSnapshot.child("applications").child("application" + i + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + i + "").child("section").getValue().equals("Создание сайтов")) {
+                        mainNamesSites.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsSites.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesSites.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesSites.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersSites.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesSites.add(i + "");
+                    } else if (dataSnapshot.child("applications").child("application" + i + "").child("section").getValue() != null && dataSnapshot.child("applications").child("application" + i + "").child("section").getValue().equals("Создание приложений")) {
+                        mainNamesApps.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsApps.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesApps.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesApps.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersApps.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesApps.add(i + "");
+                    } else {
+                        if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null) {
+                            mainNamesOther.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                            ambitionsOther.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                            experiencesOther.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                            examplesOther.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                            usersOther.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                            applicationIdesOther.add(i + "");
+                        }
+                    }
+                    if (dataSnapshot.child("applications").child("application" + i + "").child("section").getValue() != null) {
+                        mainNamesAll.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        ambitionsAll.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        experiencesAll.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
+                        examplesAll.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
+                        usersAll.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
+                        applicationIdesAll.add(i + "");
                     }
                 }
-                arr[0] = new AdapterElement[mainNames.size()];
+                arrAll[0] = new AdapterElement[mainNamesAll.size()];
+                arrInternet[0] = new AdapterElement[mainNamesInternet.size()];
+                arrBuisness[0] = new AdapterElement[mainNamesBuisness.size()];
+                arrGames[0] = new AdapterElement[mainNamesGames.size()];
+                arrSites[0] = new AdapterElement[mainNamesSites.size()];
+                arrApps[0] = new AdapterElement[mainNamesApps.size()];
+                arrOther[0] = new AdapterElement[mainNamesOther.size()];
 //                arr[0] = new AdapterElement[users.size()];
                 /*String[] mainName = {"Кулинар", "Программист Unity", "Программист Android Studio", "Надёжный деловой партнёр", "Партнёр по бизнесу", "Друг"};
                 String[] ambition = {"Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал...", "Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."};
@@ -464,22 +738,105 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 String[] exs = {"  Пример работы: нет", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет", "  Пример работы: есть", "  Пример работы: нет"};
                 String[] user = {"Maximus", "Vano", "Glebus", "Наталия", "Максим", "Ещё друг"};*/
                 // Сборка заявок
-                for (int i = 0; i < arr[0].length; i++) {
+                for (int i = 0; i < arrAll[0].length; i++) {
                     AdapterElement month = new AdapterElement();
-                    month.mainName = mainNames.get(i).toString();
-                    month.ambition = ambitions.get(i).toString();
-                    month.experience = experiences.get(i).toString();
-                    month.example = examples.get(i).toString();
-                    month.user = users.get(i).toString();
-                    month.applicationId = applicationIdes.get(i).toString();
-                    arr[0][i] = month;
+                    month.mainName = mainNamesAll.get(i).toString();
+                    month.ambition = ambitionsAll.get(i).toString();
+                    month.experience = experiencesAll.get(i).toString();
+                    month.example = examplesAll.get(i).toString();
+                    month.user = usersAll.get(i).toString();
+                    month.applicationId = applicationIdesAll.get(i).toString();
+                    arrAll[0][i] = month;
+                }
+                for (int i = 0; i < arrBuisness[0].length; i++) {
+                    AdapterElement month2 = new AdapterElement();
+                    month2.mainName = mainNamesBuisness.get(i).toString();
+                    month2.ambition = ambitionsBuisness.get(i).toString();
+                    month2.experience = experiencesBuisness.get(i).toString();
+                    month2.example = examplesBuisness.get(i).toString();
+                    month2.user = usersBuisness.get(i).toString();
+                    month2.applicationId = applicationIdesBuisness.get(i).toString();
+                    arrBuisness[0][i] = month2;
+                }
+                for (int i = 0; i < arrGames[0].length; i++) {
+                    AdapterElement month3 = new AdapterElement();
+                    month3.mainName = mainNamesGames.get(i).toString();
+                    month3.ambition = ambitionsGames.get(i).toString();
+                    month3.experience = experiencesGames.get(i).toString();
+                    month3.example = examplesGames.get(i).toString();
+                    month3.user = usersGames.get(i).toString();
+                    month3.applicationId = applicationIdesGames.get(i).toString();
+                    arrGames[0][i] = month3;
+                }
+                for (int i = 0; i < arrSites[0].length; i++) {
+                    AdapterElement month4 = new AdapterElement();
+                    month4.mainName = mainNamesSites.get(i).toString();
+                    month4.ambition = ambitionsSites.get(i).toString();
+                    month4.experience = experiencesSites.get(i).toString();
+                    month4.example = examplesSites.get(i).toString();
+                    month4.user = usersSites.get(i).toString();
+                    month4.applicationId = applicationIdesSites.get(i).toString();
+                    arrSites[0][i] = month4;
+                }
+                for (int i = 0; i < arrInternet[0].length; i++) {
+                    AdapterElement month4 = new AdapterElement();
+                    month4.mainName = mainNamesInternet.get(i).toString();
+                    month4.ambition = ambitionsInternet.get(i).toString();
+                    month4.experience = experiencesInternet.get(i).toString();
+                    month4.example = examplesInternet.get(i).toString();
+                    month4.user = usersInternet.get(i).toString();
+                    month4.applicationId = applicationIdesInternet.get(i).toString();
+                    arrInternet[0][i] = month4;
+                }
+                for (int i = 0; i < arrApps[0].length; i++) {
+                    AdapterElement month5 = new AdapterElement();
+                    month5.mainName = mainNamesApps.get(i).toString();
+                    month5.ambition = ambitionsApps.get(i).toString();
+                    month5.experience = experiencesApps.get(i).toString();
+                    month5.example = examplesApps.get(i).toString();
+                    month5.user = usersApps.get(i).toString();
+                    month5.applicationId = applicationIdesApps.get(i).toString();
+                    arrApps[0][i] = month5;
+                }
+                for (int i = 0; i < arrOther[0].length; i++) {
+                    AdapterElement month6 = new AdapterElement();
+                    month6.mainName = mainNamesOther.get(i).toString();
+                    month6.ambition = ambitionsOther.get(i).toString();
+                    month6.experience = experiencesOther.get(i).toString();
+                    month6.example = examplesOther.get(i).toString();
+                    month6.user = usersOther.get(i).toString();
+                    month6.applicationId = applicationIdesOther.get(i).toString();
+                    arrOther[0][i] = month6;
                 }
 
-//                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0]);
-                MainAdapter adapter = new MainAdapter(MostMainActivity.this, arr[0], userName);
+                MainAdapter adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
-                adapter.setUserActionListener(MostMainActivity.this);
-                lv.setAdapter(adapter);
+                adapterAll.setUserActionListener(MostMainActivity.this);
+                lv.setAdapter(adapterAll);
+                MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterBuisness.setUserActionListener(MostMainActivity.this);
+                lv2.setAdapter(adapterBuisness);
+                MainAdapter adapterGames = new MainAdapter(MostMainActivity.this, arrGames[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterGames.setUserActionListener(MostMainActivity.this);
+                lv3.setAdapter(adapterGames);
+                MainAdapter adapterSites = new MainAdapter(MostMainActivity.this, arrSites[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterSites.setUserActionListener(MostMainActivity.this);
+                lv4.setAdapter(adapterSites);
+                MainAdapter adapterInternet = new MainAdapter(MostMainActivity.this, arrInternet[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterInternet.setUserActionListener(MostMainActivity.this);
+                lv5.setAdapter(adapterInternet);
+                MainAdapter adapterApps = new MainAdapter(MostMainActivity.this, arrApps[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterApps.setUserActionListener(MostMainActivity.this);
+                lv6.setAdapter(adapterApps);
+                MainAdapter adapterOther = new MainAdapter(MostMainActivity.this, arrOther[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterOther.setUserActionListener(MostMainActivity.this);
+                lv7.setAdapter(adapterOther);
             }
 
             @Override
@@ -603,6 +960,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             mDatabase.addListenerForSingleValueEvent(listenerAtOnceDescription);
         } else if (id == R.id.sing_out) {
             finish();
+            Intent intentSignOut = new Intent(MostMainActivity.this, LoginActivity.class);
+            startActivity(intentSignOut);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -617,7 +976,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         TabHost.TabSpec tabSpec = tabHost.newTabSpec("tag1");
 
         tabSpec.setContent(R.id.tab1);
-        tabSpec.setIndicator("Бизнес в интеренете");
+        tabSpec.setIndicator("Все заявки");
         tabHost.addTab(tabSpec);
 
         tabSpec = tabHost.newTabSpec("tag2");
@@ -637,7 +996,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         tabSpec = tabHost.newTabSpec("tag5");
         tabSpec.setContent(R.id.tab5);
-        tabSpec.setIndicator("Создание сайтов");
+        tabSpec.setIndicator("Бизнес в интернете");
         tabHost.addTab(tabSpec);
 
         tabSpec = tabHost.newTabSpec("tag6");

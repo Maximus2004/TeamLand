@@ -28,17 +28,18 @@
         tools:context="Избранные" />
 
     <LinearLayout
-        android:layout_width="364dp"
-        android:layout_height="560dp"
+        android:layout_width="wrap_content"
+        android:layout_height="555dp"
         android:layout_marginStart="25dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="4dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarChosen">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarChosen"
+        app:layout_constraintVertical_bias="0.51">
 
         <ListView
             android:id="@+id/listViewFavourite"

@@ -18,7 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MyApplications extends AppCompatActivity implements MainAdapter.UserActionListener {
+public class MyApplications extends AppCompatActivity implements MainAdapterForMyAppl.UserActionListener {
     public static String TAG = "MyApplications";
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
@@ -63,11 +63,32 @@ public class MyApplications extends AppCompatActivity implements MainAdapter.Use
                 ArrayList examples = new ArrayList();
                 ArrayList users = new ArrayList();
                 ArrayList applicationIdes = new ArrayList();
+                String bigName, name;
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null &&
                             dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString().equals(dataSnapshot.child("client" + userId).child("login").getValue().toString())) {
-                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
-                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length()>22){
+                            bigName = "";
+                            name = dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString();
+                            for (int j = 0; j < 22; j++){
+                                bigName += name.charAt(j);
+                            }
+                            mainNames.add("  " + bigName + "...");
+                        }
+                        else {
+                            mainNames.add("  " + dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        }
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString().length()>146){
+                            bigName = "";
+                            name = dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString();
+                            for (int j = 0; j < 146; j++){
+                                bigName += name.charAt(j);
+                            }
+                            ambitions.add(bigName + "...");
+                        }
+                        else {
+                            ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        }
                         experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
                         examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
                         users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
@@ -89,7 +110,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapter.Use
                 }
 
 
-                AdapterApplications adapter = new AdapterApplications(MyApplications.this, arr[0], userName);
+                MainAdapterForMyAppl adapter = new MainAdapterForMyAppl(MyApplications.this, arr[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MyApplications.this);
                 lv.setAdapter(adapter);
@@ -121,9 +142,11 @@ public class MyApplications extends AppCompatActivity implements MainAdapter.Use
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Intent intent = new Intent(MyApplications.this, moreAboutApplication.class);
+                /*Intent intent = new Intent(MyApplications.this, moreAboutApplication.class);
                 intent.putExtra("applId", applicationId);
-                startActivity(intent);
+                startActivity(intent);*/
+                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
+                makeMonth();
             }
 
             @Override

@@ -178,9 +178,10 @@ public class ActivityReg extends AppCompatActivity {
         nickText = findViewById(R.id.textView13);
         nickEditText = findViewById(R.id.editText3);
         nickEditString = nickEditText.getText().toString();
-        if (nickEditString.equals("")) {
+        if (nickEditString.equals("") || nickEditString.length() > 19) {
             nickText.setTextColor(Color.RED);
             checkingNickPasswordEdit = false;
+            Toast.makeText(this, "Имя пользователя слишком длинное", Toast.LENGTH_SHORT).show();
         } else {
             nickText.setTextColor(Color.BLACK);
             checkingNickPasswordEdit = true;

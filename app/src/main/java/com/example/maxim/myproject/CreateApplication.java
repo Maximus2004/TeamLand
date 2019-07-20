@@ -47,7 +47,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     boolean mainFlag, mainFlag2 = true;
     //static final int GALLERY_REQUEST = 1;
     String[] cities = {"Сфера программирования:", "Создание игр", "Создание сайтов", "Создание приложений"};
-    String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интеренете", "Оффлайн бизнес"};
+    String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интернете", "Оффлайн бизнес"};
     DatabaseReference mDatabase;
     String exampleText = "";
     String userName;

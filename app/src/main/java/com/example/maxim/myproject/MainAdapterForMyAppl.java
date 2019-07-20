@@ -19,15 +19,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class AdapterApplications extends ArrayAdapter<AdapterElement> {
+public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
     int userI;
     int userId;
-    MainAdapter.UserActionListener listener;
+    UserActionListener listener;
     boolean starFlag = false;
 
-    public AdapterApplications(Context context, AdapterElement[] arr, final String userName) {
-        super(context, R.layout.adapter_applications, arr);
+    public MainAdapterForMyAppl(Context context, AdapterElement[] arr, final String userName) {
+        super(context, R.layout.one_adapter_for_myappl, arr);
 
         // этому лучше быть здесь – сущность БД у тебя одна на все элементы, каждый раз вызывать нет смысла
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -52,7 +52,7 @@ public class AdapterApplications extends ArrayAdapter<AdapterElement> {
         });
     }
 
-    public void setUserActionListener(MainAdapter.UserActionListener listener) {
+    public void setUserActionListener(UserActionListener listener) {
         this.listener = listener;
     }
 
@@ -62,7 +62,7 @@ public class AdapterApplications extends ArrayAdapter<AdapterElement> {
         final AdapterElement month = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapner, null);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapter_for_myappl, null);
         }
 
         // Заполняем адаптер
@@ -120,18 +120,16 @@ public class AdapterApplications extends ArrayAdapter<AdapterElement> {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
-        final Button more = convertView.findViewById(R.id.buttonMore);
+        final Button edit = convertView.findViewById(R.id.buttonEdit);
         View.OnClickListener oclBtn0 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
                     listener.onShowMoreClick(month.applicationId);
-
-                Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
-            }
+                }
         };
-        more.setOnClickListener(oclBtn0);
+        edit.setOnClickListener(oclBtn0);
 
         final Button user = convertView.findViewById(R.id.userBtn);
         View.OnClickListener oclBtnUser = new View.OnClickListener() {
@@ -182,3 +180,4 @@ public class AdapterApplications extends ArrayAdapter<AdapterElement> {
         public void onShowMoreClick(String applicationId);
     }
 }
+

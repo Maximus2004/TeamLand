@@ -19,15 +19,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class MainAdapter extends ArrayAdapter<AdapterElement> {
+public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
     DatabaseReference mDatabase;
     int userI;
     int userId;
     UserActionListener listener;
     boolean starFlag = false;
 
-    public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
-        super(context, R.layout.one_adapner, arr);
+    public MainAdapterForOther(Context context, AdapterElementOther[] arr, final String userName) {
+        super(context, R.layout.one_adapter_for_other, arr);
 
         // этому лучше быть здесь – сущность БД у тебя одна на все элементы, каждый раз вызывать нет смысла
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -59,10 +59,10 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        final AdapterElement month = getItem(position);
+        final AdapterElementOther month = getItem(position);
 
         if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapner, null);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapter_for_other, null);
         }
 
         // Заполняем адаптер
@@ -72,7 +72,8 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
         ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
-
+        ((TextView) convertView.findViewById(R.id.sectionText)).setText(String.valueOf(month.sectionClass));
+        //((ImageButton) convertView.findViewById(R.id.imageButton0)).setImageResource(android.R.drawable.btn_star_big_off);
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
@@ -107,7 +108,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null) {
+                if (dataSnapshot.child("client"+userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
                     star.setImageResource(android.R.drawable.btn_star_big_on);
                 }
             }
@@ -182,3 +183,4 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         public void onShowMoreClick(String applicationId);
     }
 }
+

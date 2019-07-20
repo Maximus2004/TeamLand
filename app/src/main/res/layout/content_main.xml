@@ -176,7 +176,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab1"
                     android:layout_width="match_parent"
-                    android:layout_height="500dp"
+                    android:layout_height="505dp"
                     android:background="#e9e5e5"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -200,7 +200,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="505dp">
 
                     <ListView
                         android:id="@+id/listView2"
@@ -211,7 +211,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab3"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="505dp">
 
                     <ListView
                         android:id="@+id/listView3"
@@ -223,7 +223,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab4"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="505dp">
 
                     <ListView
                         android:id="@+id/listView4"
@@ -235,7 +235,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab5"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="505dp">
 
                     <ListView
                         android:id="@+id/listView5"
@@ -247,7 +247,7 @@ tools:context=".Main2Activity">
                 <LinearLayout
                     android:id="@+id/tab6"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="505dp">
 
                     <ListView
                         android:id="@+id/listView6"
@@ -256,17 +256,17 @@ tools:context=".Main2Activity">
 
                 </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/tab7"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <ListView
-                    android:id="@+id/listView7"
+                <LinearLayout
+                    android:id="@+id/tab7"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="505dp">
 
-            </LinearLayout>
+                    <ListView
+                        android:id="@+id/listView7"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
         </FrameLayout>
         </LinearLayout>
     </TabHost>

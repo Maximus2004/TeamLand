@@ -68,10 +68,31 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
                 ArrayList examples = new ArrayList();
                 ArrayList users = new ArrayList();
                 ArrayList applicationIdes = new ArrayList();
+                String bigName, name;
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("client"+userId).child("favourites").child("favourite"+i).getValue() != null) {
-                        mainNames.add(dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
-                        ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length()>22){
+                            bigName = "";
+                            name = dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString();
+                            for (int j = 0; j < 22; j++){
+                                bigName += name.charAt(j);
+                            }
+                            mainNames.add("  " + bigName + "...");
+                        }
+                        else {
+                            mainNames.add("  " + dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
+                        }
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString().length()>146){
+                            bigName = "";
+                            name = dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString();
+                            for (int j = 0; j < 146; j++){
+                                bigName += name.charAt(j);
+                            }
+                            ambitions.add(bigName + "...");
+                        }
+                        else {
+                            ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
+                        }
                         experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
                         examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
                         users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());

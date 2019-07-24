@@ -1,6 +1,7 @@
 package com.example.maxim.myproject;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -51,13 +52,18 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     String userName = null;
     int pos;
     EditText searchEditText;
-    AlertDialog.Builder builderHashtegs;
+    AlertDialog.Builder builderHashtegs, builder;
     ImageButton burger;
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
     EditText edit;
+    final boolean[] mCheckedItems = {false, false, false, false};
     ListView lv, lv2, lv3, lv4, lv5, lv6, lv7;
     boolean controlBurger = true;
+    TreeMap<Integer, List<Integer>> mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+    // идентификатор диалогового окна AlertDialog с кнопками
+    private final int IDD_CHECK = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +102,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         // кнопка "Создать новую заявку"
         setupCreateAppButton();
+        setupSortButton();
     }
 
     private void setupTitle() {
@@ -185,6 +192,60 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         createAppButton.setOnClickListener(onCreateAppClickListener);
     }
 
+    private void setupSortButton() {
+        View.OnClickListener onSortClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog(IDD_CHECK);
+            }
+        };
+
+        ImageButton sortButton = findViewById(R.id.imageButtonSort);
+        sortButton.setOnClickListener(onSortClickListener);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case IDD_CHECK:
+                final String[] checkCatsName = {"Предложения только с примером работы", "Предложения без опыта", "Предложения с ссылкой на ВК", "Предложения с телефоном"};
+                builder = new AlertDialog.Builder(this);
+                builder.setTitle("Критерий поиск")
+                        .setCancelable(false)
+
+                        .setMultiChoiceItems(checkCatsName, mCheckedItems,
+                                new DialogInterface.OnMultiChoiceClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int which, boolean isChecked) {
+                                        mCheckedItems[which] = isChecked;
+                                    }
+                                })
+
+                        // Добавляем кнопки
+                        .setPositiveButton("Готово",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+                                    }
+                                })
+
+                        .setNegativeButton("Отмена",
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+                                        dialog.cancel();
+
+                                    }
+                                });
+                return builder.create();
+            default:
+                return null;
+        }
+    }
+
     private void setupSearch() {
         searchEditText = findViewById(R.id.searchEditText);
 
@@ -215,7 +276,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                                 dialog.cancel();
                                             }
                                         });
-                        Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
 
                         AlertDialog alertHashtegs = builderHashtegs.create();
                         alertHashtegs.show();
@@ -229,8 +290,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         burger.setImageResource(R.drawable.back2);
                         controlBurger = false;
                     }
-                }
-                else
+                } else
                     Toast.makeText(getApplicationContext(), "Заполните строку поиска", Toast.LENGTH_SHORT).show();
             }
         };
@@ -331,56 +391,47 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 ArrayList<Integer> allApplicationIds = new ArrayList<>();
 
                 String bigName, name, section, bigSection;
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                TreeMap<Integer, List<Integer>> mapCountToIds = new TreeMap<>(Collections.reverseOrder());
-
                 DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                    if (appTagsRaw.getValue() != null) {
-                        // разделяем их на отдельные слова по пробелу
-                        List<String> appTags = Arrays
-                                .asList(appTagsRaw.getValue().toString()
-                                        .split(" ")
-                                );
-
-                        // подсчитываем сколько из них подходит под поисковый запрос
-                        int foundTagsCount = 0;
-                        for (String word : searchWords) {
-                            if (appTags.contains(word)) foundTagsCount++;
-                        }
-
-                        // сохраняем в мапу
-                        // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                        if (foundTagsCount > 0) {
-                            List<Integer> ids;
-                            // смотрим, есть ли уже такое количество совпадений
-                            // если есть, то добавляем в существующий список
-                            if (mapCountToIds.containsKey(foundTagsCount))
-                                ids = mapCountToIds.get(foundTagsCount);
-                            else
-                                ids = new ArrayList<>();
-
-                            ids.add(appIndex);
-                            mapCountToIds.put(foundTagsCount, ids);
-                        }
-                    }
+                if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3])
+                    createApps01(searchText);
+                else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]){
+                    createApps0(searchText);
+                    Toast.makeText(getApplicationContext(), "Зашёл в условие только с примером работы и положил " + searchText, Toast.LENGTH_SHORT).show();
                 }
-                // вот тут ты делал новую сущность (в mas.toArray()) и не использовал ее, то есть она сортировалась, а mas так и оставался не отсоритрованным
-//                Arrays.sort(mas.toArray(), Collections.reverseOrder()); // сортируем массив по убыванию
+                else if (mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0])
+                    createApps1(searchText);
+                else if (mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3] && !mCheckedItems[1])
+                    createApps2(searchText);
+                else if (mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[1])
+                    createApps3(searchText);
+                else if (mCheckedItems[0] && mCheckedItems[2] && !mCheckedItems[1] && !mCheckedItems[3])
+                    createApps02(searchText);
+                else if (mCheckedItems[0] && mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[1])
+                    createApps03(searchText);
+                else if (mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3])
+                    createApps12(searchText);
+                else if (mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[2])
+                    createApps13(searchText);
+                else if (mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[1])
+                    createApps23(searchText);
+                else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[3])
+                    createApps012(searchText);
+                else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[2])
+                    createApps013(searchText);
+                else if (mCheckedItems[0] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[1])
+                    createApps023(searchText);
+                else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0])
+                    createApps123(searchText);
+                else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && mCheckedItems[0])
+                    createApps0123(searchText);
+                else if (!mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0])
+                    createAppsNothing(searchText);
 
-                // до этого момента всё верно
 
                 // так как мы взяли TreeMap, то там все уже отсортировано по убыванию
                 // поэтому просто прогоняем цикл по всем ключам и значениям
-                if (!mapCountToIds.isEmpty()) {
-                    for (Map.Entry<Integer, List<Integer>> entry : mapCountToIds.entrySet()) {
+                if (!mapCountToIdsForHashtegs.isEmpty()) {
+                    for (Map.Entry<Integer, List<Integer>> entry : mapCountToIdsForHashtegs.entrySet()) {
                         for (int appId : entry.getValue()) {
                             DataSnapshot app = appTable.child("application" + appId);
                             DataSnapshot appSection = app.child("section");
@@ -693,9 +744,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     // выставляем слушателя в адаптер (слушатель – наше активити)
                     adapterOther.setUserActionListener(MostMainActivity.this);
                     lv7.setAdapter(adapterOther);
-                }
-                else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Ничего не найдено", Toast.LENGTH_LONG).show();
+                    //временный вариант
                     lv.removeAllViewsInLayout();
                     lv2.removeAllViewsInLayout();
                     lv3.removeAllViewsInLayout();
@@ -823,7 +874,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             if (appName.contains(word)) foundTagsCount += 3;
                         }
                         for (String word : searchWords) {
-                            if (appPurpose.contains(word)) foundTagsCount+=2;
+                            if (appPurpose.contains(word)) foundTagsCount += 2;
                         }
                         for (String word : searchWords) {
                             if (appDescription.contains(word)) foundTagsCount++;
@@ -1172,8 +1223,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     if (allMainNames.isEmpty()) {
                         Toast.makeText(getApplicationContext(), "Ничего не найдено", Toast.LENGTH_SHORT).show();
                     }
-                }
-                else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Ничего не найдено", Toast.LENGTH_LONG).show();
                     lv.removeAllViewsInLayout();
                     lv2.removeAllViewsInLayout();
@@ -1394,7 +1444,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                 }
                                 sitesAmbitions.add(bigName + "...");
                             } else {
-                               sitesAmbitions.add(appPurpose.getValue().toString());
+                                sitesAmbitions.add(appPurpose.getValue().toString());
                             }
                             sitesExperience.add("  Опыт: " + appExp.getValue().toString());
                             sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
@@ -1741,6 +1791,1008 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 Toast.makeText(MostMainActivity.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
             }
         };
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps0(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange в createApp0", Toast.LENGTH_SHORT).show();
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps1(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps2(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps3(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("phone").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps01(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")
+                            && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps02(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null
+                            && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps03(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("phone").getValue() != null
+                            && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps12(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0") &&
+                            appTable.child("application" + appIndex).child("vk").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps13(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0") &&
+                            appTable.child("application" + appIndex).child("phone").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps23(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null &&
+                            appTable.child("application" + appIndex).child("phone").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps012(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")
+                            && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть") && appTable.child("application" + appIndex).child("vk").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps013(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")
+                            && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть") && appTable.child("application" + appIndex).child("phone").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps023(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")
+                            && appTable.child("application" + appIndex).child("vk").getValue() != null
+                            && appTable.child("application" + appIndex).child("phone").getValue() != null) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps0123(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
+                            .equals("есть")
+                            && appTable.child("application" + appIndex).child("vk").getValue() != null
+                            && appTable.child("application" + appIndex).child("phone").getValue() != null
+                            && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createApps123(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null
+                            && appTable.child("application" + appIndex).child("phone").getValue() != null
+                            && appTable.child("application" + appIndex).child("experience").getValue().toString()
+                            .equals("0")) {
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void createAppsNothing(final String searchText) {
+        final String[] searchWords = searchText.split(" ");
+
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
+                // то передаем в конструкторе нужный порядок сортировки
+                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                // подсчитываем количество найденых тегов для заявок
+                for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                    // берем все теги заявки в исходном виде
+                    DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                    if (appTagsRaw.getValue() != null) {
+                        // разделяем их на отдельные слова по пробелу
+                        List<String> appTags = Arrays
+                                .asList(appTagsRaw.getValue().toString()
+                                        .split(" ")
+                                );
+
+                        // подсчитываем сколько из них подходит под поисковый запрос
+                        int foundTagsCount = 0;
+                        for (String word : searchWords) {
+                            if (appTags.contains(word)) foundTagsCount++;
+                        }
+
+                        // сохраняем в мапу
+                        // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                        if (foundTagsCount > 0) {
+                            List<Integer> ids;
+                            // смотрим, есть ли уже такое количество совпадений
+                            // если есть, то добавляем в существующий список
+                            if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                            else
+                                ids = new ArrayList<>();
+
+                            ids.add(appIndex);
+                            mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
 }

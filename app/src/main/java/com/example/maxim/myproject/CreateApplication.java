@@ -38,14 +38,12 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     boolean check, h2 = true;
     EditText name, cani, op1, other, hashs, contact, vkText, othe, opisanie;
     String main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Наприер, 'unityпрограммист'" + "\n";
-    boolean words, words2 = true;
     AlertDialog.Builder builder5;
     int pos, pos2, userI3;
     boolean isExample = false;
     boolean checkingSpaces, numberOfWords, n, u, op = false;
     boolean hash = false;
     boolean mainFlag, mainFlag2 = true;
-    //static final int GALLERY_REQUEST = 1;
     String[] cities = {"Сфера программирования:", "Создание игр", "Создание сайтов", "Создание приложений"};
     String[] cities2 = {"Сфера бизнеса (не IT):", "Бизнес в интернете", "Оффлайн бизнес"};
     DatabaseReference mDatabase;
@@ -130,11 +128,10 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 resPurpose = purposeEditText.getText().toString();
 
                 // написать через !result.contains(" ") без цикла
-                for (int i = 0; i < result.length(); i++) {
-                    if (result.charAt(i) != ' ') {
-                        checkingSpaces = true;
-                    }
+                if (!result.contains(" ")) {
+                    checkingSpaces = true;
                 }
+
                 if (purposeEditText.equals("") || !checkingSpaces) {
                     mainFlag = false;
                     mainFlag2 = false;
@@ -196,7 +193,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     t5.setTextColor(Color.BLACK);
                 }
 
-                // сделать через resHash.contains
                 for (int i = 0; i < resHash.length(); i++) {
                     if (resHash.charAt(i) != ' ') {
                         hash = true;
@@ -204,22 +200,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 }
 
                 // вызвать resHash.toLowerCase()
-                for (int i = 0; i < resHash.length(); i++) {
-                    for (char q = 'A'; q <= 'Z'; q++) {
-                        if (resHash.charAt(i) == q) {
-                            words = false;
-                        }
-                    }
-                }
-                for (int i = 0; i < resHash.length(); i++) {
-                    for (char q = 'А'; q <= 'Я'; q++) {
-                        if (resHash.charAt(i) == q) {
-                            words2 = false;
-                        }
-                    }
-                }
+                resHash.toLowerCase();
 
-                // проверить через resHash.contains или использовать RegExp.
                 for (int i = 0; i < resHash.length(); i++) {
                     for (char q = '!'; q <= '_'; q++) {
                         if (resHash.charAt(i) == q || resHash.charAt(i) == '>' || resHash.charAt(i) == '<') {
@@ -227,7 +209,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                         }
                     }
                 }
-                if (resHash.equals("") || !words || !words2 || !hash || !h2) {
+                if (resHash.equals("") || !hash || !h2) {
                     mainFlag = false;
                     mainFlag2 = false;
                     t6.setTextColor(Color.RED);
@@ -275,18 +257,16 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                            //скорее всего надо исправить что-то в этом куске кода, но я не понимаю что, потому что, по-моему, тут всё правильно
                             for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                                 if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().toString().equals(userName)) {
                                     userI3 = i;
-                                    Toast.makeText(getApplicationContext(), "записал в id user = "+userI3, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "записал в id user = " + userI3, Toast.LENGTH_SHORT).show();
                                     break;
                                 }
                             }
                             mDatabase = FirebaseDatabase.getInstance().getReference();
                             Toast.makeText(getApplicationContext(), "Записал в БД creator = " + dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), Toast.LENGTH_SHORT).show();
                             writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
-                            //writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis);
                             mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                         }
 
@@ -297,7 +277,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     };
 
                     mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                    // оно уже открыто, просто закрой это activity.
                     finish();
                 }
                 if (!mainFlag) {
@@ -316,8 +295,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                     alert5.show();
                     mainFlag = true;
                     mainFlag2 = true;
-                    words = true;
-                    words2 = true;
                     check = true;
                     h2 = true;
                 }
@@ -400,29 +377,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         getSupportActionBar().setTitle("Формирование заявки");
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent
-            imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-
-        Bitmap bitmap = null;
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-
-        switch (requestCode) {
-            case GALLERY_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    Uri selectedImage = imageReturnedIntent.getData();
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                        flag = true;
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    imageView.setImageBitmap(bitmap);
-                }
-        }
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -438,14 +392,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                                      String example, String experience, String name, String purpose, String section, String hashs, String other, String phone, String vk, String can, String descriptionApplication) {
         Application application = new Application(applicationId, creator, example, experience, name, purpose, section, hashs, other, phone, vk, can, descriptionApplication);
         mDatabase.child("applications").child("application" + applicationId).setValue(application);
-
-        /*String example, String experience, String name, String purpose, String section, String
-        other, String phone, String vk, String can, String descriptionApplication){
-            Application application = new Application(applicationId, creator, example, experience, name, purpose, section, other, phone, vk, can, descriptionApplication);
-            mDatabase.child("applications").child("application" + applicationId).setValue(application);*/
-        Toast toast = Toast.makeText(getApplicationContext(),
-                "Зашёл в writeNewApplication", Toast.LENGTH_SHORT);
-        toast.show();
     }
 
     @Override

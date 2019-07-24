@@ -111,6 +111,8 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                 if (dataSnapshot.child("client"+userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
                     star.setImageResource(android.R.drawable.btn_star_big_on);
                 }
+                else
+                    star.setImageResource(android.R.drawable.btn_star_big_off);
             }
 
             @Override

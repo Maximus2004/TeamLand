@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/tab1"
         android:layout_width="match_parent"
-        android:layout_height="307dp"
+        android:layout_height="280dp"
         android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -24,10 +24,12 @@
             android:layout_height="6dp" />
 
         <LinearLayout
-            android:layout_width="349dp"
-            android:layout_height="294dp"
+            android:id="@+id/layoutOneAdapter"
+            android:layout_width="match_parent"
+            android:layout_height="266dp"
             android:layout_gravity="right"
-            android:layout_marginRight="6dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/krugliye_ugli"
             android:gravity="right"
@@ -53,8 +55,9 @@
                 <TextView
                     android:id="@+id/textView25"
                     android:layout_width="wrap_content"
-                    android:layout_height="223dp"
-                    android:layout_gravity="left|center"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|left"
+                    android:layout_marginTop="30dp"
                     android:gravity="top"
                     android:paddingBottom="29dp"
                     android:text="  Цель"
@@ -63,7 +66,7 @@
 
                 <TextView
                     android:id="@+id/applicationID"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="148dp"
                     android:layout_gravity="left|center"
                     android:gravity="top"
@@ -82,10 +85,13 @@
 
                 <TextView
                     android:id="@+id/writeAdout"
-                    android:layout_width="305dp"
-                    android:layout_height="182dp"
-                    android:layout_gravity="center"
-                    android:text="Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."
+                    android:layout_width="match_parent"
+                    android:layout_height="116dp"
+                    android:layout_gravity="top|center"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginTop="51dp"
+                    android:layout_marginRight="9dp"
+                    android:text="Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходитецаимоциморимраломрда отоап"
                     android:textColor="#000000"
                     android:textSize="17dp"
                     android:translationY="5dp" />
@@ -94,10 +100,13 @@
                     android:id="@+id/examp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="64dp"
                     android:text="  Пример работы: есть"
                     android:textColor="#710c65"
                     android:textSize="18dp"
-                    android:translationY="193dp" />
+                    android:translationY="0dp" />
 
                 <Button
                     android:id="@+id/buttonMore"
@@ -113,10 +122,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="15dp"
                     android:text="  Опыт: 0"
                     android:textColor="#710c65"
                     android:textSize="18dp"
-                    android:translationY="-92dp" />
+                    android:translationY="0dp" />
 
                 <Button
                     android:id="@+id/userBtn"
@@ -133,8 +143,9 @@
                 <TextView
                     android:id="@+id/sectionText"
                     android:layout_width="wrap_content"
-                    android:layout_height="64dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="39dp"
                     android:text="  Раздел: бизнес в интернете прикол..."
                     android:textColor="#710c65"
                     android:textSize="18dp" />

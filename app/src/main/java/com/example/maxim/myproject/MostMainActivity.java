@@ -171,6 +171,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     fillData();
                     controlBurger = true;
                     burger.setImageResource(R.drawable.huray);
+                    searchEditText = findViewById(R.id.searchEditText);
+                    searchEditText.setText("");
                 }
             }
         };
@@ -210,7 +212,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             case IDD_CHECK:
                 final String[] checkCatsName = {"Предложения только с примером работы", "Предложения без опыта", "Предложения с ссылкой на ВК", "Предложения с телефоном"};
                 builder = new AlertDialog.Builder(this);
-                builder.setTitle("Критерий поиск")
+                builder.setTitle("Критерий поиска")
                         .setCancelable(false)
 
                         .setMultiChoiceItems(checkCatsName, mCheckedItems,

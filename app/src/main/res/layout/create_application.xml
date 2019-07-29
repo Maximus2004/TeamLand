@@ -10,9 +10,8 @@
         android:id="@+id/scrollView2"
         style="@android:style/Widget.DeviceDefault.Light.ScrollView"
         android:layout_width="0dp"
-        android:layout_height="540dp"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:scrollbarStyle="insideOverlay"
@@ -21,14 +20,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:focusableInTouchMode="true"
             android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/login_progress7"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
 
             <Button
                 android:id="@+id/button2"
@@ -204,7 +210,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Готов(-а) предоставить пример своей работы в данной сфере?"
-                android:textSize="17sp"/>
+                android:textSize="17sp" />
 
             <Space
                 android:layout_width="match_parent"
@@ -348,23 +354,13 @@
                 android:textSize="18sp"
                 android:translationZ="4dp" />
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/checkbox_on_background" />
-
         </LinearLayout>
     </ScrollView>
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="363dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
         android:elevation="5dp"

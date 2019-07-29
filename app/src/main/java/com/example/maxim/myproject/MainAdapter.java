@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,8 +67,65 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapner, null);
         }
+        LinearLayout layoutOneAdapter = convertView.findViewById(R.id.layoutOneAdapter);
+        ViewGroup.LayoutParams params = layoutOneAdapter.getLayoutParams();
+
+        LinearLayout tab1 = convertView.findViewById(R.id.tab1);
+        ViewGroup.LayoutParams paramsTab = tab1.getLayoutParams();
+
+        TextView writeAbout = ((TextView) convertView.findViewById(R.id.writeAdout));
+        ViewGroup.LayoutParams paramsTextView = writeAbout.getLayoutParams();
 
         // Заполняем адаптер
+        if (month.ambition.length() < 118 && month.ambition.length() > 85){
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 206);
+            layoutOneAdapter.setLayoutParams(params);
+            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(84);
+            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 84);
+            writeAbout.setLayoutParams(paramsTextView);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 221);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Первое условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 85 && month.ambition.length() > 61){
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 189);
+            layoutOneAdapter.setLayoutParams(params);
+            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(65);
+            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 65);
+            writeAbout.setLayoutParams(paramsTextView);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 201);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Второе условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 168);
+            layoutOneAdapter.setLayoutParams(params);
+            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(44);
+            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 44);
+            writeAbout.setLayoutParams(paramsTextView);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 181);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Третье условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 30) {
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 158);
+            layoutOneAdapter.setLayoutParams(params);
+            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(26);
+            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 34);
+            writeAbout.setLayoutParams(paramsTextView);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 175);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Четвёртое условие", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 226);
+            layoutOneAdapter.setLayoutParams(params);
+            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 105);
+            writeAbout.setLayoutParams(paramsTextView);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 242);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Никуда не зашёл((", Toast.LENGTH_SHORT).show();
+        }
         ((TextView) convertView.findViewById(R.id.applName)).setText(month.mainName);
         ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
         ((TextView) convertView.findViewById(R.id.experience)).setText(String.valueOf(month.experience));

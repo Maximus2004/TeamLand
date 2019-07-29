@@ -8,12 +8,11 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="556dp"
-        android:layout_marginTop="49dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarMore">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,6 +26,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:id="@+id/login_progress3"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/textView12"
@@ -254,14 +261,10 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbarMore"
-        android:layout_width="363dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorAccent"
+        android:background="#02a7ed"
         android:elevation="5dp"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"

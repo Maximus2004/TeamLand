@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +64,50 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
 
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapter_for_other, null);
+        }
+
+        LinearLayout layoutOneAdapter = convertView.findViewById(R.id.layoutOneAdapter);
+        ViewGroup.LayoutParams params = layoutOneAdapter.getLayoutParams();
+
+        LinearLayout tab1 = convertView.findViewById(R.id.tab1);
+        ViewGroup.LayoutParams paramsTab = tab1.getLayoutParams();
+
+        // Заполняем адаптер
+        if (month.ambition.length() < 118 && month.ambition.length() > 85){
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 247);
+            layoutOneAdapter.setLayoutParams(params);
+            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(84);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 263);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Первое условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 85 && month.ambition.length() > 61){
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 227);
+            layoutOneAdapter.setLayoutParams(params);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 243);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Второе условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 207);
+            layoutOneAdapter.setLayoutParams(params);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 223);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Третье условие", Toast.LENGTH_SHORT).show();
+        }
+        else if (month.ambition.length() < 30) {
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 187);
+            layoutOneAdapter.setLayoutParams(params);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 203);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Четвёртое условие", Toast.LENGTH_SHORT).show();
+        }
+        else{
+            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 266);
+            layoutOneAdapter.setLayoutParams(params);
+            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 280);
+            tab1.setLayoutParams(paramsTab);
+            Toast.makeText(getContext(), "Никуда не зашёл((", Toast.LENGTH_SHORT).show();
         }
 
         // Заполняем адаптер

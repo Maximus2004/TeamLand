@@ -56,6 +56,15 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Button buttonRegistration = findViewById(R.id.buttonRegistration);
+        View.OnClickListener oclBtnRegistr = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ActivityReg.class);
+                startActivity(intent);
+            }
+        };
+        buttonRegistration.setOnClickListener(oclBtnRegistr);
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,7 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                                 isUserRegistrated = false;
                                 Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
                                 intent.putExtra(MostMainActivity.PARAM_USER_NAME, loginT);
-                                Toast.makeText(getApplicationContext(), "положил в intent "+loginT, Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getApplicationContext(), "положил в intent "+loginT, Toast.LENGTH_SHORT).show();
                                 startActivity(intent);
                                 //userName = loginT;
                                 //MainAdapter adapter = new MainAdapter(LoginActivity.this, array, loginT);

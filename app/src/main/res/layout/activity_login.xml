@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#a0e1dc"
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -28,20 +30,20 @@
         <LinearLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="600dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="15dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView18"
+            <ImageView
+                android:id="@+id/imageView2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/avtorisation"
-                android:textColor="#000000"
-                android:textSize="23sp" />
+                android:layout_height="160dp"
+                app:srcCompat="@drawable/common_google_signin_btn_icon_dark_focused" />
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="18dp" />
+                android:layout_height="23dp" />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
@@ -54,7 +56,9 @@
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                    android:textColorHint="#626989" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -72,7 +76,8 @@
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textColorHint="#626989" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -85,6 +90,16 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/buttonRegistration"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ещё нет аккаунта? Зарегистрируйтесь!"
+                android:textColor="#0a6157"
+                android:textSize="12sp" />
+
         </LinearLayout>
     </ScrollView>
+
 </LinearLayout>

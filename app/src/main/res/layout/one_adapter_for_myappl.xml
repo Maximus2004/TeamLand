@@ -6,7 +6,7 @@
     <LinearLayout
         android:id="@+id/tab1"
         android:layout_width="match_parent"
-        android:layout_height="240dp"
+        android:layout_height="242dp"
         android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -19,10 +19,12 @@
             android:layout_height="6dp" />
 
         <LinearLayout
-            android:layout_width="349dp"
-            android:layout_height="231dp"
+            android:id="@+id/layoutOneAdapter"
+            android:layout_width="match_parent"
+            android:layout_height="226dp"
             android:layout_gravity="right"
-            android:layout_marginRight="6dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/krugliye_ugli"
             android:gravity="right"
@@ -41,15 +43,16 @@
                     android:id="@+id/applName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="  Кулинар"
+                    android:text="  Кулинар гипопотам съел хо..."
                     android:textColor="#000"
                     android:textSize="20dp" />
 
                 <TextView
                     android:id="@+id/textView25"
                     android:layout_width="wrap_content"
-                    android:layout_height="148dp"
-                    android:layout_gravity="left|center"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginTop="35dp"
                     android:gravity="top"
                     android:paddingBottom="20dp"
                     android:text="  Цель"
@@ -58,7 +61,7 @@
 
                 <TextView
                     android:id="@+id/applicationID"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="148dp"
                     android:layout_gravity="left|center"
                     android:gravity="top"
@@ -77,10 +80,12 @@
 
                 <TextView
                     android:id="@+id/writeAdout"
-                    android:layout_width="305dp"
-                    android:layout_height="106dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="105dp"
                     android:layout_gravity="center"
-                    android:text="Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходите, приходите! Лалалалалалалалалалал..."
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="9dp"
+                    android:text="Требуется кулинар для помощи в выпечке, расфасовке и продаже хлебо-булочных изделий. Приходите, приходитеb приходите! Kfkfkfkfkfkfkfkfkff"
                     android:textColor="#000000"
                     android:textSize="17dp"
                     android:translationY="5dp" />
@@ -89,10 +94,10 @@
                     android:id="@+id/examp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
                     android:text="  Пример работы: есть"
                     android:textColor="#710c65"
-                    android:textSize="18dp"
-                    android:translationY="194dp" />
+                    android:textSize="18dp" />
 
                 <Button
                     android:id="@+id/buttonEdit"
@@ -108,10 +113,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
+                    android:layout_marginBottom="25dp"
                     android:text="  Опыт: 0"
                     android:textColor="#710c65"
                     android:textSize="18dp"
-                    android:translationY="-28dp" />
+                    android:translationY="0dp" />
 
                 <Button
                     android:id="@+id/userBtn"
@@ -122,7 +128,7 @@
                     android:layout_marginLeft="43dp"
                     android:layout_marginTop="26dp"
                     android:layout_marginBottom="20dp"
-                    android:text="maximus"
+                    android:text="Дмитриев Александр"
                     android:textColor="#001eff" />
 
             </FrameLayout>

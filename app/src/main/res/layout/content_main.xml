@@ -12,7 +12,7 @@ tools:context=".Main2Activity">
         android:layout_height="62dp"
         android:layout_marginBottom="8dp"
         android:background="#02a7ed"
-        android:elevation="10dp"
+        android:elevation="4dp"
         android:maxLines="1"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -27,7 +27,6 @@ tools:context=".Main2Activity">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:elevation="10dp"
             android:paddingEnd="15dp"
             tools:layout_editor_absoluteX="100dp"
             tools:layout_editor_absoluteY="20dp">
@@ -37,7 +36,7 @@ tools:context=".Main2Activity">
                 android:layout_width="match_parent"
                 android:layout_height="41dp"
                 android:layout_gravity="center"
-                android:elevation="10dp"
+                android:elevation="11dp"
                 android:foregroundGravity="left"
                 app:cardCornerRadius="4dp"
                 tools:layout_editor_absoluteX="51dp"
@@ -290,16 +289,16 @@ tools:context=".Main2Activity">
     <ImageButton
         android:id="@+id/imageBtn"
         android:layout_width="52dp"
-        android:layout_height="54dp"
+        android:layout_height="52dp"
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="23dp"
         android:background="@drawable/roundedbutton"
         android:contentDescription="@string/desc"
-        android:elevation="0dp"
+        android:elevation="7dp"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/imgonline"></ImageButton>
+        app:srcCompat="@drawable/the_best_imgonline_plus"></ImageButton>
 
     <ImageButton
         android:id="@+id/imageButtonSort"
@@ -307,8 +306,12 @@ tools:context=".Main2Activity">
         android:layout_height="52dp"
         android:layout_marginEnd="80dp"
         android:layout_marginBottom="23dp"
-        android:elevation="10dp"
+        android:background="@drawable/roundedbutton"
+        android:contentDescription="@string/desc"
+        android:elevation="7dp"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/sort" />
+        app:srcCompat="@drawable/imgonline_sort" />
+
 </android.support.constraint.ConstraintLayout>

@@ -13,7 +13,7 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="desc">Image</string>
     <string name="edittext">      Поиск<font size="16"></font></string>
-    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_login">Team Land</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Имя пользователя</string>
     <string name="prompt_password">Пароль</string>

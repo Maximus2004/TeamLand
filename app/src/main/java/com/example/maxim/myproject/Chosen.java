@@ -53,7 +53,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
                         if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
@@ -122,7 +122,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Возникла ошибка", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -153,7 +153,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(Chosen.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Chosen.this, "Возникла ошибка", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);

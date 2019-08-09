@@ -49,6 +49,9 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     DatabaseReference mDatabase;
     String exampleText = "";
     String userName;
+    //я помню, что нельзя так обращаться с активностями и что лучше сделать их статичными, а потом через MostMainActivity.fillData();
+    //вызывать функцию, но у меня не получается сделать её статичной. Я,конечнр, что-то не так делаю
+    //MostMainActivity mostMainActivity = new MostMainActivity();
     String resOpit, resName, resCan, resOther, resOpis, resHash, resVK, resCont, resOtherVar, resPurpose, mainItem;
 
 
@@ -94,191 +97,15 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         View.OnClickListener oclBtnOk3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //прошу прощения за циферки в названиях переменных((
-                mainCount++;
-                purposeEditText = findViewById(R.id.editText2);
-                name = findViewById(R.id.name);
-                hashs = findViewById(R.id.hashTegs);
-                opisanie = findViewById(R.id.opisanie);
-                cani = findViewById(R.id.can);
-                other = findViewById(R.id.editText);
-                text = findViewById(R.id.textView);
-                othe = findViewById(R.id.otherContact);
-                contact = findViewById(R.id.phone);
-                vkText = findViewById(R.id.vk);
-                op1 = findViewById(R.id.experience);
-                String result = purposeEditText.getText().toString();
-                t2 = findViewById(R.id.textView2);
-                t6 = findViewById(R.id.textView6);
-                t3 = findViewById(R.id.textView3);
-                t11 = findViewById(R.id.textView11);
-                t4 = findViewById(R.id.textView4);
-                t5 = findViewById(R.id.textView5);
-                t8 = findViewById(R.id.textView8);
-                int j = 0;
-                resName = name.getText().toString();
-                resOpis = opisanie.getText().toString();
-                resHash = hashs.getText().toString();
-                resVK = vkText.getText().toString();
-                resCont = contact.getText().toString();
-                resOther = othe.getText().toString();
-                resCan = cani.getText().toString();
-                resOpit = op1.getText().toString();
-                resOtherVar = other.getText().toString();
-                resPurpose = purposeEditText.getText().toString();
+                initialization(); // инициализирую переменные
 
-                // написать через !result.contains(" ") без цикла
-                if (!result.contains(" ")) {
-                    checkingSpaces = true;
-                }
-
-                if (purposeEditText.equals("") || !checkingSpaces) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t11.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Цель' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
-                } else {
-                    t11.setTextColor(Color.BLACK);
-                }
-                for (int i = 0; i < resCan.length(); i++) {
-                    if (resCan.charAt(i) != ' ') {
-                        u = true;
-                    }
-                }
-                if (cani.equals("") || !u) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t4.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Навыки, умения' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
-                } else {
-                    t4.setTextColor(Color.BLACK);
-                }
-                for (int i = 0; i < resOpis.length(); i++) {
-                    if (resOpis.charAt(i) != ' ') {
-                        numberOfWords = true;
-                    }
-                }
-                if (resOpis.equals("") || !numberOfWords) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t3.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Описание заявки' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
-                } else {
-                    t3.setTextColor(Color.BLACK);
-                }
-                for (int i = 0; i < resName.length(); i++) {
-                    if (resName.charAt(i) != ' ') {
-                        n = true;
-                    }
-                }
-                if (name.equals("") || !n) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t2.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Наименование вашей заявки' или не заполенено (надо обязатльно <- это исправить), или там перечислено сразу несколько специальностей (так лучше не делать, потому что возрастает вероятность того, что вы не соберёте команду)" + "\n";
-                } else {
-                    t2.setTextColor(Color.BLACK);
-                }
-                for (int i = 0; i < resOpit.length(); i++) {
-                    if (resOpit.charAt(i) != ' ') {
-                        op = true;
-                    }
-                }
-                if (resOpis.equals("") || !op) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t5.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Требуемый опыт работы' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
-                } else {
-                    t5.setTextColor(Color.BLACK);
-                }
-
-                for (int i = 0; i < resHash.length(); i++) {
-                    if (resHash.charAt(i) != ' ') {
-                        hash = true;
-                    }
-                }
-
-                // вызвать resHash.toLowerCase()
-                resHash.toLowerCase();
-
-                for (int i = 0; i < resHash.length(); i++) {
-                    for (char q = '!'; q <= '_'; q++) {
-                        if (resHash.charAt(i) == q || resHash.charAt(i) == '>' || resHash.charAt(i) == '<') {
-                            h2 = false;
-                        }
-                    }
-                }
-                if (resHash.equals("") || !hash || !h2) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    t6.setTextColor(Color.RED);
-                    main += "\n" + "Поле 'Хэштеги' или не заполнено (пожалуйста, заполните его (это поможет вам собрать команду)), или содержит в себе заглавные буквы (все буквы должны быть строчными), или не состоит полностью из строчных букв и пробелов (это поле должно содержать в себе только пробелы или строчные буквы)" + "\n";
-                } else {
-                    t6.setTextColor(Color.BLACK);
-                }
-                for (int i = 0; i < resOtherVar.length(); i++) {
-                    if (resOtherVar.charAt(i) == ' ') {
-                        j++;
-                    }
-                }
-                if (pos == 0 && pos2 == 0 && resOtherVar.equals("") || j > 2 || pos != 0 && pos2 != 0 || pos != 0 && !resOtherVar.equals("") || pos2 != 0 && !resOtherVar.equals("")) {
-                    main += "\n" + "Первая возможная проблема: выберите раздел или напишите свой" + "\n" + "Вторая возможная проблема: в описании своего раздела должно быть не больше трёх слов и между словами должен быть только ОДИН пробел" + "\n" + "Третья возможная проблема: вы выбрали несколько пунктов (нужно выбрать ОДИН)" + "\n";
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    text.setTextColor(Color.RED);
-                } else {
-                    text.setTextColor(Color.BLACK);
-                }
-                if (resVK.equals("") && resOther.equals("") && resCont.length() != 11) {
-                    mainFlag = false;
-                    mainFlag2 = false;
-                    main += "\n" + "Номер телефона введён некорректно" + "\n";
-                    t8.setTextColor(Color.RED);
-                } else {
-                    t8.setTextColor(Color.BLACK);
-                }
-                if (mainFlag || !check && mainCount > 2 && mainFlag2) {
-                    Toast.makeText(getApplicationContext(), "Все поля верно заполнены", Toast.LENGTH_SHORT).show();
-                    mDatabase = FirebaseDatabase.getInstance().getReference();
-                    if (isExample) {
-                        exampleText = "есть";
-                    } else {
-                        exampleText = "нет";
-                    }
-                    if (pos == 0 && resOtherVar.equals("")) {
-                        mainItem = item2;
-                    } else if (pos2 == 0 && resOtherVar.equals("")) {
-                        mainItem = item;
-                    } else if (pos == 0 && pos2 == 0) {
-                        mainItem = resOtherVar;
-                    }
-                    ValueEventListener listenerAtOnce = new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                            for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                                if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().toString().equals(userName)) {
-                                    userI3 = i;
-                                    Toast.makeText(getApplicationContext(), "записал в id user = " + userI3, Toast.LENGTH_SHORT).show();
-                                    break;
-                                }
-                            }
-                            mDatabase = FirebaseDatabase.getInstance().getReference();
-                            Toast.makeText(getApplicationContext(), "Записал в БД creator = " + dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), Toast.LENGTH_SHORT).show();
-                            writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
-                            mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                            Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-                        }
-                    };
-
-                    mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                    finish();
-                }
+                checkingPurpose();
+                checkingCan();
+                checkingDescription();
+                checkingNameOpit();
+                checkingExperience();
+                checkingHashs();
+                finalCheckingContactsSections();
                 if (!mainFlag) {
                     builder5 = new AlertDialog.Builder(CreateApplication.this);
                     builder5.setTitle("Ошибка!")
@@ -381,6 +208,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                //невозможно вызвать, т к. fillData() - не static
+                //MostMainActivity.fillData();
                 this.finish();
                 return true;
             default:
@@ -400,6 +229,203 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             isExample = true;
         else
             isExample = false;
+    }
+
+    void initialization(){
+        //прошу прощения за циферки в названиях переменных((
+        mainCount++;
+        purposeEditText = findViewById(R.id.editText2);
+        name = findViewById(R.id.name);
+        hashs = findViewById(R.id.hashTegs);
+        opisanie = findViewById(R.id.opisanie);
+        cani = findViewById(R.id.can);
+        other = findViewById(R.id.editText);
+        text = findViewById(R.id.textView);
+        othe = findViewById(R.id.otherContact);
+        contact = findViewById(R.id.phone);
+        vkText = findViewById(R.id.vk);
+        op1 = findViewById(R.id.experience);
+        t2 = findViewById(R.id.textView2);
+        t6 = findViewById(R.id.textView6);
+        t3 = findViewById(R.id.textView3);
+        t11 = findViewById(R.id.textView11);
+        t4 = findViewById(R.id.textView4);
+        t5 = findViewById(R.id.textView5);
+        t8 = findViewById(R.id.textView8);
+
+        resName = name.getText().toString();
+        resOpis = opisanie.getText().toString();
+        resHash = hashs.getText().toString();
+        resVK = vkText.getText().toString();
+        resCont = contact.getText().toString();
+        resOther = othe.getText().toString();
+        resCan = cani.getText().toString();
+        resOpit = op1.getText().toString();
+        resOtherVar = other.getText().toString();
+        resPurpose = purposeEditText.getText().toString();
+    }
+    void checkingCan(){
+        for (int i = 0; i < resCan.length(); i++) {
+            if (resCan.charAt(i) != ' ') {
+                u = true;
+            }
+        }
+        if (cani.equals("") || !u) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t4.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Навыки, умения' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
+        } else {
+            t4.setTextColor(Color.BLACK);
+        }
+    }
+    void checkingDescription(){
+        for (int i = 0; i < resOpis.length(); i++) {
+            if (resOpis.charAt(i) != ' ') {
+                numberOfWords = true;
+            }
+        }
+        if (resOpis.equals("") || !numberOfWords) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t3.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Описание заявки' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
+        } else {
+            t3.setTextColor(Color.BLACK);
+        }
+    }
+    void checkingExperience(){
+        if (resOpis.equals("") || !op) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t5.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Требуемый опыт работы' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
+        } else {
+            t5.setTextColor(Color.BLACK);
+        }
+    }
+    void checkingPurpose(){
+        String result = purposeEditText.getText().toString();
+
+        if (purposeEditText.equals("") || result.equals("")) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t11.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Цель' не заполнено. Пожалуйста, заполните его (это поможет вам собрать команду)" + "\n";
+        } else {
+            t11.setTextColor(Color.BLACK);
+        }
+    }
+    void checkingNameOpit(){
+        for (int i = 0; i < resName.length(); i++) {
+            if (resName.charAt(i) != ' ') {
+                n = true;
+            }
+        }
+        if (name.equals("") || !n) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t2.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Наименование вашей заявки' или не заполенено (надо обязатльно <- это исправить), или там перечислено сразу несколько специальностей (так лучше не делать, потому что возрастает вероятность того, что вы не соберёте команду)" + "\n";
+        } else {
+            t2.setTextColor(Color.BLACK);
+        }
+        for (int i = 0; i < resOpit.length(); i++) {
+            if (resOpit.charAt(i) != ' ') {
+                op = true;
+            }
+        }
+    }
+    void checkingHashs(){
+        for (int i = 0; i < resHash.length(); i++) {
+            if (resHash.charAt(i) != ' ') {
+                hash = true;
+            }
+        }
+
+        // вызвать resHash.toLowerCase()
+        resHash.toLowerCase();
+
+        for (int i = 0; i < resHash.length(); i++) {
+            for (char q = '!'; q <= '_'; q++) {
+                if (resHash.charAt(i) == q || resHash.charAt(i) == '>' || resHash.charAt(i) == '<') {
+                    h2 = false;
+                }
+            }
+        }
+        if (resHash.equals("") || !hash || !h2) {
+            mainFlag = false;
+            mainFlag2 = false;
+            t6.setTextColor(Color.RED);
+            main += "\n" + "Поле 'Хэштеги' или не заполнено (пожалуйста, заполните его (это поможет вам собрать команду)), или содержит в себе заглавные буквы (все буквы должны быть строчными), или не состоит полностью из строчных букв и пробелов (это поле должно содержать в себе только пробелы или строчные буквы)" + "\n";
+        } else {
+            t6.setTextColor(Color.BLACK);
+        }
+    }
+    void finalCheckingContactsSections(){
+        int j = 0;
+        for (int i = 0; i < resOtherVar.length(); i++) {
+            if (resOtherVar.charAt(i) == ' ') {
+                j++;
+            }
+        }
+        if (pos == 0 && pos2 == 0 && resOtherVar.equals("") || j > 2 || pos != 0 && pos2 != 0 || pos != 0 && !resOtherVar.equals("") || pos2 != 0 && !resOtherVar.equals("")) {
+            main += "\n" + "Первая возможная проблема: выберите раздел или напишите свой" + "\n" + "Вторая возможная проблема: в описании своего раздела должно быть не больше трёх слов и между словами должен быть только ОДИН пробел" + "\n" + "Третья возможная проблема: вы выбрали несколько пунктов (нужно выбрать ОДИН)" + "\n";
+            mainFlag = false;
+            mainFlag2 = false;
+            text.setTextColor(Color.RED);
+        } else {
+            text.setTextColor(Color.BLACK);
+        }
+        if (resVK.equals("") && resOther.equals("") && resCont.length() != 11) {
+            mainFlag = false;
+            mainFlag2 = false;
+            main += "\n" + "Номер телефона введён некорректно" + "\n";
+            t8.setTextColor(Color.RED);
+        } else {
+            t8.setTextColor(Color.BLACK);
+        }
+        if (mainFlag || !check && mainCount > 2 && mainFlag2) {
+            Toast.makeText(getApplicationContext(), "Все поля верно заполнены", Toast.LENGTH_SHORT).show();
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+            if (isExample) {
+                exampleText = "есть";
+            } else {
+                exampleText = "нет";
+            }
+            if (pos == 0 && resOtherVar.equals("")) {
+                mainItem = item2;
+            } else if (pos2 == 0 && resOtherVar.equals("")) {
+                mainItem = item;
+            } else if (pos == 0 && pos2 == 0) {
+                mainItem = resOtherVar;
+            }
+            ValueEventListener listenerAtOnce = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
+                        if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().toString().equals(userName)) {
+                            userI3 = i;
+                            Toast.makeText(getApplicationContext(), "записал в id user = " + userI3, Toast.LENGTH_SHORT).show();
+                            break;
+                        }
+                    }
+                    mDatabase = FirebaseDatabase.getInstance().getReference();
+                    //Toast.makeText(getApplicationContext(), "Записал в БД creator = " + dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), Toast.LENGTH_SHORT).show();
+                    writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+                    mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+            finish();
+        }
     }
 }
 

@@ -38,8 +38,11 @@
             <ImageView
                 android:id="@+id/imageView2"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                app:srcCompat="@drawable/common_google_signin_btn_icon_dark_focused" />
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/desc"
+                android:keepScreenOn="true"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/logo"/>
 
             <Space
                 android:layout_width="match_parent"

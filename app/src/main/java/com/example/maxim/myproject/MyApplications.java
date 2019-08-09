@@ -25,6 +25,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
     int userId;
     ListView lv;
     String userName;
+    //MostMainActivity mostMainActivity = new MostMainActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,6 +130,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                //mostMainActivity.fillData();
                 this.finish();
                 return true;
             default:

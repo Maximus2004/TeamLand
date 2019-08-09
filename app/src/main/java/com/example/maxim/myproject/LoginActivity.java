@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                 ValueEventListener listenerAtOnce = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
                         int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
                         for (int i = 0; i < maxId; i++) {    //i < id
                             Object login = dataSnapshot.child("client" + i).child("login").getValue();
@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         Toast toast = Toast.makeText(getApplicationContext(),
-                                "Я зашёл в onCancelled()", Toast.LENGTH_SHORT);
+                                "Ошибка!", Toast.LENGTH_SHORT);
                         toast.show();
                     }
                 };
@@ -108,7 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
                 if (isUserRegistrated){
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Такого пользователя не существует", Toast.LENGTH_SHORT);
+                            "Вы не подключены к сети или такого пользователя не существует", Toast.LENGTH_LONG);
                     toast.show();
                 } else{
                     Toast toast = Toast.makeText(getApplicationContext(),

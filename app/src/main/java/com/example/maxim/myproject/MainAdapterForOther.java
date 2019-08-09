@@ -2,8 +2,12 @@ package com.example.maxim.myproject;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,45 +83,86 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
             //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(84);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 263);
             tab1.setLayoutParams(paramsTab);
-            Toast.makeText(getContext(), "Первое условие", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Первое условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 85 && month.ambition.length() > 61){
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 227);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 243);
             tab1.setLayoutParams(paramsTab);
-            Toast.makeText(getContext(), "Второе условие", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Второе условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 207);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 223);
             tab1.setLayoutParams(paramsTab);
-            Toast.makeText(getContext(), "Третье условие", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Третье условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 187);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 203);
             tab1.setLayoutParams(paramsTab);
-            Toast.makeText(getContext(), "Четвёртое условие", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Четвёртое условие", Toast.LENGTH_SHORT).show();
         }
         else{
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 266);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 280);
             tab1.setLayoutParams(paramsTab);
-            Toast.makeText(getContext(), "Никуда не зашёл((", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Никуда не зашёл((", Toast.LENGTH_SHORT).show();
         }
 
         // Заполняем адаптер
         ((TextView) convertView.findViewById(R.id.applName)).setText(month.mainName);
         ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
-        ((TextView) convertView.findViewById(R.id.experience)).setText(String.valueOf(month.experience));
-        ((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
+        final ForegroundColorSpan styleExp = new ForegroundColorSpan(Color.rgb(0, 0, 0));
+        final SpannableStringBuilder textExp;
+        TextView textViewExp = (TextView) convertView.findViewById(R.id.experience);
+
+        ((TextView) convertView.findViewById(R.id.applName)).setText(month.mainName);
+        ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
+
+        if (String.valueOf(month.experience).charAt(8) == '0' && String.valueOf(month.experience).length() < 10) {
+            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " лет");
+            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textViewExp.setText(textExp);
+        } else if (String.valueOf(month.experience).charAt(8) == '1' && String.valueOf(month.experience).length() < 10) {
+            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " год");
+            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textViewExp.setText(textExp);
+        } else if (String.valueOf(month.experience).charAt(8) == '2' && String.valueOf(month.experience).length() < 10 || String.valueOf(month.experience).charAt(8) == '3' && String.valueOf(month.experience).length() < 10 || String.valueOf(month.experience).charAt(8) == '4' && String.valueOf(month.experience).length() < 10) {
+            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " года");
+            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textViewExp.setText(textExp);
+        } else {
+            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " лет");
+            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textViewExp.setText(textExp);
+        }
+        //((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
+        TextView textView = (TextView) convertView.findViewById(R.id.examp);
+        TextView textViewSection = (TextView) convertView.findViewById(R.id.sectionText);
+
+        final SpannableStringBuilder text = new SpannableStringBuilder(String.valueOf(month.example));
+        final ForegroundColorSpan style = new ForegroundColorSpan(Color.rgb(0, 0, 0));
+
+        final SpannableStringBuilder textSection = new SpannableStringBuilder(String.valueOf(month.sectionClass));
+        final ForegroundColorSpan styleSection = new ForegroundColorSpan(Color.rgb(0, 0, 0));
+        textSection.setSpan(styleSection, 10, textSection.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        textViewSection.setText(textSection);
+
+        if (month.example.length() > 20) {
+            text.setSpan(style, 17, 21, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textView.setText(text);
+        }
+        if (month.example.length() == 20) {
+            text.setSpan(style, 17, 20, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            textView.setText(text);
+        }
         ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
-        ((TextView) convertView.findViewById(R.id.sectionText)).setText(String.valueOf(month.sectionClass));
         //((ImageButton) convertView.findViewById(R.id.imageButton0)).setImageResource(android.R.drawable.btn_star_big_off);
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
@@ -195,7 +240,7 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                             }
                         }
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle("Описание пользователя")
+                        builder.setTitle(dataSnapshot.child("client" + String.valueOf(userI)).child("login").getValue().toString())
                                 .setMessage(dataSnapshot.child("client" + String.valueOf(userI)).child("description").getValue().toString())
                                 .setCancelable(false)
                                 .setNegativeButton("Понятно",

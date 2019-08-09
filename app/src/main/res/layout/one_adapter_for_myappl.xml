@@ -3,10 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <LinearLayout
         android:id="@+id/tab1"
         android:layout_width="match_parent"
-        android:layout_height="242dp"
+        android:layout_height="237dp"
         android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"

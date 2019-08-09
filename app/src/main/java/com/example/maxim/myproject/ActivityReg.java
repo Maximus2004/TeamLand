@@ -47,13 +47,13 @@ public class ActivityReg extends AppCompatActivity {
 
                 if (!checkingSecondPasswordEdit || !checkingFirstPasswordEdit || !checkingNickPasswordEdit || !checkingDescribtionPasswordEdit) {
                     Toast toast = Toast.makeText(getApplicationContext(),
-                            "Форма заполенна некорректно", Toast.LENGTH_SHORT);
+                            "Форма заполена некорректно", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
                     Toast toast2 = Toast.makeText(getApplicationContext(),
                             "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
                     toast2.show();
-                    saveData();
+                    //saveData();
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
                     mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -125,7 +125,7 @@ public class ActivityReg extends AppCompatActivity {
 
     }
 
-    void saveData() {
+    /*void saveData() {
         // преференсы можно сделать локальные
         // текущий вызов достает преференсы ТОЛЬКО для активити
         // чтобы они были для всего приложения нужно вызывать getPreferences("текст1", MODE_PRIVATE)
@@ -138,8 +138,8 @@ public class ActivityReg extends AppCompatActivity {
         editor.putString(SAVED_LOGIN, nickEditString);
         editor.putString(SAVED_PASSWORD, firstPasswordEditString);
         editor.commit();
-        Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-    }
+        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+    }*/
 
     private void writeNewUser(String userId, String login, String password, String description) {
         User user = new User(userId, login, password, description);

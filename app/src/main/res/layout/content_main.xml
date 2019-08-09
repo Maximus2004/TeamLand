@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".Main2Activity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main2Activity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar2"
@@ -187,6 +187,7 @@ tools:context=".Main2Activity">
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
+
                     <ListView
                         android:id="@+id/listView"
                         android:layout_width="match_parent"
@@ -210,7 +211,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -223,7 +224,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
 
                 </LinearLayout>
 
@@ -237,7 +238,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
 
                 </LinearLayout>
 
@@ -251,7 +252,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
 
                 </LinearLayout>
 
@@ -265,7 +266,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
 
                 </LinearLayout>
 
@@ -279,7 +280,7 @@ tools:context=".Main2Activity">
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"/>
+                        android:dividerHeight="0dp" />
 
                 </LinearLayout>
             </FrameLayout>

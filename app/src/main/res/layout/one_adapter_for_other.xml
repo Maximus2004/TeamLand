@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/tab1"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="277dp"
         android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -63,6 +63,8 @@ public class moreAboutApplication extends AppCompatActivity {
                 if (dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue() != null) {
                     hashs.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue().toString());
                 }
+                else
+                    hashs.setText("");
                 example.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("example").getValue().toString());
                 sector.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("section").getValue().toString());
                 phone.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("phone").getValue().toString());

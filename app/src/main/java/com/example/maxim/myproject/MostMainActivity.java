@@ -51,6 +51,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     String item;
     String userName = null;
     int pos;
+    boolean flag = true;
     EditText searchEditText;
     AlertDialog.Builder builderHashtegs, builder;
     ImageButton burger;
@@ -256,6 +257,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onClick(View v) {
                 String searchText = searchEditText.getText().toString().toLowerCase();
+                if (searchText.equals("")) {
+                    //onlySort();
+                }
 
                 if (searchText != null && searchText != "" && !searchText.equals("")) {
                     if (pos == 0) {
@@ -265,23 +269,31 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         toast.show();
                     } else if (pos == 1) {
                         // выбран поиск по хеш тегам
-                        builderHashtegs = new AlertDialog.Builder(MostMainActivity.this);
-                        builderHashtegs.setTitle("Поиск по хэштегам")
-                                .setMessage("Осуществляя поиск по хэштегам указывайте их через пробел без использования посторонних символов." + "\n" + "Например, если " +
-                                        "вам надо упомянуть в стороке поиска следующие хэштеги: приложения, создание приложения, опытный специалист, программист, " +
-                                        "то вам следует указать эти хэштеги в слудующем виде: приложения созданиеприложения опытныйспециалист программист. Без " +
-                                        "специальных символов. ")
-                                .setCancelable(false)
-                                .setNegativeButton("Понятно",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        //Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
-
-                        AlertDialog alertHashtegs = builderHashtegs.create();
-                        alertHashtegs.show();
+                        if (flag) {
+                            builderHashtegs = new AlertDialog.Builder(MostMainActivity.this);
+                            builderHashtegs.setTitle("Поиск по хэштегам")
+                                    .setMessage("Осуществляя поиск по хэштегам указывайте их через пробел без использования посторонних символов." + "\n" + "Например, если " +
+                                            "вам надо упомянуть в стороке поиска следующие хэштеги: приложения, создание приложения, опытный специалист, программист, " +
+                                            "то вам следует указать эти хэштеги в слудующем виде: приложения созданиеприложения опытныйспециалист программист. Без " +
+                                            "специальных символов. ")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Понятно",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            })
+                                    .setNegativeButton("Больше не показывать",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    flag = false;
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            //Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
+                            AlertDialog alertHashtegs = builderHashtegs.create();
+                            alertHashtegs.show();
+                        }
                         burger.setImageResource(R.drawable.back2);
                         controlBurger = false;
 
@@ -293,7 +305,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         controlBurger = false;
                     }
                 } else
-                    Toast.makeText(getApplicationContext(), "Заполните строку поиска", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Заполните строку поиска или ищите, используя только сортировку в правом нижнем углу", Toast.LENGTH_LONG).show();
             }
         };
         btnSearch.setOnClickListener(onSearchButtonClicked);
@@ -325,8 +337,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void makeApplicationForSearchByHashtegs(final String searchText) {
-        Toast.makeText(getApplicationContext(), "Зашёл в функцию byHashtegs", Toast.LENGTH_SHORT).show();
-
         // делим поисковый запрос на слова
         final String[] searchWords = searchText.split(" ");
 
@@ -340,7 +350,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
 
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
@@ -394,40 +404,678 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
                 String bigName, name, section, bigSection;
                 DataSnapshot appTable = dataSnapshot.child("applications");
-                if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3])
-                    createApps01(searchText);
-                else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]){
-                    createApps0(searchText);
-                    Toast.makeText(getApplicationContext(), "Зашёл в условие только с примером работы и положил " + searchText, Toast.LENGTH_SHORT).show();
+                if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[2] && !mCheckedItems[1] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[2]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[2]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (!mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
+                        if (appTagsRaw.getValue() != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appTags = Arrays
+                                    .asList(appTagsRaw.getValue().toString()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appTags.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                            }
+                        }
+                    }
                 }
-                else if (mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0])
-                    createApps1(searchText);
-                else if (mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3] && !mCheckedItems[1])
-                    createApps2(searchText);
-                else if (mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[1])
-                    createApps3(searchText);
-                else if (mCheckedItems[0] && mCheckedItems[2] && !mCheckedItems[1] && !mCheckedItems[3])
-                    createApps02(searchText);
-                else if (mCheckedItems[0] && mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[1])
-                    createApps03(searchText);
-                else if (mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3])
-                    createApps12(searchText);
-                else if (mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[2])
-                    createApps13(searchText);
-                else if (mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[1])
-                    createApps23(searchText);
-                else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[3])
-                    createApps012(searchText);
-                else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[2])
-                    createApps013(searchText);
-                else if (mCheckedItems[0] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[1])
-                    createApps023(searchText);
-                else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0])
-                    createApps123(searchText);
-                else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && mCheckedItems[0])
-                    createApps0123(searchText);
-                else if (!mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0])
-                    createAppsNothing(searchText);
 
 
                 // так как мы взяли TreeMap, то там все уже отсортировано по убыванию
@@ -782,7 +1430,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
 
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
@@ -841,70 +1489,1083 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 TreeMap<Integer, List<Integer>> mapCountToIds = new TreeMap<>(Collections.reverseOrder());
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+                if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
-                    DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
-                    DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
-                    DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
-                    if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
-                            && appCanRaw != null) {
-                        // разделяем их на отдельные слова по пробелу
-                        List<String> appName = Arrays
-                                .asList(appNamesRaw.getValue().toString().toLowerCase()
-                                        .split(" ")
-                                );
-                        List<String> appPurpose = Arrays
-                                .asList(appPurposeRaw.getValue().toString().toLowerCase()
-                                        .split(" ")
-                                );
-                        List<String> appDescription = Arrays
-                                .asList(appDescriptionRaw.getValue().toString().toLowerCase()
-                                        .split(" ")
-                                );
-                        List<String> appCan = Arrays
-                                .asList(appCanRaw.getValue().toString().toLowerCase()
-                                        .split(" ")
-                                );
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
 
-                        // подсчитываем сколько из них подходит под поисковый запрос
-                        int foundTagsCount = 0;
-                        for (String word : searchWords) {
-                            if (appName.contains(word)) foundTagsCount += 3;
-                        }
-                        for (String word : searchWords) {
-                            if (appPurpose.contains(word)) foundTagsCount += 2;
-                        }
-                        for (String word : searchWords) {
-                            if (appDescription.contains(word)) foundTagsCount++;
-                        }
-                        for (String word : searchWords) {
-                            if (appCan.contains(word)) foundTagsCount++;
-                        }
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
 
-                        // сохраняем в мапу
-                        // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                        if (foundTagsCount > 0) {
-                            List<Integer> ids;
-                            // смотрим, есть ли уже такое количество совпадений
-                            // если есть, то добавляем в существующий список
-                            if (mapCountToIds.containsKey(foundTagsCount))
-                                ids = mapCountToIds.get(foundTagsCount);
-                            else
-                                ids = new ArrayList<>();
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
 
-                            ids.add(appIndex);
-                            mapCountToIds.put(foundTagsCount, ids);
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[2] && !mCheckedItems[1] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[2]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[3]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[2]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[0] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[1]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    // подсчитываем количество найденых тегов для заявок
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        if (appTable.child("application" + appIndex).getValue() != null
+                                && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")
+                                && appTable.child("application" + appIndex).child("vk").getValue() != null
+                                && appTable.child("application" + appIndex).child("phone").getValue() != null
+                                && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
+                                && !appTable.child("application" + appIndex).child("vk").getValue().toString().equals("")
+                                && !appTable.child("application" + appIndex).child("phone").getValue().toString().equals("")) {
+                            // берем все теги заявки в исходном виде
+                            DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                            DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                            DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                            DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                            if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                    && appCanRaw != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appName = Arrays
+                                        .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appPurpose = Arrays
+                                        .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appDescription = Arrays
+                                        .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+                                List<String> appCan = Arrays
+                                        .asList(appCanRaw.getValue().toString().toLowerCase()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appName.contains(word)) foundTagsCount += 3;
+                                }
+                                for (String word : searchWords) {
+                                    if (appPurpose.contains(word)) foundTagsCount += 2;
+                                }
+                                for (String word : searchWords) {
+                                    if (appDescription.contains(word)) foundTagsCount++;
+                                }
+                                for (String word : searchWords) {
+                                    if (appCan.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIds.containsKey(foundTagsCount))
+                                        ids = mapCountToIds.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appIndex);
+                                    mapCountToIds.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+                    }
+                } else if (!mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                    mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+
+                    for (int appIndex = 0; appIndex < maxId; appIndex++) {
+                        // берем все теги заявки в исходном виде
+                        DataSnapshot appNamesRaw = appTable.child("application" + appIndex).child("name");
+                        DataSnapshot appPurposeRaw = appTable.child("application" + appIndex).child("purpose");
+                        DataSnapshot appDescriptionRaw = appTable.child("application" + appIndex).child("descriptionApplication");
+                        DataSnapshot appCanRaw = appTable.child("application" + appIndex).child("can");
+                        if (appNamesRaw.getValue() != null && appPurposeRaw.getValue() != null && appDescriptionRaw != null
+                                && appCanRaw != null) {
+                            // разделяем их на отдельные слова по пробелу
+                            List<String> appName = Arrays
+                                    .asList(appNamesRaw.getValue().toString().toLowerCase()
+                                            .split(" ")
+                                    );
+                            List<String> appPurpose = Arrays
+                                    .asList(appPurposeRaw.getValue().toString().toLowerCase()
+                                            .split(" ")
+                                    );
+                            List<String> appDescription = Arrays
+                                    .asList(appDescriptionRaw.getValue().toString().toLowerCase()
+                                            .split(" ")
+                                    );
+                            List<String> appCan = Arrays
+                                    .asList(appCanRaw.getValue().toString().toLowerCase()
+                                            .split(" ")
+                                    );
+
+                            // подсчитываем сколько из них подходит под поисковый запрос
+                            int foundTagsCount = 0;
+                            for (String word : searchWords) {
+                                if (appName.contains(word)) foundTagsCount += 3;
+                            }
+                            for (String word : searchWords) {
+                                if (appPurpose.contains(word)) foundTagsCount += 2;
+                            }
+                            for (String word : searchWords) {
+                                if (appDescription.contains(word)) foundTagsCount++;
+                            }
+                            for (String word : searchWords) {
+                                if (appCan.contains(word)) foundTagsCount++;
+                            }
+
+                            // сохраняем в мапу
+                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                            if (foundTagsCount > 0) {
+                                List<Integer> ids;
+                                // смотрим, есть ли уже такое количество совпадений
+                                // если есть, то добавляем в существующий список
+                                if (mapCountToIds.containsKey(foundTagsCount))
+                                    ids = mapCountToIds.get(foundTagsCount);
+                                else
+                                    ids = new ArrayList<>();
+
+                                ids.add(appIndex);
+                                mapCountToIds.put(foundTagsCount, ids);
+                            }
                         }
                     }
                 }
+
+
                 // вот тут ты делал новую сущность (в mas.toArray()) и не использовал ее, то есть она сортировалась, а mas так и оставался не отсоритрованным
 //                Arrays.sort(mas.toArray(), Collections.reverseOrder()); // сортируем массив по убыванию
 
-                // до этого момента всё верно
 
                 // так как мы взяли TreeMap, то там все уже отсортировано по убыванию
                 // поэтому просто прогоняем цикл по всем ключам и значениям
@@ -1246,7 +2907,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
 
-    private void fillData() {
+    //невозможно сделать static
+    public void fillData() {
         final AdapterElement[][] arrBuisness = new AdapterElement[1][];
         final AdapterElement[][] arrAll = new AdapterElement[1][];
         final AdapterElement[][] arrInternet = new AdapterElement[1][];
@@ -1257,7 +2919,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
 
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
@@ -1314,7 +2976,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
-                for (int appId = 0; appId < maxId; appId++) {
+                for (int appId = maxId; appId > -1; appId--) {
 
                     DataSnapshot app = appTable.child("application" + appId);
                     DataSnapshot appName = app.child("name");
@@ -1692,10 +3354,15 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
                     builder2.setTitle("Редактирование описания")
                             .setCancelable(false)
-                            .setNegativeButton("Отредактировать",
+                            .setPositiveButton("Отредактировать", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    description.setValue(edit.getText().toString());
+                                    dialog.cancel();
+                                }
+                            })
+                            .setNegativeButton("Отмена",
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
-                                            description.setValue(edit.getText().toString());
                                             dialog.cancel();
                                         }
                                     });
@@ -1790,1002 +3457,3301 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(MostMainActivity.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MostMainActivity.this, "Jib,rf!", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
-
-    public void createApps0(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
+    private void onlySort() {
+        final AdapterElement[][] arrBuisness = new AdapterElement[1][];
+        final AdapterElement[][] arrAll = new AdapterElement[1][];
+        final AdapterElement[][] arrInternet = new AdapterElement[1][];
+        final AdapterElement[][] arrGames = new AdapterElement[1][];
+        final AdapterElement[][] arrSites = new AdapterElement[1][];
+        final AdapterElement[][] arrApps = new AdapterElement[1][];
+        final AdapterElementOther[][] arrOther = new AdapterElementOther[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange в createApp0", Toast.LENGTH_SHORT).show();
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+
+                ArrayList<String> internetMainNames = new ArrayList<>();
+                ArrayList<String> internetAmbitions = new ArrayList<>();
+                ArrayList<String> internetExperience = new ArrayList<>();
+                ArrayList<String> internetExamples = new ArrayList<>();
+                ArrayList<String> internetUsers = new ArrayList<>();
+                ArrayList<Integer> internetApplicationIds = new ArrayList<>();
+
+                ArrayList<String> buisnessMainNames = new ArrayList<>();
+                ArrayList<String> buisnessAmbitions = new ArrayList<>();
+                ArrayList<String> buisnessExperience = new ArrayList<>();
+                ArrayList<String> buisnessExamples = new ArrayList<>();
+                ArrayList<String> buisnessUsers = new ArrayList<>();
+                ArrayList<Integer> buisnessApplicationIds = new ArrayList<>();
+
+                ArrayList<String> gamesMainNames = new ArrayList<>();
+                ArrayList<String> gamesAbmitions = new ArrayList<>();
+                ArrayList<String> gamesExperience = new ArrayList<>();
+                ArrayList<String> gamesExamples = new ArrayList<>();
+                ArrayList<String> gamesUsers = new ArrayList<>();
+                ArrayList<Integer> gamesApplicationIds = new ArrayList<>();
+
+                ArrayList<String> sitesMainNames = new ArrayList<>();
+                ArrayList<String> sitesAmbitions = new ArrayList<>();
+                ArrayList<String> sitesExperience = new ArrayList<>();
+                ArrayList<String> sitesExamples = new ArrayList<>();
+                ArrayList<String> sitesUsers = new ArrayList<>();
+                ArrayList<Integer> sitesApplicationIds = new ArrayList<>();
+
+                ArrayList<String> appsMainNames = new ArrayList<>();
+                ArrayList<String> appsAmbitions = new ArrayList<>();
+                ArrayList<String> appsExperiens = new ArrayList<>();
+                ArrayList<String> appsExamples = new ArrayList<>();
+                ArrayList<String> appsUsers = new ArrayList<>();
+                ArrayList<Integer> appsApplicationIds = new ArrayList<>();
+
+                ArrayList<String> otherMainNames = new ArrayList<>();
+                ArrayList<String> otherAmbitions = new ArrayList<>();
+                ArrayList<String> otherExperience = new ArrayList<>();
+                ArrayList<String> otherExamples = new ArrayList<>();
+                ArrayList<String> otherUsers = new ArrayList<>();
+                ArrayList<Integer> otherApplicationIds = new ArrayList<>();
+                ArrayList<String> otherSection = new ArrayList();
+
+                ArrayList<String> allMainNames = new ArrayList<>();
+                ArrayList<String> allAmbitions = new ArrayList<>();
+                ArrayList<String> allExperience = new ArrayList<>();
+                ArrayList<String> allExamples = new ArrayList<>();
+                ArrayList<String> allUsers = new ArrayList<>();
+                ArrayList<Integer> allApplicationIds = new ArrayList<>();
+
+                String bigName, name, section, bigSection;
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
+                for (int appId = maxId; appId > -1; appId--) {
 
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
+                    DataSnapshot app = appTable.child("application" + appId);
+                    DataSnapshot appName = app.child("name");
+                    DataSnapshot appPurpose = app.child("purpose");
+                    DataSnapshot appExp = app.child("experience");
+                    DataSnapshot appExample = app.child("example");
+                    DataSnapshot appCreator = app.child("creator");
+                    DataSnapshot appSection = app.child("section");
+                    DataSnapshot appVk = app.child("vk");
+                    DataSnapshot appPhone = app.child("phone");
+                    if (app.getValue() != null) {
+                        if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3]) {
+                            if (appExample.getValue() != null && appExp.getValue() != null && appExample.getValue().toString().equals("есть") && appExp.getValue().toString().equals("0")) {
+                                if (appName.getValue() != null) {
+
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        allMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        allMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        allAmbitions.add(bigName + "...");
+                                    } else {
+                                        allAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    allUsers.add(appCreator.getValue().toString());
+                                    allApplicationIds.add(appId);
+
+                                    // обработка по секциям
+                                    if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                        if (appName.getValue().toString().length() > 25) {
+                                            bigName = "";
+                                            name = appName.getValue().toString();
+                                            for (int j = 0; j < 25; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            internetMainNames.add("  " + bigName + "...");
+                                        } else {
+                                            internetMainNames.add("  " + appName.getValue().toString());
+                                        }
+                                        if (appPurpose.getValue().toString().length() > 146) {
+                                            bigName = "";
+                                            name = appPurpose.getValue().toString();
+                                            for (int j = 0; j < 146; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            internetAmbitions.add(bigName + "...");
+                                        } else {
+                                            internetAmbitions.add(appPurpose.getValue().toString());
+                                        }
+                                        internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                        internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                        internetUsers.add(appCreator.getValue().toString());
+                                        internetApplicationIds.add(appId);
+                                    } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                        if (appName.getValue().toString().length() > 25) {
+                                            bigName = "";
+                                            name = appName.getValue().toString();
+                                            for (int j = 0; j < 25; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            buisnessMainNames.add("  " + bigName + "...");
+                                        } else {
+                                            buisnessMainNames.add("  " + appName.getValue().toString());
+                                        }
+                                        if (appPurpose.getValue().toString().length() > 146) {
+                                            bigName = "";
+                                            name = appPurpose.getValue().toString();
+                                            for (int j = 0; j < 146; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            buisnessAmbitions.add(bigName + "...");
+                                        } else {
+                                            buisnessAmbitions.add(appPurpose.getValue().toString());
+                                        }
+                                        buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                        buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                        buisnessUsers.add(appCreator.getValue().toString());
+                                        buisnessApplicationIds.add(appId);
+                                    } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                        if (appName.getValue().toString().length() > 25) {
+                                            bigName = "";
+                                            name = appName.getValue().toString();
+                                            for (int j = 0; j < 25; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            gamesMainNames.add("  " + bigName + "...");
+                                        } else {
+                                            gamesMainNames.add("  " + appName.getValue().toString());
+                                        }
+                                        if (appPurpose.getValue().toString().length() > 146) {
+                                            bigName = "";
+                                            name = appPurpose.getValue().toString();
+                                            for (int j = 0; j < 146; j++) {
+                                                bigName += name.charAt(j);
+                                            }
+                                            gamesAbmitions.add(bigName + "...");
+                                        } else {
+                                            gamesAbmitions.add(appPurpose.getValue().toString());
+                                        }
+                                        gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                        gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                        gamesUsers.add(appCreator.getValue().toString());
+                                        gamesApplicationIds.add(appId);
+                                    }
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        sitesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        sitesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        sitesAmbitions.add(bigName + "...");
+                                    } else {
+                                        sitesAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    sitesUsers.add(appCreator.getValue().toString());
+                                    sitesApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        appsMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        appsMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        appsAmbitions.add(bigName + "...");
+                                    } else {
+                                        appsAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                    appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    appsUsers.add(appCreator.getValue().toString());
+                                    appsApplicationIds.add(appId);
+                                } else {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        otherMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        otherMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        otherAmbitions.add(bigName + "...");
+                                    } else {
+                                        otherAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    otherUsers.add(appCreator.getValue().toString());
+                                    if (appSection.getValue().toString().length() > 21) {
+                                        bigSection = "";
+                                        section = appSection.getValue().toString();
+                                        for (int j = 0; j < 21; j++) {
+                                            bigSection += section.charAt(j);
+                                        }
+                                        otherSection.add("  Раздел:  " + bigSection + "...");
+                                    } else {
+                                        otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                    }
+                                    otherApplicationIds.add(appId);
+                                }
                             }
+                        }
+                    } else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                        if (appExample.getValue() != null && appExample.getValue().toString().equals("есть")) {
+                            if (appName.getValue() != null) {
 
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
 
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
                             }
+                        }
+                    } else if (mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                        if (appExp.getValue() != null && appExp.getValue().toString().equals("0")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                        if (appVk.getValue() != null && !appVk.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                        if (appPhone.getValue() != null && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[0] && mCheckedItems[2] && !mCheckedItems[1] && !mCheckedItems[3]) {
+                        if (appExample.getValue() != null && appExample.getValue().toString().equals("есть")
+                                && appVk.getValue() != null && !appVk.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[0] && mCheckedItems[3] && !mCheckedItems[2] && !mCheckedItems[1]) {
+                        if (appPhone.getValue() != null && appExample.getValue() != null
+                                && appExample.getValue().toString().equals("есть") && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[0] && !mCheckedItems[3]) {
+                        if (appExp.getValue() != null && appExp.getValue().toString().equals("0")
+                                && appVk.getValue() != null && !appVk.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[2]) {
+                        if (appPhone.getValue() != null && appExp.getValue() != null && appExp.getValue().toString().equals("0")
+                                && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0] && !mCheckedItems[1]) {
+                        if (appVk.getValue() != null && appPhone.getValue() != null && !appVk.getValue().toString().equals("") && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[2] && !mCheckedItems[3]) {
+                        if (appVk.getValue() != null && appExample.getValue() != null && appExp.getValue() != null && appExample.getValue().toString().equals("есть") && appExp.getValue().toString().equals("0")
+                                && !appVk.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[0] && mCheckedItems[1] && mCheckedItems[3] && !mCheckedItems[2]) {
+                        if (appPhone.getValue() != null && appExample.getValue()!= null && appExp.getValue() != null
+                                && appExample.getValue().toString().equals("есть") && appExp.getValue().toString().equals("0")
+                                && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[0] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[1]) {
+                        if (appVk.getValue() != null && appPhone.getValue() != null && appExample.getValue() != null && appExample.getValue().toString().equals("есть")
+                                && !appVk.getValue().toString().equals("") && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && !mCheckedItems[0]) {
+                        if (appVk.getValue() != null && appPhone.getValue() != null && appExp.getValue() != null && appExp.getValue().toString().equals("0")
+                                && !appVk.getValue().toString().equals("") && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (mCheckedItems[1] && mCheckedItems[2] && mCheckedItems[3] && mCheckedItems[0]) {
+                        if (appVk.getValue() != null && appPhone.getValue() != null && appExample.getValue() != null && appExp.getValue() != null
+                                && appExample.getValue().toString().equals("есть") && appExp.getValue().toString().equals("0")
+                                && !appVk.getValue().toString().equals("") && !appPhone.getValue().toString().equals("")) {
+                            if (appName.getValue() != null) {
+
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allMainNames.add("  " + bigName + "...");
+                                } else {
+                                    allMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    allAmbitions.add(bigName + "...");
+                                } else {
+                                    allAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                allExperience.add("  Опыт: " + appExp.getValue().toString());
+                                allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                allUsers.add(appCreator.getValue().toString());
+                                allApplicationIds.add(appId);
+
+                                // обработка по секциям
+                                if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        internetMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        internetAmbitions.add(bigName + "...");
+                                    } else {
+                                        internetAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    internetUsers.add(appCreator.getValue().toString());
+                                    internetApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        buisnessMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        buisnessAmbitions.add(bigName + "...");
+                                    } else {
+                                        buisnessAmbitions.add(appPurpose.getValue().toString());
+                                    }
+                                    buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    buisnessUsers.add(appCreator.getValue().toString());
+                                    buisnessApplicationIds.add(appId);
+                                } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                    if (appName.getValue().toString().length() > 25) {
+                                        bigName = "";
+                                        name = appName.getValue().toString();
+                                        for (int j = 0; j < 25; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesMainNames.add("  " + bigName + "...");
+                                    } else {
+                                        gamesMainNames.add("  " + appName.getValue().toString());
+                                    }
+                                    if (appPurpose.getValue().toString().length() > 146) {
+                                        bigName = "";
+                                        name = appPurpose.getValue().toString();
+                                        for (int j = 0; j < 146; j++) {
+                                            bigName += name.charAt(j);
+                                        }
+                                        gamesAbmitions.add(bigName + "...");
+                                    } else {
+                                        gamesAbmitions.add(appPurpose.getValue().toString());
+                                    }
+                                    gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                    gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                    gamesUsers.add(appCreator.getValue().toString());
+                                    gamesApplicationIds.add(appId);
+                                }
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    sitesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    sitesAmbitions.add(bigName + "...");
+                                } else {
+                                    sitesAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                sitesUsers.add(appCreator.getValue().toString());
+                                sitesApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsMainNames.add("  " + bigName + "...");
+                                } else {
+                                    appsMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    appsAmbitions.add(bigName + "...");
+                                } else {
+                                    appsAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                appsUsers.add(appCreator.getValue().toString());
+                                appsApplicationIds.add(appId);
+                            } else {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherMainNames.add("  " + bigName + "...");
+                                } else {
+                                    otherMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    otherAmbitions.add(bigName + "...");
+                                } else {
+                                    otherAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                otherUsers.add(appCreator.getValue().toString());
+                                if (appSection.getValue().toString().length() > 21) {
+                                    bigSection = "";
+                                    section = appSection.getValue().toString();
+                                    for (int j = 0; j < 21; j++) {
+                                        bigSection += section.charAt(j);
+                                    }
+                                    otherSection.add("  Раздел:  " + bigSection + "...");
+                                } else {
+                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                                }
+                                otherApplicationIds.add(appId);
+                            }
+                        }
+                    } else if (!mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[0]) {
+                        if (appName.getValue() != null) {
+
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allMainNames.add("  " + bigName + "...");
+                            } else {
+                                allMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allAmbitions.add(bigName + "...");
+                            } else {
+                                allAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            allExperience.add("  Опыт: " + appExp.getValue().toString());
+                            allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            allUsers.add(appCreator.getValue().toString());
+                            allApplicationIds.add(appId);
+
+                            // обработка по секциям
+                            if (appSection.getValue().toString().equals("Бизнес в интернете")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    internetMainNames.add("  " + bigName + "...");
+                                } else {
+                                    internetMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    internetAmbitions.add(bigName + "...");
+                                } else {
+                                    internetAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                                internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                internetUsers.add(appCreator.getValue().toString());
+                                internetApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    buisnessMainNames.add("  " + bigName + "...");
+                                } else {
+                                    buisnessMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    buisnessAmbitions.add(bigName + "...");
+                                } else {
+                                    buisnessAmbitions.add(appPurpose.getValue().toString());
+                                }
+                                buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                                buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                buisnessUsers.add(appCreator.getValue().toString());
+                                buisnessApplicationIds.add(appId);
+                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                                if (appName.getValue().toString().length() > 25) {
+                                    bigName = "";
+                                    name = appName.getValue().toString();
+                                    for (int j = 0; j < 25; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    gamesMainNames.add("  " + bigName + "...");
+                                } else {
+                                    gamesMainNames.add("  " + appName.getValue().toString());
+                                }
+                                if (appPurpose.getValue().toString().length() > 146) {
+                                    bigName = "";
+                                    name = appPurpose.getValue().toString();
+                                    for (int j = 0; j < 146; j++) {
+                                        bigName += name.charAt(j);
+                                    }
+                                    gamesAbmitions.add(bigName + "...");
+                                } else {
+                                    gamesAbmitions.add(appPurpose.getValue().toString());
+                                }
+                                gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                                gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                                gamesUsers.add(appCreator.getValue().toString());
+                                gamesApplicationIds.add(appId);
+                            }
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                sitesMainNames.add("  " + bigName + "...");
+                            } else {
+                                sitesMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                sitesAmbitions.add(bigName + "...");
+                            } else {
+                                sitesAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                            sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            sitesUsers.add(appCreator.getValue().toString());
+                            sitesApplicationIds.add(appId);
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                appsMainNames.add("  " + bigName + "...");
+                            } else {
+                                appsMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                appsAmbitions.add(bigName + "...");
+                            } else {
+                                appsAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                            appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            appsUsers.add(appCreator.getValue().toString());
+                            appsApplicationIds.add(appId);
+                        } else {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                otherMainNames.add("  " + bigName + "...");
+                            } else {
+                                otherMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                otherAmbitions.add(bigName + "...");
+                            } else {
+                                otherAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                            otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            otherUsers.add(appCreator.getValue().toString());
+                            if (appSection.getValue().toString().length() > 21) {
+                                bigSection = "";
+                                section = appSection.getValue().toString();
+                                for (int j = 0; j < 21; j++) {
+                                    bigSection += section.charAt(j);
+                                }
+                                otherSection.add("  Раздел:  " + bigSection + "...");
+                            } else {
+                                otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                            }
+                            otherApplicationIds.add(appId);
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
+                arrAll[0] = new AdapterElement[allMainNames.size()];
+                arrInternet[0] = new AdapterElement[internetMainNames.size()];
+                arrBuisness[0] = new AdapterElement[buisnessMainNames.size()];
+                arrGames[0] = new AdapterElement[gamesMainNames.size()];
+                arrSites[0] = new AdapterElement[sitesMainNames.size()];
+                arrApps[0] = new AdapterElement[appsMainNames.size()];
+                arrOther[0] = new AdapterElementOther[otherMainNames.size()];
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps1(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrAll[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = allMainNames.get(i);
+                    month.ambition = allAmbitions.get(i);
+                    month.experience = allExperience.get(i);
+                    month.example = allExamples.get(i);
+                    month.user = allUsers.get(i);
+                    month.applicationId = allApplicationIds.get(i).toString();
+                    arrAll[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps2(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrBuisness[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = buisnessMainNames.get(i);
+                    month.ambition = buisnessAmbitions.get(i);
+                    month.experience = buisnessExperience.get(i);
+                    month.example = buisnessExamples.get(i);
+                    month.user = buisnessUsers.get(i);
+                    month.applicationId = buisnessApplicationIds.get(i).toString();
+                    arrBuisness[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps3(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("phone").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrGames[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = gamesMainNames.get(i);
+                    month.ambition = gamesAbmitions.get(i);
+                    month.experience = gamesExperience.get(i);
+                    month.example = gamesExamples.get(i);
+                    month.user = gamesUsers.get(i);
+                    month.applicationId = gamesApplicationIds.get(i).toString();
+                    arrGames[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps01(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")
-                            && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrSites[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = sitesMainNames.get(i);
+                    month.ambition = sitesAmbitions.get(i);
+                    month.experience = sitesExperience.get(i);
+                    month.example = sitesExamples.get(i);
+                    month.user = sitesUsers.get(i);
+                    month.applicationId = sitesApplicationIds.get(i).toString();
+                    arrSites[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps02(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null
-                            && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrInternet[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = internetMainNames.get(i);
+                    month.ambition = internetAmbitions.get(i);
+                    month.experience = internetExperience.get(i);
+                    month.example = internetExamples.get(i);
+                    month.user = internetUsers.get(i);
+                    month.applicationId = internetApplicationIds.get(i).toString();
+                    arrInternet[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps03(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("phone").getValue() != null
-                            && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrApps[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = appsMainNames.get(i);
+                    month.ambition = appsAmbitions.get(i);
+                    month.experience = appsExperiens.get(i);
+                    month.example = appsExamples.get(i);
+                    month.user = appsUsers.get(i);
+                    month.applicationId = appsApplicationIds.get(i).toString();
+                    arrApps[0][i] = month;
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps12(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0") &&
-                            appTable.child("application" + appIndex).child("vk").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
+                for (int i = 0; i < arrOther[0].length; i++) {
+                    AdapterElementOther month = new AdapterElementOther();
+                    month.mainName = otherMainNames.get(i);
+                    month.ambition = otherAmbitions.get(i);
+                    month.experience = otherExperience.get(i);
+                    month.example = otherExamples.get(i);
+                    month.user = otherUsers.get(i);
+                    month.applicationId = otherApplicationIds.get(i).toString();
+                    month.sectionClass = otherSection.get(i);
+                    arrOther[0][i] = month;
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps13(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0") &&
-                            appTable.child("application" + appIndex).child("phone").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps23(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null &&
-                            appTable.child("application" + appIndex).child("phone").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps012(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")
-                            && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть") && appTable.child("application" + appIndex).child("vk").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps013(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")
-                            && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть") && appTable.child("application" + appIndex).child("phone").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps023(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")
-                            && appTable.child("application" + appIndex).child("vk").getValue() != null
-                            && appTable.child("application" + appIndex).child("phone").getValue() != null) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps0123(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("example").getValue().toString()
-                            .equals("есть")
-                            && appTable.child("application" + appIndex).child("vk").getValue() != null
-                            && appTable.child("application" + appIndex).child("phone").getValue() != null
-                            && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createApps123(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    if (appTable.child("application" + appIndex).getValue() != null && appTable.child("application" + appIndex).child("vk").getValue() != null
-                            && appTable.child("application" + appIndex).child("phone").getValue() != null
-                            && appTable.child("application" + appIndex).child("experience").getValue().toString()
-                            .equals("0")) {
-                        DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                        if (appTagsRaw.getValue() != null) {
-                            // разделяем их на отдельные слова по пробелу
-                            List<String> appTags = Arrays
-                                    .asList(appTagsRaw.getValue().toString()
-                                            .split(" ")
-                                    );
-
-                            // подсчитываем сколько из них подходит под поисковый запрос
-                            int foundTagsCount = 0;
-                            for (String word : searchWords) {
-                                if (appTags.contains(word)) foundTagsCount++;
-                            }
-
-                            // сохраняем в мапу
-                            // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                            if (foundTagsCount > 0) {
-                                List<Integer> ids;
-                                // смотрим, есть ли уже такое количество совпадений
-                                // если есть, то добавляем в существующий список
-                                if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                    ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                                else
-                                    ids = new ArrayList<>();
-
-                                ids.add(appIndex);
-                                mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                            }
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
-
-    public void createAppsNothing(final String searchText) {
-        final String[] searchWords = searchText.split(" ");
-
-        ValueEventListener listenerAtOnce = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                // сделаем treeMap, который по умолчанию отсортирован, но так как нужн обратный порядок
-                // то передаем в конструкторе нужный порядок сортировки
-                mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-
-                // подсчитываем количество найденых тегов для заявок
-                for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                    // берем все теги заявки в исходном виде
-                    DataSnapshot appTagsRaw = appTable.child("application" + appIndex).child("hashs");
-                    if (appTagsRaw.getValue() != null) {
-                        // разделяем их на отдельные слова по пробелу
-                        List<String> appTags = Arrays
-                                .asList(appTagsRaw.getValue().toString()
-                                        .split(" ")
-                                );
-
-                        // подсчитываем сколько из них подходит под поисковый запрос
-                        int foundTagsCount = 0;
-                        for (String word : searchWords) {
-                            if (appTags.contains(word)) foundTagsCount++;
-                        }
-
-                        // сохраняем в мапу
-                        // value как список, так как у разных заявок может быть одинаковое количество совпадений
-                        if (foundTagsCount > 0) {
-                            List<Integer> ids;
-                            // смотрим, есть ли уже такое количество совпадений
-                            // если есть, то добавляем в существующий список
-                            if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
-                                ids = mapCountToIdsForHashtegs.get(foundTagsCount);
-                            else
-                                ids = new ArrayList<>();
-
-                            ids.add(appIndex);
-                            mapCountToIdsForHashtegs.put(foundTagsCount, ids);
-                        }
-                    }
-                }
+                MainAdapter adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterAll.setUserActionListener(MostMainActivity.this);
+                lv.setAdapter(adapterAll);
+                MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterBuisness.setUserActionListener(MostMainActivity.this);
+                lv2.setAdapter(adapterBuisness);
+                MainAdapter adapterGames = new MainAdapter(MostMainActivity.this, arrGames[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterGames.setUserActionListener(MostMainActivity.this);
+                lv3.setAdapter(adapterGames);
+                MainAdapter adapterSites = new MainAdapter(MostMainActivity.this, arrSites[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterSites.setUserActionListener(MostMainActivity.this);
+                lv4.setAdapter(adapterSites);
+                MainAdapter adapterInternet = new MainAdapter(MostMainActivity.this, arrInternet[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterInternet.setUserActionListener(MostMainActivity.this);
+                lv5.setAdapter(adapterInternet);
+                MainAdapter adapterApps = new MainAdapter(MostMainActivity.this, arrApps[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterApps.setUserActionListener(MostMainActivity.this);
+                lv6.setAdapter(adapterApps);
+                MainAdapterForOther adapterOther = new MainAdapterForOther(MostMainActivity.this, arrOther[0], userName);
+                // выставляем слушателя в адаптер (слушатель – наше активити)
+                adapterOther.setUserActionListener(MostMainActivity.this);
+                lv7.setAdapter(adapterOther);
             }
 
             @Override

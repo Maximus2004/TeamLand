@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Наименование заявки"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -60,7 +60,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Описание заявки"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp"
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="45dp" />
@@ -82,7 +82,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Цель"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Умения будущего члена команды"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -122,7 +122,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Требуемый опыт работы"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -142,7 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Хэштеги"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -162,7 +162,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Пример работы"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -182,7 +182,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Раздел"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -202,7 +202,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Телефон"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -222,7 +222,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ссылка на аккаунт ВК"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView
@@ -242,7 +242,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Другие способы связи"
-                android:textColor="#000"
+                android:textColor="#02a7ed"
                 android:textSize="18sp" />
 
             <TextView

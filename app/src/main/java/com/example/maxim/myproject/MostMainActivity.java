@@ -231,6 +231,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                     @Override
                                     public void onClick(DialogInterface dialog,
                                                         int id) {
+                                        //onlySort();
                                     }
                                 })
 
@@ -258,7 +259,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             public void onClick(View v) {
                 String searchText = searchEditText.getText().toString().toLowerCase();
                 if (searchText.equals("")) {
-                    //onlySort();
+
                 }
 
                 if (searchText != null && searchText != "" && !searchText.equals("")) {
@@ -3543,7 +3544,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     DataSnapshot appPhone = app.child("phone");
                     if (app.getValue() != null) {
                         if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3]) {
-                            if (appExample.getValue() != null && appExp.getValue() != null && appExample.getValue().toString().equals("есть") && appExp.getValue().toString().equals("0")) {
+                            if (appExample.getValue() != null && appExp.getValue() != null && appExample.getValue().toString().equals("есть")
+                                    && appExp.getValue().toString().equals("0")) {
                                 if (appName.getValue() != null) {
 
                                     if (appName.getValue().toString().length() > 25) {
@@ -3737,7 +3739,13 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             }
                         }
                     } else if (mCheckedItems[0] && !mCheckedItems[2] && !mCheckedItems[3] && !mCheckedItems[1]) {
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Зашёл в условие с примером", Toast.LENGTH_SHORT);
+                        toast.show();
                         if (appExample.getValue() != null && appExample.getValue().toString().equals("есть")) {
+                            Toast toast2 = Toast.makeText(getApplicationContext(),
+                                    "appExample = " + appExample.getValue().toString(), Toast.LENGTH_SHORT);
+                            toast2.show();
                             if (appName.getValue() != null) {
 
                                 if (appName.getValue().toString().length() > 25) {

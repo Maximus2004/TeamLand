@@ -261,7 +261,7 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
-                Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
             }
         };
         user.setOnClickListener(oclBtnUser);

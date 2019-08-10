@@ -44,7 +44,7 @@
 
                 <EditText
                     android:id="@+id/searchEditText"
-                    android:layout_width="268dp"
+                    android:layout_width="219dp"
                     android:layout_height="38dp"
                     android:layout_gravity="center|start"
                     android:layout_margin="45dp"
@@ -204,7 +204,8 @@
                 <LinearLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView2"
@@ -217,7 +218,8 @@
                 <LinearLayout
                     android:id="@+id/tab3"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView3"
@@ -231,7 +233,8 @@
                 <LinearLayout
                     android:id="@+id/tab4"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView4"
@@ -245,7 +248,8 @@
                 <LinearLayout
                     android:id="@+id/tab5"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView5"
@@ -259,7 +263,8 @@
                 <LinearLayout
                     android:id="@+id/tab6"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView6"
@@ -273,7 +278,8 @@
                 <LinearLayout
                     android:id="@+id/tab7"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:background="#e9e5e5">
 
                     <ListView
                         android:id="@+id/listView7"

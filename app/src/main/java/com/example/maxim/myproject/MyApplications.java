@@ -49,7 +49,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onDataChange makeMonth", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange makeMonth", Toast.LENGTH_SHORT).show();
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
                         if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
@@ -119,7 +119,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Возникла ошибка", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase = FirebaseDatabase.getInstance().getReference();

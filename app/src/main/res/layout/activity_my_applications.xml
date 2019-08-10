@@ -28,6 +28,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
+        android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

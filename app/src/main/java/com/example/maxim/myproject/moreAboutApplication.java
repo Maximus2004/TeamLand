@@ -59,7 +59,15 @@ public class moreAboutApplication extends AppCompatActivity {
                 applicationDescription.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("descriptionApplication").getValue().toString());
                 purpose.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("purpose").getValue().toString());
                 can.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("can").getValue().toString());
-                experience.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("experience").getValue().toString());
+                String experienceS = dataSnapshot.child("applications").child("application" + mainapplicationID).child("experience").getValue().toString();
+                if (experienceS.equals("0"))
+                    experience.setText(experienceS + " лет");
+                else if (experienceS.equals("1"))
+                    experience.setText(experienceS + " год");
+                else if (experienceS.equals("2") || experienceS.equals("3") || experienceS.equals("4"))
+                    experience.setText(experienceS + " года");
+                else
+                    experience.setText(experienceS + " лет");
                 if (dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue() != null) {
                     hashs.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue().toString());
                 }

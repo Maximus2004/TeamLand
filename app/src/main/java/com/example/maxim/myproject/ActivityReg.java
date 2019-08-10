@@ -50,9 +50,9 @@ public class ActivityReg extends AppCompatActivity {
                             "Форма заполена некорректно", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    Toast toast2 = Toast.makeText(getApplicationContext(),
-                            "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
-                    toast2.show();
+                    //Toast toast2 = Toast.makeText(getApplicationContext(),
+                    //        "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
+                    //toast2.show();
                     //saveData();
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
@@ -75,10 +75,10 @@ public class ActivityReg extends AppCompatActivity {
                             }
 
                             if (isLoginAlreadyInUse) {
-                                Toast.makeText(getApplicationContext(), "Поменяйте имя пользователя", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Пользователь с таким именем уже зарегистрирован", Toast.LENGTH_LONG).show();
                                 nickText.setTextColor(Color.RED);
                             } else {
-                                Toast.makeText(getApplicationContext(), "Ники не совпали и всё нормусь", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "Регистрация успешно пройдена!", Toast.LENGTH_SHORT).show();
                                 nickText.setTextColor(Color.BLACK);
                                 mainCountClientsInt++;
                                 mainCountClientsString = String.valueOf(mainCountClientsInt);
@@ -90,8 +90,8 @@ public class ActivityReg extends AppCompatActivity {
                                 Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
                                 intent2.putExtra(MostMainActivity.PARAM_USER_NAME, nickEditString);
                                 startActivity(intent2);
-                                Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                                startActivity(intent);
+                                //Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
+                                //startActivity(intent);
                                 // финишируем активити при успешной регистрации
                                 finish();
                             }

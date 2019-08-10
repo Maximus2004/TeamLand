@@ -185,7 +185,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Возникла ошибка", Toast.LENGTH_SHORT).show();
                     }
                 };
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar);
@@ -260,7 +260,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
-                Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
+                //Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
             }
         };
         user.setOnClickListener(oclBtnUser);

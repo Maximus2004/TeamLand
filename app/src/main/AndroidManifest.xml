@@ -18,16 +18,12 @@
             android:name=".CreateApplication"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
-
         <activity
             android:name=".Main2Activity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".ActivityReg"
-            android:windowSoftInputMode="adjustPan">
-        </activity>
-
+            android:windowSoftInputMode="adjustPan"></activity>
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login"
@@ -38,18 +34,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".Chosen" />
-
         <activity android:name=".MyApplications" />
-
         <activity
             android:name=".MostMainActivity"
             android:label="@string/title_activity_main3"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait"/>
-
-        <activity android:name=".moreAboutApplication"></activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".moreAboutApplication" />
+        <activity android:name=".SplashActivity"></activity>
     </application>
 
 </manifest>

@@ -22,10 +22,6 @@ public class moreAboutApplication extends AppCompatActivity {
     TextView applicationDescription, name, purpose, can, experience, hashs, example, sector, phone, vk, otherContacts;
     DatabaseReference mDatabase;
 
-    //public moreAboutApplication(String applicationId) {
-      //  this.mainapplicationID = applicationId;
-    //}
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

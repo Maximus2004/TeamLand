@@ -36,15 +36,12 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
     public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
         super(context, R.layout.one_adapner, arr);
 
-        // этому лучше быть здесь – сущность БД у тебя одна на все элементы, каждый раз вызывать нет смысла
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        // давайка получим  userId заранее (он же не будет меняться :)
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        //пишет, что userName - null и из-за этого падает при регистрации
                         if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
                             userId = i;
                             break;
@@ -85,7 +82,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         if (month.ambition.length() < 118 && month.ambition.length() > 85) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 206);
             layoutOneAdapter.setLayoutParams(params);
-            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(84);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 84);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 221);
@@ -93,7 +89,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         } else if (month.ambition.length() < 85 && month.ambition.length() > 61) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 189);
             layoutOneAdapter.setLayoutParams(params);
-            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(65);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 65);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 201);
@@ -101,7 +96,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         } else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 168);
             layoutOneAdapter.setLayoutParams(params);
-            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(44);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 44);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 181);
@@ -109,7 +103,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         } else if (month.ambition.length() < 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 158);
             layoutOneAdapter.setLayoutParams(params);
-            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(26);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 34);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 175);
@@ -147,7 +140,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
             textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             textViewExp.setText(textExp);
         }
-        //((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
         TextView textView = (TextView) convertView.findViewById(R.id.examp);
 
         final SpannableStringBuilder text = new SpannableStringBuilder(String.valueOf(month.example));
@@ -171,7 +163,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 ValueEventListener listenerAtOnceStar = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        //boolean isStarActive = dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null;
                         if (!starFlag) {
                             star.setImageResource(android.R.drawable.btn_star_big_on);
                             mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
@@ -218,9 +209,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
                     listener.onShowMoreClick(month.applicationId);
-
-                //Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
-            }
+                }
         };
         more.setOnClickListener(oclBtn0);
 
@@ -260,7 +249,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
-                //Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
             }
         };
         user.setOnClickListener(oclBtnUser);

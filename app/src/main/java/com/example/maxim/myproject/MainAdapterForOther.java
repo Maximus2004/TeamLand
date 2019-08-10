@@ -34,9 +34,8 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
     public MainAdapterForOther(Context context, AdapterElementOther[] arr, final String userName) {
         super(context, R.layout.one_adapter_for_other, arr);
 
-        // этому лучше быть здесь – сущность БД у тебя одна на все элементы, каждый раз вызывать нет смысла
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        // давайка получим  userId заранее (он же не будет меняться :)
+
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -80,38 +79,32 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
         if (month.ambition.length() < 118 && month.ambition.length() > 85){
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 247);
             layoutOneAdapter.setLayoutParams(params);
-            //((TextView) convertView.findViewById(R.id.writeAdout)).setMaxHeight(84);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 263);
             tab1.setLayoutParams(paramsTab);
-            //Toast.makeText(getContext(), "Первое условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 85 && month.ambition.length() > 61){
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 227);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 243);
             tab1.setLayoutParams(paramsTab);
-            //Toast.makeText(getContext(), "Второе условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 207);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 223);
             tab1.setLayoutParams(paramsTab);
-            //Toast.makeText(getContext(), "Третье условие", Toast.LENGTH_SHORT).show();
         }
         else if (month.ambition.length() < 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 187);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 203);
             tab1.setLayoutParams(paramsTab);
-            //Toast.makeText(getContext(), "Четвёртое условие", Toast.LENGTH_SHORT).show();
         }
         else{
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 266);
             layoutOneAdapter.setLayoutParams(params);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 280);
             tab1.setLayoutParams(paramsTab);
-            //Toast.makeText(getContext(), "Никуда не зашёл((", Toast.LENGTH_SHORT).show();
         }
 
         // Заполняем адаптер
@@ -141,7 +134,6 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
             textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
             textViewExp.setText(textExp);
         }
-        //((TextView) convertView.findViewById(R.id.examp)).setText(String.valueOf(month.example));
         TextView textView = (TextView) convertView.findViewById(R.id.examp);
         TextView textViewSection = (TextView) convertView.findViewById(R.id.sectionText);
 
@@ -163,7 +155,6 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
         }
         ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
-        //((ImageButton) convertView.findViewById(R.id.imageButton0)).setImageResource(android.R.drawable.btn_star_big_off);
 
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
@@ -172,7 +163,6 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                 ValueEventListener listenerAtOnceStar = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        //boolean isStarActive = dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null;
                         if (!starFlag) {
                             star.setImageResource(android.R.drawable.btn_star_big_on);
                             mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
@@ -261,7 +251,6 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
 
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
-                //Toast.makeText(getContext(), month.mainName, Toast.LENGTH_LONG).show();
             }
         };
         user.setOnClickListener(oclBtnUser);

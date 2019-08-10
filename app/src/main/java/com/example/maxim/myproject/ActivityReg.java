@@ -50,10 +50,6 @@ public class ActivityReg extends AppCompatActivity {
                             "Форма заполена некорректно", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    //Toast toast2 = Toast.makeText(getApplicationContext(),
-                    //        "Регистрация успешно пройдена!", Toast.LENGTH_LONG);
-                    //toast2.show();
-                    //saveData();
                     mainCountClientsInt++;
                     mainCountClientsString = String.valueOf(mainCountClientsInt);
                     mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -61,7 +57,6 @@ public class ActivityReg extends AppCompatActivity {
                     ValueEventListener listenerAtOnce = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            //Toast.makeText(getApplicationContext(), "onDataChange() в listenerAtOnce", Toast.LENGTH_SHORT).show();
                             // сбрасываем флаг
                             isLoginAlreadyInUse = false;
                             int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
@@ -90,8 +85,6 @@ public class ActivityReg extends AppCompatActivity {
                                 Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
                                 intent2.putExtra(MostMainActivity.PARAM_USER_NAME, nickEditString);
                                 startActivity(intent2);
-                                //Intent intent = new Intent(ActivityReg.this, MostMainActivity.class);
-                                //startActivity(intent);
                                 // финишируем активити при успешной регистрации
                                 finish();
                             }
@@ -125,28 +118,9 @@ public class ActivityReg extends AppCompatActivity {
 
     }
 
-    /*void saveData() {
-        // преференсы можно сделать локальные
-        // текущий вызов достает преференсы ТОЛЬКО для активити
-        // чтобы они были для всего приложения нужно вызывать getPreferences("текст1", MODE_PRIVATE)
-        // и в другом активити вызывать также getPreferences("текст1", MODE_PRIVATE)
-        // вместо "текст1" может быть любой ключ, но одинаковый в обоих вызовах
-        // SAVED_TEXT и SAVED_NUM должны быть static и их можно будет вызывать так: ActivityReg.SAVED_TEXT
-        SharedPreferences sharedPreferences = getSharedPreferences("ALL_APP", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.putString(SAVED_LOGIN, nickEditString);
-        editor.putString(SAVED_PASSWORD, firstPasswordEditString);
-        editor.commit();
-        //Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
-    }*/
-
     private void writeNewUser(String userId, String login, String password, String description) {
         User user = new User(userId, login, password, description);
         mDatabase.child("client" + dataSnapshot2).setValue(user);
-        /*Toast toast = Toast.makeText(getApplicationContext(),
-                "Зашёл в writeNewUser", Toast.LENGTH_SHORT);
-        toast.show();*/
     }
 
     void checkSecondPassword() {

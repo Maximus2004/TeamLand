@@ -41,7 +41,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     AlertDialog.Builder builder5;
     int pos, pos2, userI3;
     boolean isExample = false;
-    boolean checkingSpaces, numberOfWords, n, u, op = false;
+    boolean numberOfWords, n, u, op = false;
     boolean hash = false;
     boolean mainFlag, mainFlag2 = true;
     String[] cities = {"Сфера программирования:", "Создание игр", "Создание сайтов", "Создание приложений"};
@@ -49,9 +49,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     DatabaseReference mDatabase;
     String exampleText = "";
     String userName;
-    //я помню, что нельзя так обращаться с активностями и что лучше сделать их статичными, а потом через MostMainActivity.fillData();
-    //вызывать функцию, но у меня не получается сделать её статичной. Я,конечнр, что-то не так делаю
-    //MostMainActivity mostMainActivity = new MostMainActivity();
     String resOpit, resName, resCan, resOther, resOpis, resHash, resVK, resCont, resOtherVar, resPurpose, mainItem;
 
 
@@ -232,7 +229,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     }
 
     void initialization(){
-        //прошу прощения за циферки в названиях переменных((
+        //прошу прощения за циферки в названиях переменных
+        //в этих названиях есть определённая логика - номер textView совпадает с номером t
         mainCount++;
         purposeEditText = findViewById(R.id.editText2);
         name = findViewById(R.id.name);
@@ -253,6 +251,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         t5 = findViewById(R.id.textView5);
         t8 = findViewById(R.id.textView8);
 
+        //если есть приставка res, то это значит, что переменная - String и является getText()
         resName = name.getText().toString();
         resOpis = opisanie.getText().toString();
         resHash = hashs.getText().toString();
@@ -342,8 +341,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 hash = true;
             }
         }
-
-        // вызвать resHash.toLowerCase()
         resHash.toLowerCase();
 
         for (int i = 0; i < resHash.length(); i++) {
@@ -412,7 +409,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                         }
                     }
                     mDatabase = FirebaseDatabase.getInstance().getReference();
-                    //Toast.makeText(getApplicationContext(), "Записал в БД creator = " + dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), Toast.LENGTH_SHORT).show();
                     writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
                     mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                 }

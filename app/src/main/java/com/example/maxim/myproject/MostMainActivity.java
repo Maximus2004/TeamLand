@@ -71,10 +71,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.most_main_activity);
 
-        // весь код, что был здесь разделил на методы и чуть отредактировал
-        // так удобно читать и понимать код – каждый метод занимается только какой-то одной "задачей"
-        // и в том числе может быть разделен еще на методы
-
         // достаем информацию, переданную из LoginActivity, если она есть
         // если такого параметра нет, то будет null
         Intent intent = getIntent();
@@ -132,19 +128,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         lv5 = findViewById(R.id.listView5);
         lv6 = findViewById(R.id.listView6);
         lv7 = findViewById(R.id.listView7);
-
-        /*lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //если раскомментировать строки ниже, то всё так же не работает
-                //if (view.getId() == R.id.buttonMore) {
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "" + position, Toast.LENGTH_SHORT);
-                toast.show();
-                //}
-            }
-
-        });*/
     }
 
     private void setupNavigation() {
@@ -291,7 +274,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                                     dialog.cancel();
                                                 }
                                             });
-                            //Toast.makeText(getApplicationContext(), "Зашёл в первое условие", Toast.LENGTH_SHORT).show();
                             AlertDialog alertHashtegs = builderHashtegs.create();
                             alertHashtegs.show();
                         }
@@ -351,8 +333,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
                 ArrayList<String> internetExperience = new ArrayList<>();
@@ -1431,8 +1411,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
                 ArrayList<String> internetExperience = new ArrayList<>();
@@ -1494,9 +1472,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
                     int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
-                    // подсчитываем количество найденых тегов для заявок
                     for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                        // берем все теги заявки в исходном виде
                         if (appTable.child("application" + appIndex).getValue() != null
                                 && appTable.child("application" + appIndex).child("experience").getValue().toString().equals("0")
                                 && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
@@ -1560,9 +1536,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
                     int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
-                    // подсчитываем количество найденых тегов для заявок
                     for (int appIndex = 0; appIndex < maxId; appIndex++) {
-                        // берем все теги заявки в исходном виде
                         if (appTable.child("application" + appIndex).getValue() != null
                                 && appTable.child("application" + appIndex).child("example").getValue() != null
                                 && appTable.child("application" + appIndex).child("example").getValue().toString().equals("есть")) {
@@ -3351,7 +3325,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
                     final DatabaseReference description = mDatabase.child("client" + clientId).child("description");
 
-                    // а из-за строчек ниже приложение вылетает при нажатии на кнопку "Отредактировать"
                     AlertDialog.Builder builder2 = new AlertDialog.Builder(MostMainActivity.this);
                     builder2.setTitle("Редактирование описания")
                             .setCancelable(false)
@@ -3368,9 +3341,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                         }
                                     });
                     LayoutInflater ltInflater = getLayoutInflater();
-                    View view = ltInflater.inflate(R.layout.dialog_signin, null, false);
-                    // только так ты можешь получить нужный тебе editText, потому что он лежит только в этом лейауте
-                    // раньше ты пытался найти его на активити MostMainActivity
+                    View view = ltInflater.inflate(R.layout.dialog_changing_description, null, false);
                     edit = view.findViewById(R.id.editText6);
                     edit.setText(dataSnapshot.child("client" + clientId).child("description").getValue().toString());
                     AlertDialog alert2 = builder2.create();
@@ -3458,11 +3429,13 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(MostMainActivity.this, "Jib,rf!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MostMainActivity.this, "Ошибка!", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
+
+    //этот код ещё пригодится
     private void onlySort() {
         final AdapterElement[][] arrBuisness = new AdapterElement[1][];
         final AdapterElement[][] arrAll = new AdapterElement[1][];
@@ -3474,8 +3447,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
                 ArrayList<String> internetExperience = new ArrayList<>();

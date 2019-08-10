@@ -25,7 +25,6 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
     int userId;
     ListView lv;
     String userName;
-    ImageButton star;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +32,12 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         setContentView(R.layout.activity_chosen);
         Intent intent = getIntent();
         userName = intent.getStringExtra(PARAM_USER_NAME);
-        //star = findViewById(R.id.imageButton0);
 
         Toolbar toolbar2 = findViewById(R.id.toolbarChosen);
         setSupportActionBar(toolbar2);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Избранные");
-
-        //Intent intent = getIntent();
-        //userName = intent.getStringExtra(CreateApplication.PARAM_USER_NAME);
 
         lv = findViewById(R.id.listViewFavourite);
         makeMonth();
@@ -97,7 +92,6 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
                         examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
                         users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
                         applicationIdes.add(i + "");
-                        //star.setImageResource(android.R.drawable.btn_star_big_on);
                     }
                 }
                 arr[0] = new AdapterElement[mainNames.size()];

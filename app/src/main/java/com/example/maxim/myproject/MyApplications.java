@@ -25,7 +25,6 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
     int userId;
     ListView lv;
     String userName;
-    //MostMainActivity mostMainActivity = new MostMainActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +48,6 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange makeMonth", Toast.LENGTH_SHORT).show();
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
                         if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
@@ -130,7 +128,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //mostMainActivity.fillData();
+                //MostMainActivity.fillData();
                 this.finish();
                 return true;
             default:
@@ -144,16 +142,13 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                /*Intent intent = new Intent(MyApplications.this, moreAboutApplication.class);
-                intent.putExtra("applId", applicationId);
-                startActivity(intent);*/
-                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
+                                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
                 makeMonth();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(MyApplications.this, "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyApplications.this, "Ошибка!", Toast.LENGTH_SHORT).show();
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);

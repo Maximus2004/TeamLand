@@ -44,6 +44,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
+                        //пишет, что userName - null и из-за этого падает при регистрации
                         if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
                             userId = i;
                             break;

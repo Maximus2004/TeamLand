@@ -90,11 +90,20 @@ public class LoginActivity extends AppCompatActivity {
                                 intent.putExtra(MostMainActivity.PARAM_USER_NAME, loginT);
                                 //Toast.makeText(getApplicationContext(), "положил в intent "+loginT, Toast.LENGTH_SHORT).show();
                                 startActivity(intent);
+                                Toast toast = Toast.makeText(getApplicationContext(),
+                                        "Вход успешно выполнен", Toast.LENGTH_SHORT);
+                                toast.show();
+                                finish();
                                 //userName = loginT;
                                 //MainAdapter adapter = new MainAdapter(LoginActivity.this, array, loginT);
                                 // выставляем слушателя в адаптер (слушатель – наше активити)
                                 break;
                             }
+                        }
+                        if (isUserRegistrated){
+                            Toast toast = Toast.makeText(getApplicationContext(),
+                                    "Вы не подключены к сети или такого пользователя не существует", Toast.LENGTH_LONG);
+                            toast.show();
                         }
                     }
                     @Override
@@ -107,13 +116,10 @@ public class LoginActivity extends AppCompatActivity {
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
                 if (isUserRegistrated){
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Вы не подключены к сети или такого пользователя не существует", Toast.LENGTH_LONG);
-                    toast.show();
+                    //Toast toast = Toast.makeText(getApplicationContext(),
+                      //      "Вы не подключены к сети или такого пользователя не существует", Toast.LENGTH_LONG);
+                    //toast.show();
                 } else{
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "Вход успешно выполнен", Toast.LENGTH_SHORT);
-                    toast.show();
                     Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
                     startActivity(intent);
                     // передаем логин пользователя в главное активити

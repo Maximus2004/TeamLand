@@ -3349,8 +3349,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     lv.post(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getApplicationContext(), "Прокрутил lv в позицию " + String.valueOf(lv.getCount() - 6), Toast.LENGTH_SHORT).show();
-                            lv.setSelection(lv.getCount() - 6);
+                            Toast.makeText(getApplicationContext(), "Прокрутил lv в позицию " + String.valueOf(lv.getCount() - 5), Toast.LENGTH_SHORT).show();
+                            lv.setSelection(lv.getCount() - 5);
                         }
                     });
                 }

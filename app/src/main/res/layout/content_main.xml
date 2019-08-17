@@ -186,18 +186,23 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
-
-                    <ListView
-                        android:id="@+id/listView"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_height="match_parent">
 
+                        <ListView
+                            android:id="@+id/listView"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </android.support.v4.widget.SwipeRefreshLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -206,12 +211,19 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView2"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout2"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
+
+                        <ListView
+                            android:id="@+id/listView2"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -220,13 +232,18 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView3"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout3"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
 
+                        <ListView
+                            android:id="@+id/listView3"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -235,12 +252,18 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView4"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout4"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
+
+                        <ListView
+                            android:id="@+id/listView4"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
 
@@ -250,12 +273,18 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView5"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout5"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
+
+                        <ListView
+                            android:id="@+id/listView5"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
 
@@ -265,12 +294,18 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView6"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout6"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
+
+                        <ListView
+                            android:id="@+id/listView6"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
 
@@ -280,12 +315,18 @@
                     android:layout_height="match_parent"
                     android:background="#e9e5e5">
 
-                    <ListView
-                        android:id="@+id/listView7"
+                    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/swipeRefreshLayout7"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:divider="@android:color/transparent"
-                        android:dividerHeight="0dp" />
+                        android:layout_height="match_parent">
+
+                        <ListView
+                            android:id="@+id/listView7"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:divider="@android:color/transparent"
+                            android:dividerHeight="0dp" />
+                    </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
             </FrameLayout>

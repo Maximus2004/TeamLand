@@ -134,6 +134,12 @@
                     android:text="Дмитриев Александр"
                     android:textColor="#001eff" />
 
+                <Button
+                    android:id="@+id/button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="1dp"
+                    android:text="Button" />
+
             </FrameLayout>
         </LinearLayout>
     </LinearLayout>

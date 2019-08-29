@@ -155,7 +155,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
         ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
 
-
         final ImageButton star = convertView.findViewById(R.id.imageButton0);
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
             @Override

@@ -22,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -60,6 +59,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     String[] searchFor = {"Поиск по ...", "Хэштегам", "Словам в описаниях"};
     DatabaseReference mDatabase;
     EditText edit;
+    View footerBackNext;
     MainAdapter adapterAll;
     final boolean[] mCheckedItems = {false, false, false, false};
     ListView lv, lv2, lv3, lv4, lv5, lv6, lv7;
@@ -67,56 +67,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             mSwipeRefreshLayout4, mSwipeRefreshLayout5, mSwipeRefreshLayout6, mSwipeRefreshLayout7;
     boolean controlBurger = true;
     TreeMap<Integer, List<Integer>> mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-
-    ArrayList<String> internetMainNames = new ArrayList<>();
-    ArrayList<String> internetAmbitions = new ArrayList<>();
-    ArrayList<String> internetExperience = new ArrayList<>();
-    ArrayList<String> internetExamples = new ArrayList<>();
-    ArrayList<String> internetUsers = new ArrayList<>();
-    ArrayList<Integer> internetApplicationIds = new ArrayList<>();
-
-    ArrayList<String> buisnessMainNames = new ArrayList<>();
-    ArrayList<String> buisnessAmbitions = new ArrayList<>();
-    ArrayList<String> buisnessExperience = new ArrayList<>();
-    ArrayList<String> buisnessExamples = new ArrayList<>();
-    ArrayList<String> buisnessUsers = new ArrayList<>();
-    ArrayList<Integer> buisnessApplicationIds = new ArrayList<>();
-
-    ArrayList<String> gamesMainNames = new ArrayList<>();
-    ArrayList<String> gamesAbmitions = new ArrayList<>();
-    ArrayList<String> gamesExperience = new ArrayList<>();
-    ArrayList<String> gamesExamples = new ArrayList<>();
-    ArrayList<String> gamesUsers = new ArrayList<>();
-    ArrayList<Integer> gamesApplicationIds = new ArrayList<>();
-
-    ArrayList<String> sitesMainNames = new ArrayList<>();
-    ArrayList<String> sitesAmbitions = new ArrayList<>();
-    ArrayList<String> sitesExperience = new ArrayList<>();
-    ArrayList<String> sitesExamples = new ArrayList<>();
-    ArrayList<String> sitesUsers = new ArrayList<>();
-    ArrayList<Integer> sitesApplicationIds = new ArrayList<>();
-
-    ArrayList<String> appsMainNames = new ArrayList<>();
-    ArrayList<String> appsAmbitions = new ArrayList<>();
-    ArrayList<String> appsExperiens = new ArrayList<>();
-    ArrayList<String> appsExamples = new ArrayList<>();
-    ArrayList<String> appsUsers = new ArrayList<>();
-    ArrayList<Integer> appsApplicationIds = new ArrayList<>();
-
-    ArrayList<String> otherMainNames = new ArrayList<>();
-    ArrayList<String> otherAmbitions = new ArrayList<>();
-    ArrayList<String> otherExperience = new ArrayList<>();
-    ArrayList<String> otherExamples = new ArrayList<>();
-    ArrayList<String> otherUsers = new ArrayList<>();
-    ArrayList<Integer> otherApplicationIds = new ArrayList<>();
-    ArrayList<String> otherSection = new ArrayList();
-
-    ArrayList<String> allMainNames = new ArrayList<>();
-    ArrayList<String> allAmbitions = new ArrayList<>();
-    ArrayList<String> allExperience = new ArrayList<>();
-    ArrayList<String> allExamples = new ArrayList<>();
-    ArrayList<String> allUsers = new ArrayList<>();
-    ArrayList<Integer> allApplicationIds = new ArrayList<>();
 
     // идентификатор диалогового окна AlertDialog с кнопками
     private final int IDD_CHECK = 4;
@@ -141,6 +91,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        footerBackNext = createFooter();
+
         // настройки тулбара, навигации и отображения
         setupNavigation();
         setupTabs();
@@ -150,29 +102,36 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         // заполняем списки информацией
         fillData();
 
+        //единажды присваеваем footer to listView
+        lv.addFooterView(footerBackNext);
+
+        //настройки кнопок на footerView
+        setupButtonsBackNext();
+
         // настройка поиска
         setupSearch();
 
         //настройка SwipeRefresh
         setupRefresh();
 
-        //пустой ли ArrayList
-        isListEmpty();
-
         //конец lv
-        theEndOfLV();
+        //theEndOfLV();
 
         // кнопка "Создать новую заявку"
         setupCreateAppButton();
         setupSortButton();
     }
 
-    private void isListEmpty() {
-        if (allMainNames.isEmpty())
-            fillData();
+    // создание Footer
+    View createFooter() {
+        View v = getLayoutInflater().inflate(R.layout.footer, null);
+        return v;
     }
 
-    private void theEndOfLV() {
+    void setupButtonsBackNext() {
+    }
+
+    /*private void theEndOfLV() {
         lv.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
@@ -190,7 +149,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
             }
         });
-    }
+    }*/
 
     private void setupRefresh() {
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
@@ -3049,6 +3008,57 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+
+                ArrayList<String> internetMainNames = new ArrayList<>();
+                ArrayList<String> internetAmbitions = new ArrayList<>();
+                ArrayList<String> internetExperience = new ArrayList<>();
+                ArrayList<String> internetExamples = new ArrayList<>();
+                ArrayList<String> internetUsers = new ArrayList<>();
+                ArrayList<Integer> internetApplicationIds = new ArrayList<>();
+
+                ArrayList<String> buisnessMainNames = new ArrayList<>();
+                ArrayList<String> buisnessAmbitions = new ArrayList<>();
+                ArrayList<String> buisnessExperience = new ArrayList<>();
+                ArrayList<String> buisnessExamples = new ArrayList<>();
+                ArrayList<String> buisnessUsers = new ArrayList<>();
+                ArrayList<Integer> buisnessApplicationIds = new ArrayList<>();
+
+                ArrayList<String> gamesMainNames = new ArrayList<>();
+                ArrayList<String> gamesAbmitions = new ArrayList<>();
+                ArrayList<String> gamesExperience = new ArrayList<>();
+                ArrayList<String> gamesExamples = new ArrayList<>();
+                ArrayList<String> gamesUsers = new ArrayList<>();
+                ArrayList<Integer> gamesApplicationIds = new ArrayList<>();
+
+                ArrayList<String> sitesMainNames = new ArrayList<>();
+                ArrayList<String> sitesAmbitions = new ArrayList<>();
+                ArrayList<String> sitesExperience = new ArrayList<>();
+                ArrayList<String> sitesExamples = new ArrayList<>();
+                ArrayList<String> sitesUsers = new ArrayList<>();
+                ArrayList<Integer> sitesApplicationIds = new ArrayList<>();
+
+                ArrayList<String> appsMainNames = new ArrayList<>();
+                ArrayList<String> appsAmbitions = new ArrayList<>();
+                ArrayList<String> appsExperiens = new ArrayList<>();
+                ArrayList<String> appsExamples = new ArrayList<>();
+                ArrayList<String> appsUsers = new ArrayList<>();
+                ArrayList<Integer> appsApplicationIds = new ArrayList<>();
+
+                ArrayList<String> otherMainNames = new ArrayList<>();
+                ArrayList<String> otherAmbitions = new ArrayList<>();
+                ArrayList<String> otherExperience = new ArrayList<>();
+                ArrayList<String> otherExamples = new ArrayList<>();
+                ArrayList<String> otherUsers = new ArrayList<>();
+                ArrayList<Integer> otherApplicationIds = new ArrayList<>();
+                ArrayList<String> otherSection = new ArrayList();
+
+                ArrayList<String> allMainNames = new ArrayList<>();
+                ArrayList<String> allAmbitions = new ArrayList<>();
+                ArrayList<String> allExperience = new ArrayList<>();
+                ArrayList<String> allExamples = new ArrayList<>();
+                ArrayList<String> allUsers = new ArrayList<>();
+                ArrayList<Integer> allApplicationIds = new ArrayList<>();
+
                 countLimit += 5;
 
                 String bigName, name, section, bigSection;
@@ -3059,6 +3069,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
                 if (countLimit <= maxId) {
                     for (int appId = maxId - countLimit + 5; appId > maxId - countLimit; appId--) {
+                        //for (int appId = maxId; appId > -1; appId--) {
                         Toast.makeText(getApplicationContext(), "appId = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
                         DataSnapshot app = appTable.child("application" + appId);
                         DataSnapshot appName = app.child("name");
@@ -3343,17 +3354,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapterAll.setUserActionListener(MostMainActivity.this);
-                if (countLimit < maxId)
-                    lv.setAdapter(adapterAll);
-                if (countLimit > 10 && countLimit < maxId) {
-                    lv.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Прокрутил lv в позицию " + String.valueOf(lv.getCount() - 6), Toast.LENGTH_SHORT).show();
-                            lv.setSelection(lv.getCount() - 6);
-                        }
-                    });
-                }
+                lv.setAdapter(adapterAll);
+                //lv.addFooterView(footerBackNext);
                 MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapterBuisness.setUserActionListener(MostMainActivity.this);
@@ -3378,6 +3380,26 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapterOther.setUserActionListener(MostMainActivity.this);
                 lv7.setAdapter(adapterOther);
+
+                View.OnClickListener onBackClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                };
+
+                ImageButton backButton = (ImageButton) findViewById(R.id.imageButtonBack);
+                backButton.setOnClickListener(onBackClickListener);
+
+                View.OnClickListener onNextClickListener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fillData();
+                    }
+                };
+
+                ImageButton nextButton = (ImageButton) findViewById(R.id.imageButtonNext);
+                nextButton.setOnClickListener(onNextClickListener);
             }
 
             @Override
@@ -3554,7 +3576,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
     //этот код ещё пригодится
-    private void onlySort() {
+    /*private void onlySort() {
         final AdapterElement[][] arrBuisness = new AdapterElement[1][];
         final AdapterElement[][] arrAll = new AdapterElement[1][];
         final AdapterElement[][] arrInternet = new AdapterElement[1][];
@@ -6859,5 +6881,5 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
+    }*/
 }

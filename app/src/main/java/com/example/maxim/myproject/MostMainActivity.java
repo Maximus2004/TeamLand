@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -51,8 +52,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
     String item;
     String userName = null;
-    int pos;
-    boolean flag = true;
+    int pos, bigId, bigIdBack, bigIdBackApp;
+    int publishTheLast, publishTheFirst = 0;
+    boolean flag, flagSearch = true;
     EditText searchEditText;
     AlertDialog.Builder builderHashtegs, builder;
     ImageButton burger;
@@ -99,8 +101,12 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setupTitle();
         setupLists();
 
+        //настройка bigId
+        setupBigId();
+
         // заполняем списки информацией
         fillData();
+        fillDataAllOther();
 
         //единажды присваеваем footer to listView
         lv.addFooterView(footerBackNext);
@@ -115,7 +121,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setupRefresh();
 
         //конец lv
-        //theEndOfLV();
+        theEndOfLV();
 
         // кнопка "Создать новую заявку"
         setupCreateAppButton();
@@ -128,10 +134,29 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         return v;
     }
 
+    void setupBigId() {
+        ValueEventListener listenerAtOnceBigId = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+                bigId = maxId;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnceBigId);
+    }
+
     void setupButtonsBackNext() {
     }
 
-    /*private void theEndOfLV() {
+    private void theEndOfLV() {
+        final ImageButton createAppButton = findViewById(R.id.imageBtn);
+        final ImageButton sortButton = findViewById(R.id.imageButtonSort);
         lv.setOnScrollListener(new AbsListView.OnScrollListener() {
 
             @Override
@@ -139,8 +164,13 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
                         && (lv.getLastVisiblePosition() - lv.getHeaderViewsCount() -
                         lv.getFooterViewsCount()) >= (adapterAll.getCount() - 1)) {
-                    Toast.makeText(getApplicationContext(), "Вы в конце lv", Toast.LENGTH_SHORT).show();
-                    fillData();
+                    float translationY = 180;
+                    createAppButton.setTranslationY(translationY);
+                    sortButton.setTranslationY(translationY);
+                } else {
+                    float translationY = 0;
+                    createAppButton.setTranslationY(translationY);
+                    sortButton.setTranslationY(translationY);
                 }
             }
 
@@ -149,23 +179,15 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
             }
         });
-    }*/
+    }
 
     private void setupRefresh() {
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                fillData();
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
-        });
 
         mSwipeRefreshLayout2 = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout2);
         mSwipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout2.setRefreshing(false);
             }
         });
@@ -174,7 +196,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout3.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout3.setRefreshing(false);
             }
         });
@@ -183,7 +205,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout4.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout4.setRefreshing(false);
             }
         });
@@ -192,7 +214,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout5.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout5.setRefreshing(false);
             }
         });
@@ -201,7 +223,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout6.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout6.setRefreshing(false);
             }
         });
@@ -210,7 +232,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout7.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                fillData();
+                fillDataAllOther();
                 mSwipeRefreshLayout7.setRefreshing(false);
             }
         });
@@ -266,7 +288,10 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 if (controlBurger)
                     drawer.openDrawer(GravityCompat.START);
                 else {
+                    flagSearch = false;
                     fillData();
+                    fillDataAllOther();
+                    lv.addFooterView(footerBackNext);
                     controlBurger = true;
                     burger.setImageResource(R.drawable.huray);
                     searchEditText = findViewById(R.id.searchEditText);
@@ -355,6 +380,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onClick(View v) {
                 String searchText = searchEditText.getText().toString().toLowerCase();
+                lv.removeFooterView(footerBackNext);
 
                 if (searchText != null && searchText != "" && !searchText.equals("")) {
                     if (pos == 0) {
@@ -2995,10 +3021,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
     int countLimit = 0;
 
-    //невозможно сделать static
-    public void fillData() {
+
+    public void fillDataAllOther() {
         final AdapterElement[][] arrBuisness = new AdapterElement[1][];
-        final AdapterElement[][] arrAll = new AdapterElement[1][];
         final AdapterElement[][] arrInternet = new AdapterElement[1][];
         final AdapterElement[][] arrGames = new AdapterElement[1][];
         final AdapterElement[][] arrSites = new AdapterElement[1][];
@@ -3007,7 +3032,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
 
                 ArrayList<String> internetMainNames = new ArrayList<>();
                 ArrayList<String> internetAmbitions = new ArrayList<>();
@@ -3052,44 +3076,34 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 ArrayList<Integer> otherApplicationIds = new ArrayList<>();
                 ArrayList<String> otherSection = new ArrayList();
 
-                ArrayList<String> allMainNames = new ArrayList<>();
-                ArrayList<String> allAmbitions = new ArrayList<>();
-                ArrayList<String> allExperience = new ArrayList<>();
-                ArrayList<String> allExamples = new ArrayList<>();
-                ArrayList<String> allUsers = new ArrayList<>();
-                ArrayList<Integer> allApplicationIds = new ArrayList<>();
-
-                countLimit += 5;
-
                 String bigName, name, section, bigSection;
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-                Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
 
-                if (countLimit <= maxId) {
-                    for (int appId = maxId - countLimit + 5; appId > maxId - countLimit; appId--) {
-                        //for (int appId = maxId; appId > -1; appId--) {
-                        Toast.makeText(getApplicationContext(), "appId = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
-                        DataSnapshot app = appTable.child("application" + appId);
-                        DataSnapshot appName = app.child("name");
-                        DataSnapshot appPurpose = app.child("purpose");
-                        DataSnapshot appExp = app.child("experience");
-                        DataSnapshot appExample = app.child("example");
-                        DataSnapshot appCreator = app.child("creator");
-                        DataSnapshot appSection = app.child("section");
 
-                        if (appName.getValue() != null) {
+                for (int appId = maxId; appId > -1; appId--) {
+                    DataSnapshot app = appTable.child("application" + appId);
+                    DataSnapshot appName = app.child("name");
+                    DataSnapshot appPurpose = app.child("purpose");
+                    DataSnapshot appExp = app.child("experience");
+                    DataSnapshot appExample = app.child("example");
+                    DataSnapshot appCreator = app.child("creator");
+                    DataSnapshot appSection = app.child("section");
 
+                    if (appName.getValue() != null) {
+
+                        // обработка по секциям
+                        if (appSection.getValue().toString().equals("Бизнес в интернете")) {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
                                 name = appName.getValue().toString();
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                allMainNames.add("  " + bigName + "...");
+                                internetMainNames.add("  " + bigName + "...");
                             } else {
-                                allMainNames.add("  " + appName.getValue().toString());
+                                internetMainNames.add("  " + appName.getValue().toString());
                             }
                             if (appPurpose.getValue().toString().length() > 146) {
                                 bigName = "";
@@ -3097,181 +3111,152 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                 for (int j = 0; j < 146; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                allAmbitions.add(bigName + "...");
+                                internetAmbitions.add(bigName + "...");
                             } else {
-                                allAmbitions.add(appPurpose.getValue().toString());
+                                internetAmbitions.add(appPurpose.getValue().toString());
                             }
-                            allExperience.add("  Опыт: " + appExp.getValue().toString());
-                            allExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            allUsers.add(appCreator.getValue().toString());
-                            allApplicationIds.add(appId);
-
-                            // обработка по секциям
-                            if (appSection.getValue().toString().equals("Бизнес в интернете")) {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    internetMainNames.add("  " + bigName + "...");
-                                } else {
-                                    internetMainNames.add("  " + appName.getValue().toString());
+                            internetExperience.add("  Опыт: " + appExp.getValue().toString());
+                            internetExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            internetUsers.add(appCreator.getValue().toString());
+                            internetApplicationIds.add(appId);
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
                                 }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    internetAmbitions.add(bigName + "...");
-                                } else {
-                                    internetAmbitions.add(appPurpose.getValue().toString());
-                                }
-                                internetExperience.add("  Опыт: " + appExp.getValue().toString());
-                                internetExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                internetUsers.add(appCreator.getValue().toString());
-                                internetApplicationIds.add(appId);
-                            } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    buisnessMainNames.add("  " + bigName + "...");
-                                } else {
-                                    buisnessMainNames.add("  " + appName.getValue().toString());
-                                }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    buisnessAmbitions.add(bigName + "...");
-                                } else {
-                                    buisnessAmbitions.add(appPurpose.getValue().toString());
-                                }
-                                buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
-                                buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                buisnessUsers.add(appCreator.getValue().toString());
-                                buisnessApplicationIds.add(appId);
-                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    gamesMainNames.add("  " + bigName + "...");
-                                } else {
-                                    gamesMainNames.add("  " + appName.getValue().toString());
-                                }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    gamesAbmitions.add(bigName + "...");
-                                } else {
-                                    gamesAbmitions.add(appPurpose.getValue().toString());
-                                }
-                                gamesExperience.add("  Опыт: " + appExp.getValue().toString());
-                                gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                gamesUsers.add(appCreator.getValue().toString());
-                                gamesApplicationIds.add(appId);
-                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    sitesMainNames.add("  " + bigName + "...");
-                                } else {
-                                    sitesMainNames.add("  " + appName.getValue().toString());
-                                }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    sitesAmbitions.add(bigName + "...");
-                                } else {
-                                    sitesAmbitions.add(appPurpose.getValue().toString());
-                                }
-                                sitesExperience.add("  Опыт: " + appExp.getValue().toString());
-                                sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                sitesUsers.add(appCreator.getValue().toString());
-                                sitesApplicationIds.add(appId);
-                            } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    appsMainNames.add("  " + bigName + "...");
-                                } else {
-                                    appsMainNames.add("  " + appName.getValue().toString());
-                                }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    appsAmbitions.add(bigName + "...");
-                                } else {
-                                    appsAmbitions.add(appPurpose.getValue().toString());
-                                }
-                                appsExperiens.add("  Опыт: " + appExp.getValue().toString());
-                                appsExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                appsUsers.add(appCreator.getValue().toString());
-                                appsApplicationIds.add(appId);
+                                buisnessMainNames.add("  " + bigName + "...");
                             } else {
-                                if (appName.getValue().toString().length() > 25) {
-                                    bigName = "";
-                                    name = appName.getValue().toString();
-                                    for (int j = 0; j < 25; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    otherMainNames.add("  " + bigName + "...");
-                                } else {
-                                    otherMainNames.add("  " + appName.getValue().toString());
-                                }
-                                if (appPurpose.getValue().toString().length() > 146) {
-                                    bigName = "";
-                                    name = appPurpose.getValue().toString();
-                                    for (int j = 0; j < 146; j++) {
-                                        bigName += name.charAt(j);
-                                    }
-                                    otherAmbitions.add(bigName + "...");
-                                } else {
-                                    otherAmbitions.add(appPurpose.getValue().toString());
-                                }
-                                otherExperience.add("  Опыт: " + appExp.getValue().toString());
-                                otherExamples.add("  Пример работы: " + appExample.getValue().toString());
-                                otherUsers.add(appCreator.getValue().toString());
-                                if (appSection.getValue().toString().length() > 21) {
-                                    bigSection = "";
-                                    section = appSection.getValue().toString();
-                                    for (int j = 0; j < 21; j++) {
-                                        bigSection += section.charAt(j);
-                                    }
-                                    otherSection.add("  Раздел:  " + bigSection + "...");
-                                } else {
-                                    otherSection.add("  Раздел:  " + appSection.getValue().toString());
-                                }
-                                otherApplicationIds.add(appId);
+                                buisnessMainNames.add("  " + appName.getValue().toString());
                             }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                buisnessAmbitions.add(bigName + "...");
+                            } else {
+                                buisnessAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
+                            buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            buisnessUsers.add(appCreator.getValue().toString());
+                            buisnessApplicationIds.add(appId);
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                gamesMainNames.add("  " + bigName + "...");
+                            } else {
+                                gamesMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                gamesAbmitions.add(bigName + "...");
+                            } else {
+                                gamesAbmitions.add(appPurpose.getValue().toString());
+                            }
+                            gamesExperience.add("  Опыт: " + appExp.getValue().toString());
+                            gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            gamesUsers.add(appCreator.getValue().toString());
+                            gamesApplicationIds.add(appId);
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                sitesMainNames.add("  " + bigName + "...");
+                            } else {
+                                sitesMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                sitesAmbitions.add(bigName + "...");
+                            } else {
+                                sitesAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            sitesExperience.add("  Опыт: " + appExp.getValue().toString());
+                            sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            sitesUsers.add(appCreator.getValue().toString());
+                            sitesApplicationIds.add(appId);
+                        } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                appsMainNames.add("  " + bigName + "...");
+                            } else {
+                                appsMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                appsAmbitions.add(bigName + "...");
+                            } else {
+                                appsAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            appsExperiens.add("  Опыт: " + appExp.getValue().toString());
+                            appsExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            appsUsers.add(appCreator.getValue().toString());
+                            appsApplicationIds.add(appId);
+                        } else {
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                otherMainNames.add("  " + bigName + "...");
+                            } else {
+                                otherMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                otherAmbitions.add(bigName + "...");
+                            } else {
+                                otherAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            otherExperience.add("  Опыт: " + appExp.getValue().toString());
+                            otherExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            otherUsers.add(appCreator.getValue().toString());
+                            if (appSection.getValue().toString().length() > 21) {
+                                bigSection = "";
+                                section = appSection.getValue().toString();
+                                for (int j = 0; j < 21; j++) {
+                                    bigSection += section.charAt(j);
+                                }
+                                otherSection.add("  Раздел:  " + bigSection + "...");
+                            } else {
+                                otherSection.add("  Раздел:  " + appSection.getValue().toString());
+                            }
+                            otherApplicationIds.add(appId);
                         }
                     }
                 }
-                arrAll[0] = new AdapterElement[allMainNames.size()];
                 arrInternet[0] = new AdapterElement[internetMainNames.size()];
                 arrBuisness[0] = new AdapterElement[buisnessMainNames.size()];
                 arrGames[0] = new AdapterElement[gamesMainNames.size()];
@@ -3279,16 +3264,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 arrApps[0] = new AdapterElement[appsMainNames.size()];
                 arrOther[0] = new AdapterElementOther[otherMainNames.size()];
 
-                for (int i = 0; i < arrAll[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = allMainNames.get(i);
-                    month.ambition = allAmbitions.get(i);
-                    month.experience = allExperience.get(i);
-                    month.example = allExamples.get(i);
-                    month.user = allUsers.get(i);
-                    month.applicationId = allApplicationIds.get(i).toString();
-                    arrAll[0][i] = month;
-                }
                 for (int i = 0; i < arrBuisness[0].length; i++) {
                     AdapterElement month = new AdapterElement();
                     month.mainName = buisnessMainNames.get(i);
@@ -3351,11 +3326,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     arrOther[0][i] = month;
                 }
 
-                adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
-                // выставляем слушателя в адаптер (слушатель – наше активити)
-                adapterAll.setUserActionListener(MostMainActivity.this);
-                lv.setAdapter(adapterAll);
-                //lv.addFooterView(footerBackNext);
                 MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapterBuisness.setUserActionListener(MostMainActivity.this);
@@ -3380,26 +3350,333 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapterOther.setUserActionListener(MostMainActivity.this);
                 lv7.setAdapter(adapterOther);
+            }
 
-                View.OnClickListener onBackClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+
+    //невозможно сделать static
+    public void fillData() {
+        final AdapterElement[][] arrBuisness = new AdapterElement[1][];
+        final AdapterElement[][] arrAll = new AdapterElement[1][];
+        final AdapterElement[][] arrInternet = new AdapterElement[1][];
+        final AdapterElement[][] arrGames = new AdapterElement[1][];
+        final AdapterElement[][] arrSites = new AdapterElement[1][];
+        final AdapterElement[][] arrApps = new AdapterElement[1][];
+        final AdapterElementOther[][] arrOther = new AdapterElementOther[1][1];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                publishTheFirst = 0;
+                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
+
+                ArrayList<String> allMainNames = new ArrayList<>();
+                ArrayList<String> allAmbitions = new ArrayList<>();
+                ArrayList<String> allExperience = new ArrayList<>();
+                ArrayList<String> allExamples = new ArrayList<>();
+                ArrayList<String> allUsers = new ArrayList<>();
+                ArrayList<Integer> allApplicationIds = new ArrayList<>();
+
+                countLimit += 5;
+                int countNotNullApps = 0;
+
+                String bigName, name, section, bigSection;
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+                Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
+                int countApps = 0;
+
+                for (int appId = bigId - 1; appId > -1; appId--) {
+                    DataSnapshot app = appTable.child("application" + appId);
+                    countApps++;
+                    Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
+                    if (app.getValue() != null)
+                        countNotNullApps++;
+                    //сомнительный момент
+                    if (countNotNullApps == 7 || appId == 0 && publishTheLast == 0) {
+                        bigId = appId;
+                        countNotNullApps = 0;
+                        break;
                     }
-                };
+                }
 
-                ImageButton backButton = (ImageButton) findViewById(R.id.imageButtonBack);
-                backButton.setOnClickListener(onBackClickListener);
+                if (!flagSearch){
+                    for (int appId = bigIdBack; appId > bigId - 1; appId--) {
+                        DataSnapshot app = appTable.child("application" + appId);
+                        DataSnapshot appName = app.child("name");
+                        DataSnapshot appPurpose = app.child("purpose");
+                        DataSnapshot appExp = app.child("experience");
+                        DataSnapshot appExample = app.child("example");
+                        DataSnapshot appCreator = app.child("creator");
+                        DataSnapshot appSection = app.child("section");
 
-                View.OnClickListener onNextClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        fillData();
+                        if (appName.getValue() != null) {
+
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allMainNames.add("  " + bigName + "...");
+                            } else {
+                                allMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allAmbitions.add(bigName + "...");
+                            } else {
+                                allAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            allExperience.add("  Опыт: " + appExp.getValue().toString());
+                            allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            allUsers.add(appCreator.getValue().toString());
+                            allApplicationIds.add(appId);
+                        }
                     }
-                };
+                    countApps = 0;
+                    arrAll[0] = new AdapterElement[allMainNames.size()];
+                    if (bigId == 0)
+                        publishTheLast++;
 
-                ImageButton nextButton = (ImageButton) findViewById(R.id.imageButtonNext);
-                nextButton.setOnClickListener(onNextClickListener);
+                    for (int i = 0; i < arrAll[0].length; i++) {
+                        AdapterElement month = new AdapterElement();
+                        month.mainName = allMainNames.get(i);
+                        month.ambition = allAmbitions.get(i);
+                        month.experience = allExperience.get(i);
+                        month.example = allExamples.get(i);
+                        month.user = allUsers.get(i);
+                        month.applicationId = allApplicationIds.get(i).toString();
+                        arrAll[0][i] = month;
+                    }
+
+                    adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
+                    // выставляем слушателя в адаптер (слушатель – наше активити)
+                    adapterAll.setUserActionListener(MostMainActivity.this);
+                    lv.setAdapter(adapterAll);
+                }
+                flagSearch = true;
+
+                if (publishTheLast == 0) {
+                    for (int appId = bigId + countApps - 1; appId > bigId - 1; appId--) {
+                        bigIdBack = bigId + countApps - 1;
+                        DataSnapshot app = appTable.child("application" + appId);
+                        DataSnapshot appName = app.child("name");
+                        DataSnapshot appPurpose = app.child("purpose");
+                        DataSnapshot appExp = app.child("experience");
+                        DataSnapshot appExample = app.child("example");
+                        DataSnapshot appCreator = app.child("creator");
+                        DataSnapshot appSection = app.child("section");
+
+                        if (appName.getValue() != null) {
+
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allMainNames.add("  " + bigName + "...");
+                            } else {
+                                allMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allAmbitions.add(bigName + "...");
+                            } else {
+                                allAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            allExperience.add("  Опыт: " + appExp.getValue().toString());
+                            allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            allUsers.add(appCreator.getValue().toString());
+                            allApplicationIds.add(appId);
+                        }
+                    }
+                    countApps = 0;
+                    arrAll[0] = new AdapterElement[allMainNames.size()];
+                    if (bigId == 0)
+                        publishTheLast++;
+
+                    for (int i = 0; i < arrAll[0].length; i++) {
+                        AdapterElement month = new AdapterElement();
+                        month.mainName = allMainNames.get(i);
+                        month.ambition = allAmbitions.get(i);
+                        month.experience = allExperience.get(i);
+                        month.example = allExamples.get(i);
+                        month.user = allUsers.get(i);
+                        month.applicationId = allApplicationIds.get(i).toString();
+                        arrAll[0][i] = month;
+                    }
+
+                    adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
+                    // выставляем слушателя в адаптер (слушатель – наше активити)
+                    adapterAll.setUserActionListener(MostMainActivity.this);
+                    lv.setAdapter(adapterAll);
+
+
+                    View.OnClickListener onBackClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fillDataBack();
+                        }
+                    };
+
+                    ImageButton backButton = (ImageButton) findViewById(R.id.imageButtonBack);
+                    backButton.setOnClickListener(onBackClickListener);
+
+                    View.OnClickListener onNextClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fillData();
+                        }
+                    };
+
+                    ImageButton nextButton = (ImageButton) findViewById(R.id.imageButtonNext);
+                    nextButton.setOnClickListener(onNextClickListener);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+    public void fillDataBack() {
+        final AdapterElement[][] arrAll = new AdapterElement[1][];
+        ValueEventListener listenerAtOnce = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                publishTheLast = 0;
+                ArrayList<String> allMainNames = new ArrayList<>();
+                ArrayList<String> allAmbitions = new ArrayList<>();
+                ArrayList<String> allExperience = new ArrayList<>();
+                ArrayList<String> allExamples = new ArrayList<>();
+                ArrayList<String> allUsers = new ArrayList<>();
+                ArrayList<Integer> allApplicationIds = new ArrayList<>();
+
+                int countNotNullApps = 0;
+
+                String bigName, name, section, bigSection;
+
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+                Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
+
+                for (int appId = bigIdBack; appId < maxId; appId++) {
+                    DataSnapshot app = appTable.child("application" + appId);
+                    Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
+                    if (app.getValue() != null)
+                        countNotNullApps++;
+                    if (countNotNullApps == 7) {
+                        bigIdBackApp = appId + 1;
+                        countNotNullApps = 0;
+                        break;
+                    }
+                }
+
+                if (publishTheFirst == 0) {
+                    for (int appId = bigIdBackApp; appId > bigIdBack; appId--) {
+                        DataSnapshot app = appTable.child("application" + appId);
+                        DataSnapshot appName = app.child("name");
+                        DataSnapshot appPurpose = app.child("purpose");
+                        DataSnapshot appExp = app.child("experience");
+                        DataSnapshot appExample = app.child("example");
+                        DataSnapshot appCreator = app.child("creator");
+
+                        if (appName.getValue() != null) {
+
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allMainNames.add("  " + bigName + "...");
+                            } else {
+                                allMainNames.add("  " + appName.getValue().toString());
+                            }
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigName = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                allAmbitions.add(bigName + "...");
+                            } else {
+                                allAmbitions.add(appPurpose.getValue().toString());
+                            }
+                            allExperience.add("  Опыт: " + appExp.getValue().toString());
+                            allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                            allUsers.add(appCreator.getValue().toString());
+                            allApplicationIds.add(appId);
+                        }
+                    }
+                    if (maxId - bigIdBackApp < 6)
+                        publishTheFirst++;
+
+                    bigId = bigIdBack + 1;
+                    bigIdBack = bigIdBackApp;
+
+                    arrAll[0] = new AdapterElement[allMainNames.size()];
+
+                    for (int i = 0; i < arrAll[0].length; i++) {
+                        AdapterElement month = new AdapterElement();
+                        month.mainName = allMainNames.get(i);
+                        month.ambition = allAmbitions.get(i);
+                        month.experience = allExperience.get(i);
+                        month.example = allExamples.get(i);
+                        month.user = allUsers.get(i);
+                        month.applicationId = allApplicationIds.get(i).toString();
+                        arrAll[0][i] = month;
+                    }
+
+                    adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
+                    // выставляем слушателя в адаптер (слушатель – наше активити)
+                    adapterAll.setUserActionListener(MostMainActivity.this);
+                    lv.setAdapter(adapterAll);
+
+                    View.OnClickListener onBackClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fillDataBack();
+                        }
+                    };
+
+                    ImageButton backButton = (ImageButton) findViewById(R.id.imageButtonBack);
+                    backButton.setOnClickListener(onBackClickListener);
+
+                    View.OnClickListener onNextClickListener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fillData();
+                        }
+                    };
+
+                    ImageButton nextButton = (ImageButton) findViewById(R.id.imageButtonNext);
+                    nextButton.setOnClickListener(onNextClickListener);
+                }
             }
 
             @Override

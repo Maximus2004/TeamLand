@@ -22,6 +22,7 @@
             android:layout_width="83dp"
             android:layout_height="58dp"
             android:layout_weight="1"
+            android:background="@drawable/krugliye_ugli"
             app:srcCompat="@drawable/back_list" />
 
         <ImageButton

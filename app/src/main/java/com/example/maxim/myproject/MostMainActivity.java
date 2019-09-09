@@ -3365,13 +3365,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
     //невозможно сделать static
     public void fillData() {
-        final AdapterElement[][] arrBuisness = new AdapterElement[1][];
         final AdapterElement[][] arrAll = new AdapterElement[1][];
-        final AdapterElement[][] arrInternet = new AdapterElement[1][];
-        final AdapterElement[][] arrGames = new AdapterElement[1][];
-        final AdapterElement[][] arrSites = new AdapterElement[1][];
-        final AdapterElement[][] arrApps = new AdapterElement[1][];
-        final AdapterElementOther[][] arrOther = new AdapterElementOther[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -3388,20 +3382,19 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                 countLimit += 5;
                 int countNotNullApps = 0;
 
-                String bigName, name, section, bigSection;
+                String bigName, name;
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-                Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
                 int countApps = 0;
 
                 for (int appId = bigId - 1; appId > -1; appId--) {
                     DataSnapshot app = appTable.child("application" + appId);
                     countApps++;
-                    Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
                     if (app.getValue() != null)
                         countNotNullApps++;
-                    //сомнительный момент
                     if (countNotNullApps == 7 || appId == 0 && publishTheLast == 0) {
                         bigId = appId;
                         countNotNullApps = 0;
@@ -3582,14 +3575,14 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-                Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "countLimit = " + String.valueOf(countLimit), Toast.LENGTH_SHORT).show();
 
                 for (int appId = bigIdBack; appId < maxId; appId++) {
                     DataSnapshot app = appTable.child("application" + appId);
-                    Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "appId в первом цикле = " + String.valueOf(appId), Toast.LENGTH_SHORT).show();
                     if (app.getValue() != null)
                         countNotNullApps++;
-                    if (countNotNullApps == 7) {
+                    if (countNotNullApps == 7 || appId == maxId - 1) {
                         bigIdBackApp = appId + 1;
                         countNotNullApps = 0;
                         break;
@@ -3633,7 +3626,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                             allApplicationIds.add(appId);
                         }
                     }
-                    if (maxId - bigIdBackApp < 6)
+                    if (bigIdBackApp >= maxId)
                         publishTheFirst++;
 
                     bigId = bigIdBack + 1;

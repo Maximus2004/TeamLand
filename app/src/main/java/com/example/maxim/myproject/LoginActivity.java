@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -15,9 +16,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Iterator;
+import static com.example.maxim.myproject.DBHelper.arrApps;
+import static com.example.maxim.myproject.DBHelper.arrBuisness;
+import static com.example.maxim.myproject.DBHelper.arrGames;
+import static com.example.maxim.myproject.DBHelper.arrInternet;
+import static com.example.maxim.myproject.DBHelper.arrOther;
+import static com.example.maxim.myproject.DBHelper.arrSites;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements MainAdapter.UserActionListener, MainAdapterForOther.UserActionListener {
     Button btnLogin;
     private DatabaseReference mDatabase;
     boolean isUserRegistrated = true;
@@ -27,10 +33,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        DBHelper.fillDataAllOther();
         setupButtonReg();
         setupButtonLogin();
-
     }
+
     private void setupButtonReg() {
         Button buttonRegistration = findViewById(R.id.buttonRegistration);
         View.OnClickListener oclBtnRegistr = new View.OnClickListener() {
@@ -52,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         checkingUser(dataSnapshot);
                     }
+
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
                         showToast("Ошибка!", databaseError.toString());
@@ -59,7 +67,6 @@ public class LoginActivity extends AppCompatActivity {
                 };
                 mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-                userRegistration();
             }
         };
         btnLogin = findViewById(R.id.email_sign_in_button);
@@ -67,11 +74,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void userRegistration() {
-        if (!isUserRegistrated){
+        if (!isUserRegistrated) {
             Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
             startActivity(intent);
             // передаем логин пользователя в главное активити
-            intent.putExtra(MostMainActivity.PARAM_USER_NAME, login.toString());
+            intent.putExtra(MostMainActivity.PARAM_USER_ID, login.toString());
             // финишируем активити при успешной авторизации
             finish();
         }
@@ -83,7 +90,27 @@ public class LoginActivity extends AppCompatActivity {
         final String passT = pass.getText().toString();
         final String loginT = login.getText().toString();
 
-        int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
+
+        Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
+
+        for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+            Toast.makeText(getApplicationContext(), aSnapshotIterable.getKey().toString(), Toast.LENGTH_SHORT).show();
+            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue() != null &&
+                    dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(loginT)
+                    && dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("password").getValue() != null
+                    && dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("password").getValue().equals(passT)) {
+                // нашли совпадение, останавливаем цикл
+                isUserRegistrated = false;
+                Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+                intent.putExtra(MostMainActivity.PARAM_USER_ID, aSnapshotIterable.getKey().toString());
+                startActivity(intent);
+                showToast("Вход успешно выполнен", "");
+                break;
+            }
+        }
+
+
+        /*int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
         for (int i = 0; i < maxId; i++) {    //i < id
             Object login = dataSnapshot.child("client" + i).child("login").getValue();
             Object password = dataSnapshot.child("client" + i).child("password").getValue();
@@ -91,13 +118,13 @@ public class LoginActivity extends AppCompatActivity {
                 // нашли совпадение, останавливаем цикл
                 isUserRegistrated = false;
                 Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
-                intent.putExtra(MostMainActivity.PARAM_USER_NAME, loginT);
+                intent.putExtra(MostMainActivity.PARAM_USER_ID, loginT);
                 startActivity(intent);
                 showToast("Вход успешно выполнен", "");
                 break;
             }
-        }
-        if (isUserRegistrated){
+        }*/
+        if (isUserRegistrated) {
             showToast("Вы не подключены к сети или такого пользователя не существует", "");
         }
     }
@@ -106,5 +133,10 @@ public class LoginActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(getApplicationContext(),
                 text + databaseError + "", Toast.LENGTH_SHORT);
         toast.show();
+    }
+
+    @Override
+    public void onShowMoreClick(String applicationId) {
+
     }
 }

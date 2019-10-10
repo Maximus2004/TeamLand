@@ -39,7 +39,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     EditText name, cani, op1, other, hashs, contact, vkText, othe, opisanie;
     String main = "НЕ ЗАБЫВАЙТЕ ПИСАТЬ ХЭШТЕГИ СЛИТНО. Наприер, 'unityпрограммист'" + "\n";
     AlertDialog.Builder builder5;
-    int pos, pos2, userI3;
+    int pos, pos2;
+    String userI3;
     boolean isExample = false;
     boolean numberOfWords, n, u, op = false;
     boolean hash = false;
@@ -56,11 +57,12 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_application);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // достаем информацию, переданную из MostMainActivity, если она есть
         // если такого параметра нет, то будет null
         Intent intent = getIntent();
-        userName = intent.getStringExtra(PARAM_USER_NAME);
+        userI3 = intent.getStringExtra(PARAM_USER_NAME);
 
         Switch exampleSwitch = (Switch) findViewById(R.id.example);
         if (exampleSwitch != null) {
@@ -384,7 +386,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         }
         if (mainFlag || !check && mainCount > 2 && mainFlag2) {
             Toast.makeText(getApplicationContext(), "Все поля верно заполнены", Toast.LENGTH_SHORT).show();
-            mDatabase = FirebaseDatabase.getInstance().getReference();
             if (isExample) {
                 exampleText = "есть";
             } else {
@@ -401,15 +402,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                    for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                        if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().toString().equals(userName)) {
-                            userI3 = i;
-                            Toast.makeText(getApplicationContext(), "записал в id user = " + userI3, Toast.LENGTH_SHORT).show();
-                            break;
-                        }
-                    }
-                    mDatabase = FirebaseDatabase.getInstance().getReference();
-                    writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("client" + String.valueOf(userI3)).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+                    writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("users").child(userI3).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
                     mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                 }
 

@@ -26,8 +26,8 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
-    int userI;
-    int userId;
+    String userI;
+    String userId;
     UserActionListener listener;
     boolean starFlag = false;
 
@@ -35,25 +35,7 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
         super(context, R.layout.one_adapter_for_myappl, arr);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                            userId = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Неизвестная ошибка :(", Toast.LENGTH_SHORT).show();
-            }
-        });
+        userId = userName;
     }
 
     public void setUserActionListener(UserActionListener listener) {
@@ -78,39 +60,35 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
         ViewGroup.LayoutParams paramsTextView = writeAbout.getLayoutParams();
 
         // Заполняем адаптер
-        if (month.ambition.length() < 118 && month.ambition.length() > 85){
+        if (month.ambition.length() < 118 && month.ambition.length() > 85) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 206);
             layoutOneAdapter.setLayoutParams(params);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 84);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 221);
             tab1.setLayoutParams(paramsTab);
-        }
-        else if (month.ambition.length() < 85 && month.ambition.length() > 61){
+        } else if (month.ambition.length() < 85 && month.ambition.length() > 61) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 189);
             layoutOneAdapter.setLayoutParams(params);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 65);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 201);
             tab1.setLayoutParams(paramsTab);
-        }
-        else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
+        } else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 168);
             layoutOneAdapter.setLayoutParams(params);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 44);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 181);
             tab1.setLayoutParams(paramsTab);
-        }
-        else if (month.ambition.length() < 30) {
+        } else if (month.ambition.length() < 30) {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 158);
             layoutOneAdapter.setLayoutParams(params);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 34);
             writeAbout.setLayoutParams(paramsTextView);
             paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 175);
             tab1.setLayoutParams(paramsTab);
-        }
-        else{
+        } else {
             params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 226);
             layoutOneAdapter.setLayoutParams(params);
             paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 105);
@@ -171,11 +149,11 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!starFlag) {
                             star.setImageResource(android.R.drawable.btn_star_big_on);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
                             starFlag = true;
                         } else {
                             star.setImageResource(android.R.drawable.btn_star_big_off);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).removeValue();
                             starFlag = false;
                         }
                     }
@@ -194,10 +172,9 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
         ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("client"+userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
+                if (dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).getValue() != null) {
                     star.setImageResource(android.R.drawable.btn_star_big_on);
-                }
-                else
+                } else
                     star.setImageResource(android.R.drawable.btn_star_big_off);
             }
 
@@ -206,7 +183,6 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
 
             }
         };
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
         final Button edit = convertView.findViewById(R.id.buttonEdit);
@@ -216,7 +192,7 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
                     listener.onShowMoreClick(month.applicationId);
-                }
+            }
         };
         edit.setOnClickListener(oclBtn0);
 
@@ -227,33 +203,39 @@ public class MainAdapterForMyAppl extends ArrayAdapter<AdapterElement> {
                 ValueEventListener listenerAtOnceUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                            if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().equals(month.user)) {
-                                userI = i;
-                                break;
+                        Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
+
+                        for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                            //userMap.put(aSnapshotIterable.getKey().toString(), (User) aSnapshotIterable.child("login").getValue());
+                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(month.user)) {
+                                userI = aSnapshotIterable.getKey().toString();
                             }
                         }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle(dataSnapshot.child("client" + String.valueOf(userI)).child("login").getValue().toString())
-                                .setMessage(dataSnapshot.child("client" + String.valueOf(userI)).child("description").getValue().toString())
-                                .setCancelable(false)
-                                .setNegativeButton("Понятно",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        AlertDialog alert2 = builder.create();
-                        alert2.show();
+                        if (!userI.equals("")) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
+                                    .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
+                                    .setCancelable(false)
+                                    .setNegativeButton("Понятно",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            AlertDialog alert2 = builder.create();
+                            alert2.show();
+                        }
+                        else{
+
+                        }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
                     }
                 };
 
-                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
             }
         };

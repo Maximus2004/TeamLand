@@ -26,35 +26,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class MainAdapter extends ArrayAdapter<AdapterElement> {
     DatabaseReference mDatabase;
-    int userI;
-    int userId;
+    String userId;
+    String userI;
     UserActionListener listener;
     boolean starFlag = false;
 
-    public MainAdapter(Context context, AdapterElement[] arr, final String userName) {
+    public MainAdapter(Context context, AdapterElement[] arr, String id) {
         super(context, R.layout.one_adapner, arr);
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                            userId = i;
-                            break;
-                        }
-                    }
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        });
+        userId = id;
     }
 
     public void setUserActionListener(UserActionListener listener) {
@@ -164,11 +149,11 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!starFlag) {
                             star.setImageResource(android.R.drawable.btn_star_big_on);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
                             starFlag = true;
                         } else {
                             star.setImageResource(android.R.drawable.btn_star_big_off);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).removeValue();
                             starFlag = false;
                         }
                     }
@@ -187,7 +172,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("client" + userId).child("favourites").child("favourite" + month.applicationId).getValue() != null) {
+                if (dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).getValue() != null) {
                     star.setImageResource(android.R.drawable.btn_star_big_on);
                 } else
                     star.setImageResource(android.R.drawable.btn_star_big_off);
@@ -198,7 +183,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
             }
         };
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
         final Button more = convertView.findViewById(R.id.buttonMore);
@@ -208,7 +192,7 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
                     listener.onShowMoreClick(month.applicationId);
-                }
+            }
         };
         more.setOnClickListener(oclBtn0);
 
@@ -219,25 +203,27 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                 ValueEventListener listenerAtOnceUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        //скорее всего проблема в том, что month.user не меняется после нажатия на кнопку и остаётся таким же, каким и был в первый раз, но непонятно, как изменить его
-                        for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                            if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().equals(month.user)) {
-                                userI = i;
-                                break;
+                        Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
+
+                        for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(month.user)) {
+                                userI = aSnapshotIterable.getKey().toString();
                             }
                         }
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle(dataSnapshot.child("client" + String.valueOf(userI)).child("login").getValue().toString())
-                                .setMessage(dataSnapshot.child("client" + String.valueOf(userI)).child("description").getValue().toString())
-                                .setCancelable(false)
-                                .setNegativeButton("Понятно",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        AlertDialog alert2 = builder.create();
-                        alert2.show();
+                        if (userI != null) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
+                                    .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
+                                    .setCancelable(false)
+                                    .setNegativeButton("Понятно",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            AlertDialog alert2 = builder.create();
+                            alert2.show();
+                        }
                     }
 
                     @Override
@@ -245,8 +231,6 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                         Toast.makeText(getContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
                     }
                 };
-
-                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
             }
         };

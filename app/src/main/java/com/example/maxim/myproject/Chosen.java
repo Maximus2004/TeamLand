@@ -22,7 +22,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
     public static String TAG = "Chosen";
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
-    int userId;
+    String userId;
     ListView lv;
     String userName;
 
@@ -31,7 +31,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chosen);
         Intent intent = getIntent();
-        userName = intent.getStringExtra(PARAM_USER_NAME);
+        userId = intent.getStringExtra(PARAM_USER_NAME);
 
         Toolbar toolbar2 = findViewById(R.id.toolbarChosen);
         setSupportActionBar(toolbar2);
@@ -48,15 +48,6 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                            userId = i;
-                            break;
-                        }
-                    }
-                }
                 ArrayList mainNames = new ArrayList();
                 ArrayList ambitions = new ArrayList();
                 ArrayList experiences = new ArrayList();
@@ -65,7 +56,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
                 ArrayList applicationIdes = new ArrayList();
                 String bigName, name;
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("client"+userId).child("favourites").child("favourite"+i).getValue() != null) {
+                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("users").child(userId).child("favourites").child("favourite"+i).getValue() != null) {
                         if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length()>22){
                             bigName = "";
                             name = dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString();
@@ -108,7 +99,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
                 }
 
 
-                MainAdapter adapter = new MainAdapter(Chosen.this, arr[0], userName);
+                MainAdapter adapter = new MainAdapter(Chosen.this, arr[0], userId);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(Chosen.this);
                 lv.setAdapter(adapter);

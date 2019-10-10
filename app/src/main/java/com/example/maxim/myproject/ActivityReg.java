@@ -1,9 +1,9 @@
 package com.example.maxim.myproject;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -17,26 +17,33 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 public class ActivityReg extends AppCompatActivity {
-    static final String SAVED_LOGIN = "LOGIN";
-    static final String SAVED_PASSWORD = "PASSWORD";
     boolean checkingSecondPasswordEdit = true;
     boolean checkingFirstPasswordEdit = true;
     boolean checkingNickPasswordEdit = true;
     boolean checkingDescribtionPasswordEdit = true;
-    String firstPasswordEditString, describtionEditString, nickEditString, mainCountClientsString;
+    String firstPasswordEditString, describtionEditString, nickEditString;
     Button registrationButton, authButton;
     EditText theFirstPassword, theSecondPassword, nickEditText, describtion;
     TextView firstPasswordText, secondPasswordText, nickText, describtionText;
-    int mainCountClientsInt = 0;
     boolean isLoginAlreadyInUse = true;
-    String dataSnapshot2 = "0";
+    String id;
+    String loginTemp;
+    Map<String,Object> users;
     private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        final HashMap<String,User> userMap = new HashMap<>();
 
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
@@ -50,22 +57,20 @@ public class ActivityReg extends AppCompatActivity {
                             "Форма заполена некорректно", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    mainCountClientsInt++;
-                    mainCountClientsString = String.valueOf(mainCountClientsInt);
-                    mDatabase = FirebaseDatabase.getInstance().getReference();
-
                     ValueEventListener listenerAtOnce = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // сбрасываем флаг
                             isLoginAlreadyInUse = false;
-                            int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
-                            for (int i = 0; i < maxId; i++) {    //i < id
-                                Object entity = dataSnapshot.child("client" + i).child("login").getValue();
-                                if (entity != null && entity.toString().equals(nickEditString)) {
-                                    // нашли похожий, останавливаем цикл
+                            Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
+
+                            for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                                //userMap.put(aSnapshotIterable.getKey().toString(), (User) aSnapshotIterable.child("login").getValue());
+                                Toast.makeText(getApplicationContext(), aSnapshotIterable.getKey().toString(), Toast.LENGTH_SHORT).show();
+                                if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue() != null &&
+                                        dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString()
+                                        .equals(nickEditString)){
                                     isLoginAlreadyInUse = true;
-                                    break;
                                 }
                             }
 
@@ -73,17 +78,13 @@ public class ActivityReg extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Пользователь с таким именем уже зарегистрирован", Toast.LENGTH_LONG).show();
                                 nickText.setTextColor(Color.RED);
                             } else {
+                                id = UUID.randomUUID().toString();
                                 Toast.makeText(getApplicationContext(), "Регистрация успешно пройдена!", Toast.LENGTH_SHORT).show();
                                 nickText.setTextColor(Color.BLACK);
-                                mainCountClientsInt++;
-                                mainCountClientsString = String.valueOf(mainCountClientsInt);
-                                mDatabase = FirebaseDatabase.getInstance().getReference();
-                                // очень странная логика с dataSnapshot2
-                                dataSnapshot2 = dataSnapshot.child("maxId").getValue().toString();
-                                writeNewUser(dataSnapshot.child("maxId").getValue().toString(), nickEditString, firstPasswordEditString, describtionEditString);
-                                mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
+                                writeNewUser(nickEditString, firstPasswordEditString, describtionEditString);
+                                //mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
                                 Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
-                                intent2.putExtra(MostMainActivity.PARAM_USER_NAME, nickEditString);
+                                intent2.putExtra(MostMainActivity.PARAM_USER_ID, id);
                                 startActivity(intent2);
                                 // финишируем активити при успешной регистрации
                                 finish();
@@ -118,12 +119,23 @@ public class ActivityReg extends AppCompatActivity {
 
     }
 
-    private void writeNewUser(String userId, String login, String password, String description) {
-        User user = new User(userId, login, password, description);
-        mDatabase.child("client" + dataSnapshot2).setValue(user);
+    private void collectUsersNames(Map<String,Object> users) {
+        for (Map.Entry<String, Object> entry : users.entrySet()){
+            Map singleUser = (Map) entry.getValue();
+            //Get phone field and append to list
+            loginTemp = (String)singleUser.get("login");
+            if (loginTemp != null && !nickEditString.equals("") && loginTemp.equals(nickEditString)){
+                isLoginAlreadyInUse = false;
+            }
+        }
     }
 
-    void checkSecondPassword() {
+    private void writeNewUser(String login, String password, String description) {
+        User user = new User(login, password, description);
+        mDatabase.child("users").child(id).setValue(user);
+    }
+
+    private void checkSecondPassword() {
         firstPasswordText = findViewById(R.id.textView14);
         secondPasswordText = findViewById(R.id.textView15);
         theFirstPassword = findViewById(R.id.editText4);
@@ -148,7 +160,7 @@ public class ActivityReg extends AppCompatActivity {
         }
     }
 
-    void checkNicks() {
+    private void checkNicks() {
         nickText = findViewById(R.id.textView13);
         nickEditText = findViewById(R.id.editText3);
         nickEditString = nickEditText.getText().toString();

@@ -26,34 +26,15 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
     DatabaseReference mDatabase;
-    int userI;
-    int userId;
+    String userI;
+    String userId;
     UserActionListener listener;
     boolean starFlag = false;
 
     public MainAdapterForOther(Context context, AdapterElementOther[] arr, final String userName) {
         super(context, R.layout.one_adapter_for_other, arr);
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                            userId = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-            }
-        });
+        userId = userName;
     }
 
     public void setUserActionListener(UserActionListener listener) {
@@ -165,11 +146,11 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!starFlag) {
                             star.setImageResource(android.R.drawable.btn_star_big_on);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
                             starFlag = true;
                         } else {
                             star.setImageResource(android.R.drawable.btn_star_big_off);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).removeValue();
                             starFlag = false;
                         }
                     }
@@ -188,7 +169,7 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
         ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("client"+userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
+                if (dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).getValue() != null){
                     star.setImageResource(android.R.drawable.btn_star_big_on);
                 }
                 else
@@ -200,7 +181,6 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
 
             }
         };
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
         final Button more = convertView.findViewById(R.id.buttonMore);
@@ -223,15 +203,18 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                 ValueEventListener listenerAtOnceUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                            if (dataSnapshot.child("client" + i).child("login").getValue() != null && dataSnapshot.child("client" + i).child("login").getValue().equals(month.user)) {
-                                userI = i;
-                                break;
+                        Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
+
+                        for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                            //userMap.put(aSnapshotIterable.getKey().toString(), (User) aSnapshotIterable.child("login").getValue());
+                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(month.user)){
+                                userI = aSnapshotIterable.getKey().toString();
                             }
                         }
+
                         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle(dataSnapshot.child("client" + String.valueOf(userI)).child("login").getValue().toString())
-                                .setMessage(dataSnapshot.child("client" + String.valueOf(userI)).child("description").getValue().toString())
+                        builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
+                                .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
                                 .setCancelable(false)
                                 .setNegativeButton("Понятно",
                                         new DialogInterface.OnClickListener() {
@@ -245,11 +228,9 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
                     }
                 };
-
-                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
             }
         };

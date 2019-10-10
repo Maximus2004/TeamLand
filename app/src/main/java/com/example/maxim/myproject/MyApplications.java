@@ -22,7 +22,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
     public static String TAG = "MyApplications";
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
-    int userId;
+    String userId;
     ListView lv;
     String userName;
 
@@ -31,7 +31,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_applications);
         Intent intent = getIntent();
-        userName = intent.getStringExtra(PARAM_USER_NAME);
+        userId = intent.getStringExtra(PARAM_USER_NAME);
 
         Toolbar toolbar2 = findViewById(R.id.toolbarAppl);
         setSupportActionBar(toolbar2);
@@ -48,14 +48,6 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (int i = 0; i < Integer.valueOf(dataSnapshot.child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("client" + i).child("login").getValue() != null) {
-                        if (userName.equals(dataSnapshot.child("client" + i).child("login").getValue())) {
-                            userId = i;
-                            break;
-                        }
-                    }
-                }
                 ArrayList mainNames = new ArrayList();
                 ArrayList ambitions = new ArrayList();
                 ArrayList experiences = new ArrayList();
@@ -65,27 +57,26 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
                 String bigName, name;
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
                     if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null &&
-                            dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString().equals(dataSnapshot.child("client" + userId).child("login").getValue().toString())) {
-                        if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length()>22){
+                            dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString()
+                                    .equals(dataSnapshot.child("users").child(userId).child("login").getValue().toString())) {
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length() > 22) {
                             bigName = "";
                             name = dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString();
-                            for (int j = 0; j < 22; j++){
+                            for (int j = 0; j < 22; j++) {
                                 bigName += name.charAt(j);
                             }
                             mainNames.add("  " + bigName + "...");
-                        }
-                        else {
+                        } else {
                             mainNames.add("  " + dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
                         }
-                        if (dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString().length()>146){
+                        if (dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString().length() > 146) {
                             bigName = "";
                             name = dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString();
-                            for (int j = 0; j < 146; j++){
+                            for (int j = 0; j < 146; j++) {
                                 bigName += name.charAt(j);
                             }
                             ambitions.add(bigName + "...");
-                        }
-                        else {
+                        } else {
                             ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
                         }
                         experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
@@ -109,7 +100,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
                 }
 
 
-                MainAdapterForMyAppl adapter = new MainAdapterForMyAppl(MyApplications.this, arr[0], userName);
+                MainAdapterForMyAppl adapter = new MainAdapterForMyAppl(MyApplications.this, arr[0], userId);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MyApplications.this);
                 lv.setAdapter(adapter);
@@ -142,7 +133,7 @@ public class MyApplications extends AppCompatActivity implements MainAdapterForM
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
+                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
                 makeMonth();
             }
 

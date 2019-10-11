@@ -17,6 +17,7 @@ public class DBHelper {
     final static AdapterElement[][] arrGames = new AdapterElement[1][];
     final static AdapterElement[][] arrSites = new AdapterElement[1][];
     final static AdapterElement[][] arrApps = new AdapterElement[1][];
+    final static AdapterElement[][] arrAll = new AdapterElement[1][];
     final static AdapterElementOther[][] arrOther = new AdapterElementOther[1][1];
 
     public static void fillDataAllOther() {
@@ -67,6 +68,13 @@ public class DBHelper {
                 ArrayList<Integer> otherApplicationIds = new ArrayList<>();
                 ArrayList<String> otherSection = new ArrayList();
 
+                ArrayList<String> allMainNames = new ArrayList<>();
+                ArrayList<String> allAmbitions = new ArrayList<>();
+                ArrayList<String> allExperience = new ArrayList<>();
+                ArrayList<String> allExamples = new ArrayList<>();
+                ArrayList<String> allUsers = new ArrayList<>();
+                ArrayList<Integer> allApplicationIds = new ArrayList<>();
+
                 String bigName, name, section, bigSection;
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
@@ -83,6 +91,31 @@ public class DBHelper {
                     DataSnapshot appSection = app.child("section");
 
                     if (appName.getValue() != null) {
+
+                        if (appName.getValue().toString().length() > 25) {
+                            bigName = "";
+                            name = appName.getValue().toString();
+                            for (int j = 0; j < 25; j++) {
+                                bigName += name.charAt(j);
+                            }
+                            allMainNames.add("  " + bigName + "...");
+                        } else {
+                            allMainNames.add("  " + appName.getValue().toString());
+                        }
+                        if (appPurpose.getValue().toString().length() > 146) {
+                            bigName = "";
+                            name = appPurpose.getValue().toString();
+                            for (int j = 0; j < 146; j++) {
+                                bigName += name.charAt(j);
+                            }
+                            allAmbitions.add(bigName + "...");
+                        } else {
+                            allAmbitions.add(appPurpose.getValue().toString());
+                        }
+                        allExperience.add("  Опыт: " + appExp.getValue().toString());
+                        allExamples.add("  Пример работы: " + appExample.getValue().toString());
+                        allUsers.add(appCreator.getValue().toString());
+                        allApplicationIds.add(appId);
 
                         // обработка по секциям
                         if (appSection.getValue().toString().equals("Бизнес в интернете")) {
@@ -249,6 +282,7 @@ public class DBHelper {
                     }
                 }
                 arrInternet[0] = new AdapterElement[internetMainNames.size()];
+                arrAll[0] = new AdapterElement[allMainNames.size()];
                 arrBuisness[0] = new AdapterElement[buisnessMainNames.size()];
                 arrGames[0] = new AdapterElement[gamesMainNames.size()];
                 arrSites[0] = new AdapterElement[sitesMainNames.size()];
@@ -264,6 +298,16 @@ public class DBHelper {
                     month.user = buisnessUsers.get(i);
                     month.applicationId = buisnessApplicationIds.get(i).toString();
                     arrBuisness[0][i] = month;
+                }
+                for (int i = 0; i < arrAll[0].length; i++) {
+                    AdapterElement month = new AdapterElement();
+                    month.mainName = allMainNames.get(i);
+                    month.ambition = allAmbitions.get(i);
+                    month.experience = allExperience.get(i);
+                    month.example = allExamples.get(i);
+                    month.user = allUsers.get(i);
+                    month.applicationId = allApplicationIds.get(i).toString();
+                    arrAll[0][i] = month;
                 }
                 for (int i = 0; i < arrGames[0].length; i++) {
                     AdapterElement month = new AdapterElement();
@@ -316,8 +360,6 @@ public class DBHelper {
                     month.sectionClass = otherSection.get(i);
                     arrOther[0][i] = month;
                 }
-
-
             }
 
             @Override

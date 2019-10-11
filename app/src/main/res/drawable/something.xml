@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:drawable="@color/helloColor"/>
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:layout_width="156dp"
+            android:layout_height="122dp"
+            android:src="@drawable/img2" />
+    </item>
+
+</layer-list>

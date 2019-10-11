@@ -33,7 +33,6 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        DBHelper.fillDataAllOther();
         setupButtonReg();
         setupButtonLogin();
     }

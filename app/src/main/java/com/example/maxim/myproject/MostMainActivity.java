@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.example.maxim.myproject.DBHelper.arrAll;
 import static com.example.maxim.myproject.DBHelper.arrApps;
 import static com.example.maxim.myproject.DBHelper.arrBuisness;
 import static com.example.maxim.myproject.DBHelper.arrGames;
@@ -128,11 +129,11 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setupBigId();
 
         // заполняем списки информацией
-        fillData();
+        //fillData();
         fillDataAllOther();
 
         //единажды присваеваем footer to listView
-        lv.addFooterView(footerBackNext);
+        //lv.addFooterView(footerBackNext);
 
         // настройка поиска
         setupSearch();
@@ -141,7 +142,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setupRefresh();
 
         //конец lv
-        theEndOfLV();
+        //theEndOfLV();
 
         // кнопка "Создать новую заявку"
         setupCreateAppButton();
@@ -178,6 +179,10 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void fillDataAllOther(){
+        MainAdapter adapterAll = new MainAdapter(MostMainActivity.this, arrAll[0], userName);
+        // выставляем слушателя в адаптер (слушатель – наше активити)
+        adapterAll.setUserActionListener(MostMainActivity.this);
+        lv.setAdapter(adapterAll);
         MainAdapter adapterBuisness = new MainAdapter(MostMainActivity.this, arrBuisness[0], userName);
         // выставляем слушателя в адаптер (слушатель – наше активити)
         adapterBuisness.setUserActionListener(MostMainActivity.this);
@@ -243,11 +248,21 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void setupRefresh() {
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                DBHelper.fillDataAllOther();
+                fillDataAllOther();
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        });
 
         mSwipeRefreshLayout2 = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout2);
         mSwipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout2.setRefreshing(false);
             }
@@ -257,6 +272,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout3.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout3.setRefreshing(false);
             }
@@ -266,6 +282,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout4.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout4.setRefreshing(false);
             }
@@ -275,6 +292,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout5.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout5.setRefreshing(false);
             }
@@ -284,6 +302,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout6.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout6.setRefreshing(false);
             }
@@ -293,6 +312,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         mSwipeRefreshLayout7.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                DBHelper.fillDataAllOther();
                 fillDataAllOther();
                 mSwipeRefreshLayout7.setRefreshing(false);
             }
@@ -340,9 +360,8 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     drawer.openDrawer(GravityCompat.START);
                 else {
                     flagSearch = false;
-                    fillData();
                     fillDataAllOther();
-                    lv.addFooterView(footerBackNext);
+                    //+lv.addFooterView(footerBackNext);
                     controlBurger = true;
                     burger.setImageResource(R.drawable.huray);
                     searchEditText = findViewById(R.id.searchEditText);
@@ -431,7 +450,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             @Override
             public void onClick(View v) {
                 String searchText = searchEditText.getText().toString().toLowerCase();
-                lv.removeFooterView(footerBackNext);
+                //lv.removeFooterView(footerBackNext);
 
                 if (searchText != null && searchText != "" && !searchText.equals("")) {
                     if (pos == 0) {
@@ -3073,7 +3092,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     int countLimit = 0;
 
     //невозможно сделать static
-    public void fillData() {
+    /*public void fillData() {
         final AdapterElement[][] arrAll = new AdapterElement[1][];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
@@ -3262,9 +3281,9 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         };
 
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
+    }*/
 
-    public void fillDataBack() {
+    /*public void fillDataBack() {
         final AdapterElement[][] arrAll = new AdapterElement[1][];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
@@ -3387,7 +3406,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         };
 
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
+    }*/
 
     @Override
     public void onBackPressed() {

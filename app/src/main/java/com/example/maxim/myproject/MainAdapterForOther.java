@@ -211,19 +211,20 @@ public class MainAdapterForOther extends ArrayAdapter<AdapterElementOther> {
                                 userI = aSnapshotIterable.getKey().toString();
                             }
                         }
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                        builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
-                                .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
-                                .setCancelable(false)
-                                .setNegativeButton("Понятно",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int id) {
-                                                dialog.cancel();
-                                            }
-                                        });
-                        AlertDialog alert2 = builder.create();
-                        alert2.show();
+                        if (userI != null) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
+                                    .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
+                                    .setCancelable(false)
+                                    .setNegativeButton("Понятно",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            AlertDialog alert2 = builder.create();
+                            alert2.show();
+                        }
                     }
 
                     @Override

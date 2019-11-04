@@ -191,17 +191,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view"
                             android:layout_width="match_parent"
-                            android:layout_height="397dp"
-                            android:layout_weight="1"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:layout_height="match_parent"
+                            android:layout_margin="2dp" />
+
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
@@ -217,12 +212,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView2"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view2"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
@@ -238,12 +232,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView3"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view3"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
                 </LinearLayout>
 
@@ -258,12 +251,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView4"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view4"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
@@ -279,12 +271,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView5"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view5"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
@@ -300,12 +291,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView6"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view6"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>
@@ -321,12 +311,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
-                            android:id="@+id/listView7"
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/recycler_view7"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:divider="@android:color/transparent"
-                            android:dividerHeight="0dp" />
+                            android:layout_margin="2dp" />
                     </android.support.v4.widget.SwipeRefreshLayout>
 
                 </LinearLayout>

@@ -1,22 +1,20 @@
 package com.example.maxim.myproject;
 
-import android.content.Context;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.text.Layout;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,119 +26,117 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MainAdapter extends ArrayAdapter<AdapterElement> {
-    DatabaseReference mDatabase;
-    String userId;
-    String userI;
-    UserActionListener listener;
-    boolean starFlag = false;
+public class MainAdapter extends RecyclerView.Adapter<MainAdapter.AdapterViewHolder> {
+    private ArrayList<AdapterElement> apps;
+    private DatabaseReference mDatabase;
+    private String userI;
+    UserActionListener listener;;
+    private String userId;
+    private boolean starFlag = false;
 
-    public MainAdapter(Context context, AdapterElement[] arr, String id) {
-        super(context, R.layout.one_adapner, arr);
+    private ViewGroup.LayoutParams params;
+    private ViewGroup.LayoutParams paramsTab;
+    private ViewGroup.LayoutParams paramsTextView;
+
+    public MainAdapter(ArrayList<AdapterElement> apps, String id) {
+        this.apps = apps;
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
+        //здесь будет код
         userId = id;
     }
 
-    public void setUserActionListener(UserActionListener listener) {
+    public class AdapterViewHolder extends RecyclerView.ViewHolder {
+        TextView mainName;
+        TextView appId;
+        TextView example;
+        TextView ambition;
+        TextView experience;
+
+        Button more;
+        Button user;
+        ImageButton star;
+
+        LinearLayout layoutOneAdapter;
+        LinearLayout tab1;
+
+        public AdapterViewHolder(View view) {
+            super(view);
+            mainName = view.findViewById(R.id.applName);
+            appId = view.findViewById(R.id.applicationID);
+            ambition = view.findViewById(R.id.writeAdout);
+            experience = view.findViewById(R.id.expView);
+
+            example = view.findViewById(R.id.exampView);
+
+            more = view.findViewById(R.id.buttonMore);
+            star = view.findViewById(R.id.imageButton0);
+            user = view.findViewById(R.id.userBtn);
+
+            layoutOneAdapter = view.findViewById(R.id.layoutOneAdapter);
+            params = layoutOneAdapter.getLayoutParams();
+
+            tab1 = view.findViewById(R.id.tab1);
+            paramsTab = tab1.getLayoutParams();
+
+            paramsTextView = ambition.getLayoutParams();
+        }
+    }
+
+    public void setUserActionListener(MainAdapter.UserActionListener listener) {
         this.listener = listener;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public AdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.one_adapter, parent, false);
+        return new AdapterViewHolder(view);
+    }
 
-        final AdapterElement month = getItem(position);
+    @Override
+    public void onBindViewHolder(@NonNull final AdapterViewHolder holder, int position) {
+        String ambT = holder.ambition.getText().toString();
+        Log.d("LENGTH", String.valueOf(ambT.length()));
 
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.one_adapner, null);
-        }
-        LinearLayout layoutOneAdapter = convertView.findViewById(R.id.layoutOneAdapter);
-        ViewGroup.LayoutParams params = layoutOneAdapter.getLayoutParams();
-
-        LinearLayout tab1 = convertView.findViewById(R.id.tab1);
-        ViewGroup.LayoutParams paramsTab = tab1.getLayoutParams();
-
-        TextView writeAbout = ((TextView) convertView.findViewById(R.id.writeAdout));
-        ViewGroup.LayoutParams paramsTextView = writeAbout.getLayoutParams();
-
-        // Заполняем адаптер
-        if (month.ambition.length() < 118 && month.ambition.length() > 85) {
-            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 206);
-            layoutOneAdapter.setLayoutParams(params);
-            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 84);
-            writeAbout.setLayoutParams(paramsTextView);
-            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 221);
-            tab1.setLayoutParams(paramsTab);
-        } else if (month.ambition.length() < 85 && month.ambition.length() > 61) {
-            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 189);
-            layoutOneAdapter.setLayoutParams(params);
-            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 65);
-            writeAbout.setLayoutParams(paramsTextView);
-            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 201);
-            tab1.setLayoutParams(paramsTab);
-        } else if (month.ambition.length() < 61 && month.ambition.length() > 30) {
-            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 168);
-            layoutOneAdapter.setLayoutParams(params);
-            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 44);
-            writeAbout.setLayoutParams(paramsTextView);
-            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 181);
-            tab1.setLayoutParams(paramsTab);
-        } else if (month.ambition.length() < 30) {
-            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 158);
-            layoutOneAdapter.setLayoutParams(params);
-            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 34);
-            writeAbout.setLayoutParams(paramsTextView);
-            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 175);
-            tab1.setLayoutParams(paramsTab);
-        } else {
-            params.height = (int) (layoutOneAdapter.getResources().getDisplayMetrics().density * 226);
-            layoutOneAdapter.setLayoutParams(params);
-            paramsTextView.height = (int) (writeAbout.getResources().getDisplayMetrics().density * 105);
-            writeAbout.setLayoutParams(paramsTextView);
-            paramsTab.height = (int) (tab1.getResources().getDisplayMetrics().density * 242);
-            tab1.setLayoutParams(paramsTab);
-        }
-
+        // устанавливаю чёрный цвет
         final ForegroundColorSpan styleExp = new ForegroundColorSpan(Color.rgb(0, 0, 0));
+        // идентефицирую стринговую переемнную, оторая умеет работать со стилем выше
         final SpannableStringBuilder textExp;
-        TextView textViewExp = (TextView) convertView.findViewById(R.id.experience);
 
-        ((TextView) convertView.findViewById(R.id.applName)).setText(month.mainName);
-        ((TextView) convertView.findViewById(R.id.writeAdout)).setText(String.valueOf(month.ambition));
-
-        if (String.valueOf(month.experience).charAt(8) == '0' && String.valueOf(month.experience).length() < 10) {
-            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " лет");
-            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textViewExp.setText(textExp);
-        } else if (String.valueOf(month.experience).charAt(8) == '1' && String.valueOf(month.experience).length() < 10) {
-            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " год");
-            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textViewExp.setText(textExp);
-        } else if (String.valueOf(month.experience).charAt(8) == '2' && String.valueOf(month.experience).length() < 10 || String.valueOf(month.experience).charAt(8) == '3' && String.valueOf(month.experience).length() < 10 || String.valueOf(month.experience).charAt(8) == '4' && String.valueOf(month.experience).length() < 10) {
-            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " года");
-            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textViewExp.setText(textExp);
+        // это то, что вызывает многократное добавление "лет" к каждой из заявок. Также получается так, то везде стоит "0"
+        // беру текст из ЕditText experience и определяю, какая там цифра. В зависимости от цифры добаляю определённое слово
+        holder.experience.setText(apps.get(position).getExperience());
+        Log.d("EXP", apps.get(position).getExperience());
+        if (apps.get(position).getExperience().equals("0")) {
+            // записываю в эту стринговую переменную например "  Опыт: 4" + " лет". ("лет" или "год" зависит от значения цифры: если "0", то "лет", если "1", то "год" и т.д.)
+            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " лет");
+            // устанавливаю этому стринговому полю стиль, который мы задавали ранее и который равен чёрному цвету,
+            // начало (первая буква которую мы закрасим в этот цвет) и
+            // конец (последняя буква, которую мы закрасим в этот цвет).
+            // В результате должно получится так, что "  Опыт:" нарисовано фиолетовым цветом, а " 4 года" чёрным, чтобы было легче ориентироваться
+            // присваиваем этот текст EditText-у
+            holder.experience.setText(textExp);
+        } else if (apps.get(position).getExperience().equals("1")) {
+            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " год");
+            holder.experience.setText(textExp);
+        } else if (apps.get(position).getExperience().equals("2") || apps.get(position).getExperience().equals("3") || holder.experience.getText().toString().equals("4")) {
+            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " года");
+            holder.experience.setText(textExp);
         } else {
-            textExp = new SpannableStringBuilder(String.valueOf(month.experience) + " лет");
-            textExp.setSpan(styleExp, 8, textExp.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textViewExp.setText(textExp);
+            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " лет");
+            holder.experience.setText(textExp);
         }
-        TextView textView = (TextView) convertView.findViewById(R.id.examp);
 
-        final SpannableStringBuilder text = new SpannableStringBuilder(String.valueOf(month.example));
-        final ForegroundColorSpan style = new ForegroundColorSpan(Color.rgb(0, 0, 0));
-        if (month.example.length() > 20) {
-            text.setSpan(style, 17, 21, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textView.setText(text);
-        }
-        if (month.example.length() == 20) {
-            text.setSpan(style, 17, 20, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-            textView.setText(text);
-        }
-        ((TextView) convertView.findViewById(R.id.userBtn)).setText(String.valueOf(month.user));
-        ((TextView) convertView.findViewById(R.id.applicationID)).setText(String.valueOf(month.applicationId));
+        // это, казалось бы, нормально работает, но во всех заявках появляется одинаковый статус налиция опыта
+        // здесь ситуация обстоит так же, но теперь закрашивается слово "есть" или "нет", опять же чтобы было легко ориентироваться
+        //holder.experience.setText(apps.get(position).getExperience());
+        // с этим всё ок
+        holder.example.setText(apps.get(position).getExample());
+        holder.user.setText(apps.get(position).getUser());
+        holder.appId.setText(apps.get(position).getAppId());
+        holder.mainName.setText(apps.get(position).getMainName());
+        holder.ambition.setText(apps.get(position).getAmbition());
 
-        final ImageButton star = convertView.findViewById(R.id.imageButton0);
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,34 +144,38 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (!starFlag) {
-                            star.setImageResource(android.R.drawable.btn_star_big_on);
-                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).setValue("true");
+                            // да, здесь всё так же работает на maxId(ещё не поменял)
+                            // (для этого проекта сущствует своя собственная база, которая ещё не отредактирована)
+                            holder.star.setImageResource(android.R.drawable.btn_star_big_on);
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + holder.appId.getText().toString()).setValue("true");
                             starFlag = true;
                         } else {
-                            star.setImageResource(android.R.drawable.btn_star_big_off);
-                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).removeValue();
+                            holder.star.setImageResource(android.R.drawable.btn_star_big_off);
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + holder.appId.getText().toString()).removeValue();
                             starFlag = false;
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Возникла ошибка", Toast.LENGTH_SHORT).show();
+
                     }
                 };
+                mDatabase = FirebaseDatabase.getInstance().getReference();
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceStar);
             }
         };
         // присвоим обработчик кнопке
-        star.setOnClickListener(oclBtn3);
+        holder.star.setOnClickListener(oclBtn3);
+
 
         ValueEventListener listenerAtOnceStarOnOff = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + month.applicationId).getValue() != null) {
-                    star.setImageResource(android.R.drawable.btn_star_big_on);
+                if (dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + holder.appId.getText().toString()).getValue() != null) {
+                    holder.star.setImageResource(android.R.drawable.btn_star_big_on);
                 } else
-                    star.setImageResource(android.R.drawable.btn_star_big_off);
+                    holder.star.setImageResource(android.R.drawable.btn_star_big_off);
             }
 
             @Override
@@ -185,33 +185,31 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnceStarOnOff);
 
-        final Button more = convertView.findViewById(R.id.buttonMore);
         View.OnClickListener oclBtn0 = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
-                    listener.onShowMoreClick(month.applicationId);
+                    listener.onShowMoreClick(holder.appId.getText().toString());
             }
         };
-        more.setOnClickListener(oclBtn0);
+        holder.more.setOnClickListener(oclBtn0);
 
-        final Button user = convertView.findViewById(R.id.userBtn);
         View.OnClickListener oclBtnUser = new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 ValueEventListener listenerAtOnceUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
 
                         for (DataSnapshot aSnapshotIterable : snapshotIterable) {
-                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(month.user)) {
+                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(holder.user.getText().toString())) {
                                 userI = aSnapshotIterable.getKey().toString();
                             }
                         }
                         if (userI != null) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                            AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
                             builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
                                     .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
                                     .setCancelable(false)
@@ -228,14 +226,24 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getContext(), "Ошибка!", Toast.LENGTH_SHORT).show();
                     }
                 };
                 mDatabase.addListenerForSingleValueEvent(listenerAtOnceUser);
             }
         };
-        user.setOnClickListener(oclBtnUser);
-        return convertView;
+        holder.user.setOnClickListener(oclBtnUser);
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return apps.size();
+    }
+
+    @Override
+    public int getItemViewType(int position){
+        return position;
     }
 
     /**
@@ -245,3 +253,5 @@ public class MainAdapter extends ArrayAdapter<AdapterElement> {
         public void onShowMoreClick(String applicationId);
     }
 }
+
+

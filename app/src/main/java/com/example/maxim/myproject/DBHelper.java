@@ -12,74 +12,31 @@ import java.util.ArrayList;
 
 public class DBHelper {
     static DatabaseReference mDatabase;
-    final static AdapterElement[][] arrBuisness = new AdapterElement[1][];
-    final static AdapterElement[][] arrInternet = new AdapterElement[1][];
-    final static AdapterElement[][] arrGames = new AdapterElement[1][];
-    final static AdapterElement[][] arrSites = new AdapterElement[1][];
-    final static AdapterElement[][] arrApps = new AdapterElement[1][];
-    final static AdapterElement[][] arrAll = new AdapterElement[1][];
-    final static AdapterElementOther[][] arrOther = new AdapterElementOther[1][1];
+    static ArrayList<AdapterElement> appsAll = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> appsInternet = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> appsBuisness = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> apps = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> appsSites = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> appsGames = new ArrayList<AdapterElement>();
+    static ArrayList<AdapterElement> appsOthers = new ArrayList<AdapterElement>();
 
     public static void fillDataAllOther() {
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                ArrayList<String> internetMainNames = new ArrayList<>();
-                ArrayList<String> internetAmbitions = new ArrayList<>();
-                ArrayList<String> internetExperience = new ArrayList<>();
-                ArrayList<String> internetExamples = new ArrayList<>();
-                ArrayList<String> internetUsers = new ArrayList<>();
-                ArrayList<Integer> internetApplicationIds = new ArrayList<>();
-
-                ArrayList<String> buisnessMainNames = new ArrayList<>();
-                ArrayList<String> buisnessAmbitions = new ArrayList<>();
-                ArrayList<String> buisnessExperience = new ArrayList<>();
-                ArrayList<String> buisnessExamples = new ArrayList<>();
-                ArrayList<String> buisnessUsers = new ArrayList<>();
-                ArrayList<Integer> buisnessApplicationIds = new ArrayList<>();
-
-                ArrayList<String> gamesMainNames = new ArrayList<>();
-                ArrayList<String> gamesAbmitions = new ArrayList<>();
-                ArrayList<String> gamesExperience = new ArrayList<>();
-                ArrayList<String> gamesExamples = new ArrayList<>();
-                ArrayList<String> gamesUsers = new ArrayList<>();
-                ArrayList<Integer> gamesApplicationIds = new ArrayList<>();
-
-                ArrayList<String> sitesMainNames = new ArrayList<>();
-                ArrayList<String> sitesAmbitions = new ArrayList<>();
-                ArrayList<String> sitesExperience = new ArrayList<>();
-                ArrayList<String> sitesExamples = new ArrayList<>();
-                ArrayList<String> sitesUsers = new ArrayList<>();
-                ArrayList<Integer> sitesApplicationIds = new ArrayList<>();
-
-                ArrayList<String> appsMainNames = new ArrayList<>();
-                ArrayList<String> appsAmbitions = new ArrayList<>();
-                ArrayList<String> appsExperiens = new ArrayList<>();
-                ArrayList<String> appsExamples = new ArrayList<>();
-                ArrayList<String> appsUsers = new ArrayList<>();
-                ArrayList<Integer> appsApplicationIds = new ArrayList<>();
-
-                ArrayList<String> otherMainNames = new ArrayList<>();
-                ArrayList<String> otherAmbitions = new ArrayList<>();
-                ArrayList<String> otherExperience = new ArrayList<>();
-                ArrayList<String> otherExamples = new ArrayList<>();
-                ArrayList<String> otherUsers = new ArrayList<>();
-                ArrayList<Integer> otherApplicationIds = new ArrayList<>();
-                ArrayList<String> otherSection = new ArrayList();
-
-                ArrayList<String> allMainNames = new ArrayList<>();
-                ArrayList<String> allAmbitions = new ArrayList<>();
-                ArrayList<String> allExperience = new ArrayList<>();
-                ArrayList<String> allExamples = new ArrayList<>();
-                ArrayList<String> allUsers = new ArrayList<>();
-                ArrayList<Integer> allApplicationIds = new ArrayList<>();
-
-                String bigName, name, section, bigSection;
+                String bigName, name, section, bigSection, bigNameAmb;
 
                 DataSnapshot appTable = dataSnapshot.child("applications");
                 int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
+                apps.clear();
+                appsAll.clear();
+                appsBuisness.clear();
+                appsGames.clear();
+                appsInternet.clear();
+                appsOthers.clear();
+                appsSites.clear();
 
                 for (int appId = maxId; appId > -1; appId--) {
                     DataSnapshot app = appTable.child("application" + appId);
@@ -98,24 +55,24 @@ public class DBHelper {
                             for (int j = 0; j < 25; j++) {
                                 bigName += name.charAt(j);
                             }
-                            allMainNames.add("  " + bigName + "...");
-                        } else {
-                            allMainNames.add("  " + appName.getValue().toString());
+                            bigName += "...";
                         }
+                        else
+                            bigName = appName.getValue().toString();
+
                         if (appPurpose.getValue().toString().length() > 146) {
-                            bigName = "";
+                            bigNameAmb = "";
                             name = appPurpose.getValue().toString();
                             for (int j = 0; j < 146; j++) {
-                                bigName += name.charAt(j);
+                                bigNameAmb += name.charAt(j);
                             }
-                            allAmbitions.add(bigName + "...");
-                        } else {
-                            allAmbitions.add(appPurpose.getValue().toString());
+                            bigNameAmb += "...";
                         }
-                        allExperience.add("  Опыт: " + appExp.getValue().toString());
-                        allExamples.add("  Пример работы: " + appExample.getValue().toString());
-                        allUsers.add(appCreator.getValue().toString());
-                        allApplicationIds.add(appId);
+                        else
+                            bigNameAmb = appPurpose.getValue().toString();
+
+                        appsAll.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
 
                         // обработка по секциям
                         if (appSection.getValue().toString().equals("Бизнес в интернете")) {
@@ -125,24 +82,24 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                internetMainNames.add("  " + bigName + "...");
-                            } else {
-                                internetMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                internetAmbitions.add(bigName + "...");
-                            } else {
-                                internetAmbitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            internetExperience.add("  Опыт: " + appExp.getValue().toString());
-                            internetExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            internetUsers.add(appCreator.getValue().toString());
-                            internetApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            appsInternet.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         } else if (appSection.getValue() != null && appSection.getValue().equals("Оффлайн бизнес")) {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
@@ -150,24 +107,24 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                buisnessMainNames.add("  " + bigName + "...");
-                            } else {
-                                buisnessMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                buisnessAmbitions.add(bigName + "...");
-                            } else {
-                                buisnessAmbitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            buisnessExperience.add("  Опыт: " + appExp.getValue().toString());
-                            buisnessExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            buisnessUsers.add(appCreator.getValue().toString());
-                            buisnessApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            appsBuisness.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         } else if (appSection.getValue() != null && appSection.getValue().equals("Создание игр")) {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
@@ -175,24 +132,24 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                gamesMainNames.add("  " + bigName + "...");
-                            } else {
-                                gamesMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                gamesAbmitions.add(bigName + "...");
-                            } else {
-                                gamesAbmitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            gamesExperience.add("  Опыт: " + appExp.getValue().toString());
-                            gamesExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            gamesUsers.add(appCreator.getValue().toString());
-                            gamesApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            appsGames.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         } else if (appSection.getValue() != null && appSection.getValue().equals("Создание сайтов")) {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
@@ -200,24 +157,24 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                sitesMainNames.add("  " + bigName + "...");
-                            } else {
-                                sitesMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                sitesAmbitions.add(bigName + "...");
-                            } else {
-                                sitesAmbitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            sitesExperience.add("  Опыт: " + appExp.getValue().toString());
-                            sitesExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            sitesUsers.add(appCreator.getValue().toString());
-                            sitesApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            appsSites.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         } else if (appSection.getValue() != null && appSection.getValue().equals("Создание приложений")) {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
@@ -225,24 +182,24 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                appsMainNames.add("  " + bigName + "...");
-                            } else {
-                                appsMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                appsAmbitions.add(bigName + "...");
-                            } else {
-                                appsAmbitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            appsExperiens.add("  Опыт: " + appExp.getValue().toString());
-                            appsExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            appsUsers.add(appCreator.getValue().toString());
-                            appsApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            apps.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         } else {
                             if (appName.getValue().toString().length() > 25) {
                                 bigName = "";
@@ -250,115 +207,26 @@ public class DBHelper {
                                 for (int j = 0; j < 25; j++) {
                                     bigName += name.charAt(j);
                                 }
-                                otherMainNames.add("  " + bigName + "...");
-                            } else {
-                                otherMainNames.add("  " + appName.getValue().toString());
+                                bigName += "...";
                             }
+                            else
+                                bigName = appName.getValue().toString();
+
                             if (appPurpose.getValue().toString().length() > 146) {
-                                bigName = "";
+                                bigNameAmb = "";
                                 name = appPurpose.getValue().toString();
                                 for (int j = 0; j < 146; j++) {
-                                    bigName += name.charAt(j);
+                                    bigNameAmb += name.charAt(j);
                                 }
-                                otherAmbitions.add(bigName + "...");
-                            } else {
-                                otherAmbitions.add(appPurpose.getValue().toString());
+                                bigNameAmb += "...";
                             }
-                            otherExperience.add("  Опыт: " + appExp.getValue().toString());
-                            otherExamples.add("  Пример работы: " + appExample.getValue().toString());
-                            otherUsers.add(appCreator.getValue().toString());
-                            if (appSection.getValue().toString().length() > 21) {
-                                bigSection = "";
-                                section = appSection.getValue().toString();
-                                for (int j = 0; j < 21; j++) {
-                                    bigSection += section.charAt(j);
-                                }
-                                otherSection.add("  Раздел:  " + bigSection + "...");
-                            } else {
-                                otherSection.add("  Раздел:  " + appSection.getValue().toString());
-                            }
-                            otherApplicationIds.add(appId);
+                            else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            appsOthers.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         }
                     }
-                }
-                arrInternet[0] = new AdapterElement[internetMainNames.size()];
-                arrAll[0] = new AdapterElement[allMainNames.size()];
-                arrBuisness[0] = new AdapterElement[buisnessMainNames.size()];
-                arrGames[0] = new AdapterElement[gamesMainNames.size()];
-                arrSites[0] = new AdapterElement[sitesMainNames.size()];
-                arrApps[0] = new AdapterElement[appsMainNames.size()];
-                arrOther[0] = new AdapterElementOther[otherMainNames.size()];
-
-                for (int i = 0; i < arrBuisness[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = buisnessMainNames.get(i);
-                    month.ambition = buisnessAmbitions.get(i);
-                    month.experience = buisnessExperience.get(i);
-                    month.example = buisnessExamples.get(i);
-                    month.user = buisnessUsers.get(i);
-                    month.applicationId = buisnessApplicationIds.get(i).toString();
-                    arrBuisness[0][i] = month;
-                }
-                for (int i = 0; i < arrAll[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = allMainNames.get(i);
-                    month.ambition = allAmbitions.get(i);
-                    month.experience = allExperience.get(i);
-                    month.example = allExamples.get(i);
-                    month.user = allUsers.get(i);
-                    month.applicationId = allApplicationIds.get(i).toString();
-                    arrAll[0][i] = month;
-                }
-                for (int i = 0; i < arrGames[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = gamesMainNames.get(i);
-                    month.ambition = gamesAbmitions.get(i);
-                    month.experience = gamesExperience.get(i);
-                    month.example = gamesExamples.get(i);
-                    month.user = gamesUsers.get(i);
-                    month.applicationId = gamesApplicationIds.get(i).toString();
-                    arrGames[0][i] = month;
-                }
-                for (int i = 0; i < arrSites[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = sitesMainNames.get(i);
-                    month.ambition = sitesAmbitions.get(i);
-                    month.experience = sitesExperience.get(i);
-                    month.example = sitesExamples.get(i);
-                    month.user = sitesUsers.get(i);
-                    month.applicationId = sitesApplicationIds.get(i).toString();
-                    arrSites[0][i] = month;
-                }
-                for (int i = 0; i < arrInternet[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = internetMainNames.get(i);
-                    month.ambition = internetAmbitions.get(i);
-                    month.experience = internetExperience.get(i);
-                    month.example = internetExamples.get(i);
-                    month.user = internetUsers.get(i);
-                    month.applicationId = internetApplicationIds.get(i).toString();
-                    arrInternet[0][i] = month;
-                }
-                for (int i = 0; i < arrApps[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = appsMainNames.get(i);
-                    month.ambition = appsAmbitions.get(i);
-                    month.experience = appsExperiens.get(i);
-                    month.example = appsExamples.get(i);
-                    month.user = appsUsers.get(i);
-                    month.applicationId = appsApplicationIds.get(i).toString();
-                    arrApps[0][i] = month;
-                }
-                for (int i = 0; i < arrOther[0].length; i++) {
-                    AdapterElementOther month = new AdapterElementOther();
-                    month.mainName = otherMainNames.get(i);
-                    month.ambition = otherAmbitions.get(i);
-                    month.experience = otherExperience.get(i);
-                    month.example = otherExamples.get(i);
-                    month.user = otherUsers.get(i);
-                    month.applicationId = otherApplicationIds.get(i).toString();
-                    month.sectionClass = otherSection.get(i);
-                    arrOther[0][i] = month;
                 }
             }
 

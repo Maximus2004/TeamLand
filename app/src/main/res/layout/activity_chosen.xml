@@ -24,10 +24,8 @@
         tools:context="Избранные" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp"
         android:background="#e9e5e5"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -36,19 +34,10 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbarChosen"
         app:layout_constraintVertical_bias="0.51">
 
-        <ProgressBar
-            android:id="@+id/login_progress2"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone" />
-
-        <ListView
-            android:id="@+id/listViewFavourite"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_chosen"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp" />
+            android:layout_margin="2dp" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

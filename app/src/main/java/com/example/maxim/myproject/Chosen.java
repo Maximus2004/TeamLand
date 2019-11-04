@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageButton;
@@ -23,8 +24,7 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
     String userId;
-    ListView lv;
-    String userName;
+    RecyclerView rv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,70 +39,62 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("Избранные");
 
-        lv = findViewById(R.id.listViewFavourite);
+        rv = findViewById(R.id.recycler_view_chosen);
         makeMonth();
     }
 
     private void makeMonth() {
-        final AdapterElement[][] arr = new AdapterElement[1][1];
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList mainNames = new ArrayList();
-                ArrayList ambitions = new ArrayList();
-                ArrayList experiences = new ArrayList();
-                ArrayList examples = new ArrayList();
-                ArrayList users = new ArrayList();
-                ArrayList applicationIdes = new ArrayList();
-                String bigName, name;
+                DataSnapshot appTable = dataSnapshot.child("applications");
+                ArrayList<AdapterElement> apps = new ArrayList<AdapterElement>();
+                showToast("onDataChange Chosen");
+
+                String bigName, name, bigNameAmb;
                 for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i + "").getValue() != null && dataSnapshot.child("users").child(userId).child("favourites").child("favourite"+i).getValue() != null) {
-                        if (dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString().length()>22){
-                            bigName = "";
-                            name = dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString();
-                            for (int j = 0; j < 22; j++){
-                                bigName += name.charAt(j);
-                            }
-                            mainNames.add("  " + bigName + "...");
+                    if (dataSnapshot.child("applications").child("application" + i).getValue() != null && dataSnapshot.child("users").child(userId).child("favourites").child("favourite" + i).getValue() != null) {
+                        DataSnapshot app = appTable.child("application" + i);
+                        DataSnapshot appName = app.child("name");
+                        DataSnapshot appPurpose = app.child("purpose");
+                        DataSnapshot appExp = app.child("experience");
+                        DataSnapshot appExample = app.child("example");
+                        DataSnapshot appCreator = app.child("creator");
+                        DataSnapshot appSection = app.child("section");
+
+                        if (appName.getValue() != null) {
+
+                            if (appName.getValue().toString().length() > 25) {
+                                bigName = "";
+                                name = appName.getValue().toString();
+                                for (int j = 0; j < 25; j++) {
+                                    bigName += name.charAt(j);
+                                }
+                                bigName += "...";
+                            } else
+                                bigName = appName.getValue().toString();
+
+                            if (appPurpose.getValue().toString().length() > 146) {
+                                bigNameAmb = "";
+                                name = appPurpose.getValue().toString();
+                                for (int j = 0; j < 146; j++) {
+                                    bigNameAmb += name.charAt(j);
+                                }
+                                bigNameAmb += "...";
+                            } else
+                                bigNameAmb = appPurpose.getValue().toString();
+
+                            showToast(bigName);
+                            apps.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(i),
+                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
                         }
-                        else {
-                            mainNames.add("  " + dataSnapshot.child("applications").child("application" + i + "").child("name").getValue().toString());
-                        }
-                        if (dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString().length()>146){
-                            bigName = "";
-                            name = dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString();
-                            for (int j = 0; j < 146; j++){
-                                bigName += name.charAt(j);
-                            }
-                            ambitions.add(bigName + "...");
-                        }
-                        else {
-                            ambitions.add(dataSnapshot.child("applications").child("application" + i + "").child("purpose").getValue().toString());
-                        }
-                        experiences.add("  Опыт: " + dataSnapshot.child("applications").child("application" + i + "").child("experience").getValue().toString());
-                        examples.add("  Пример работы: " + dataSnapshot.child("applications").child("application" + i + "").child("example").getValue().toString());
-                        users.add(dataSnapshot.child("applications").child("application" + i + "").child("creator").getValue().toString());
-                        applicationIdes.add(i + "");
                     }
                 }
-                arr[0] = new AdapterElement[mainNames.size()];
-                // Сборка заявок
-                for (int i = 0; i < arr[0].length; i++) {
-                    AdapterElement month = new AdapterElement();
-                    month.mainName = mainNames.get(i).toString();
-                    month.ambition = ambitions.get(i).toString();
-                    month.experience = experiences.get(i).toString();
-                    month.example = examples.get(i).toString();
-                    month.user = users.get(i).toString();
-                    month.applicationId = applicationIdes.get(i).toString();
-                    arr[0][i] = month;
-                }
 
-
-                MainAdapter adapter = new MainAdapter(Chosen.this, arr[0], userId);
+                MainAdapter adapter = new MainAdapter(apps, userId);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(Chosen.this);
-                lv.setAdapter(adapter);
+                rv.setAdapter(adapter);
             }
 
             @Override
@@ -142,5 +134,12 @@ public class Chosen extends AppCompatActivity implements MainAdapter.UserActionL
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+    }
+
+
+    private void showToast(String text) {
+        Toast toast = Toast.makeText(getApplicationContext(),
+                text, Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

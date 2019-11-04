@@ -30,7 +30,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.AdapterViewHol
     private ArrayList<AdapterElement> apps;
     private DatabaseReference mDatabase;
     private String userI;
-    UserActionListener listener;;
+    UserActionListener listener;
     private String userId;
     private boolean starFlag = false;
 

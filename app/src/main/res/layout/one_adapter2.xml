@@ -128,39 +128,13 @@
             app:layout_constraintStart_toEndOf="@+id/experience" />
 
         <TextView
-            android:id="@+id/section"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginStart="2dp"
-            android:layout_marginBottom="8dp"
-            android:text="раздел"
-            android:textColor="#000"
-            android:textSize="18sp"
-            android:translationY="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/sect" />
-
-        <TextView
             android:id="@+id/examp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginStart="8dp"
-            android:text="Пример работы: "
-            android:textColor="#710c65"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toTopOf="@+id/sect"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/sect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
-            android:text="Раздел:"
+            android:text="Пример работы: "
             android:textColor="#710c65"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -171,11 +145,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:layout_marginBottom="8dp"
             android:text="нет"
             android:textColor="#000"
             android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@+id/sect"
-            app:layout_constraintBottom_toTopOf="@+id/sect"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/examp" />
 
         <Button

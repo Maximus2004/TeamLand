@@ -51,29 +51,26 @@ public class moreAboutApplication extends AppCompatActivity {
                 phone = findViewById(R.id.phoneApplication);
                 vk = findViewById(R.id.vkApplication);
                 otherContacts = findViewById(R.id.otherContactsApplication);
-                name.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("name").getValue().toString());
-                applicationDescription.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("descriptionApplication").getValue().toString());
-                purpose.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("purpose").getValue().toString());
-                can.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("can").getValue().toString());
-                String experienceS = dataSnapshot.child("applications").child("application" + mainapplicationID).child("experience").getValue().toString();
-                if (experienceS.equals("0"))
-                    experience.setText(experienceS + " лет");
-                else if (experienceS.equals("1"))
-                    experience.setText(experienceS + " год");
-                else if (experienceS.equals("2") || experienceS.equals("3") || experienceS.equals("4"))
-                    experience.setText(experienceS + " года");
-                else
-                    experience.setText(experienceS + " лет");
-                if (dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue() != null) {
-                    hashs.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("hashs").getValue().toString());
+                DataSnapshot app = dataSnapshot.child("applications").child(mainapplicationID);
+                if (app.getValue() != null) {
+                    name.setText(app.child("name").getValue().toString());
+                    applicationDescription.setText(app.child("descriptionApplication").getValue().toString());
+                    purpose.setText(app.child("purpose").getValue().toString());
+                    can.setText(app.child("can").getValue().toString());
+                    String experienceS = app.child("experience").getValue().toString();
+                    String exp = getResources().getQuantityString(R.plurals.plurals, Integer.parseInt(experienceS), Integer.parseInt(experienceS));
+                    experience.setText(exp);
+
+                    if (app.child("hashs").getValue() != null) {
+                        hashs.setText(app.child("hashs").getValue().toString());
+                    } else
+                        hashs.setText("");
+                    example.setText(app.child("example").getValue().toString());
+                    sector.setText(app.child("section").getValue().toString());
+                    phone.setText(app.child("phone").getValue().toString());
+                    vk.setText(app.child("vk").getValue().toString());
+                    otherContacts.setText(app.child("other").getValue().toString());
                 }
-                else
-                    hashs.setText("");
-                example.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("example").getValue().toString());
-                sector.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("section").getValue().toString());
-                phone.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("phone").getValue().toString());
-                vk.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("vk").getValue().toString());
-                otherContacts.setText(dataSnapshot.child("applications").child("application" + mainapplicationID).child("other").getValue().toString());
             }
 
             @Override
@@ -84,6 +81,7 @@ public class moreAboutApplication extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

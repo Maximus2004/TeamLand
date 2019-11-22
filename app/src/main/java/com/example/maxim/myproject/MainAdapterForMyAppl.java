@@ -27,18 +27,16 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyAppl.AdapterViewHolder> {
-    private ArrayList<AdapterElement> apps;
+    private ArrayList<AppModel> apps;
     private DatabaseReference mDatabase;
     private String userI;
-    UserActionListener listener;;
+    UserActionListener listener;
     private String userId;
     private boolean starFlag = false;
+    String applicationID = "";
+    View viewPublic;
 
-    private ViewGroup.LayoutParams params;
-    private ViewGroup.LayoutParams paramsTab;
-    private ViewGroup.LayoutParams paramsTextView;
-
-    public MainAdapterForMyAppl(ArrayList<AdapterElement> apps, String id) {
+    public MainAdapterForMyAppl(ArrayList<AppModel> apps, String id) {
         this.apps = apps;
         mDatabase = FirebaseDatabase.getInstance().getReference();
         //здесь будет код
@@ -73,12 +71,8 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
             user = view.findViewById(R.id.userBtn);
 
             layoutOneAdapter = view.findViewById(R.id.layoutOneAdapter);
-            params = layoutOneAdapter.getLayoutParams();
 
             tab1 = view.findViewById(R.id.tab1);
-            paramsTab = tab1.getLayoutParams();
-
-            paramsTextView = ambition.getLayoutParams();
         }
     }
 
@@ -89,7 +83,8 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
     @NonNull
     @Override
     public AdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.one_adapter, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.one_adapter_for_myappl, parent, false);
+        viewPublic = view;
         return new AdapterViewHolder(view);
     }
 
@@ -98,44 +93,17 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
         String ambT = holder.ambition.getText().toString();
         Log.d("LENGTH", String.valueOf(ambT.length()));
 
-        // устанавливаю чёрный цвет
-        final ForegroundColorSpan styleExp = new ForegroundColorSpan(Color.rgb(0, 0, 0));
-        // идентефицирую стринговую переемнную, оторая умеет работать со стилем выше
-        final SpannableStringBuilder textExp;
+        holder.experience.setText(apps.get(position).experience);
 
-        // это то, что вызывает многократное добавление "лет" к каждой из заявок. Также получается так, то везде стоит "0"
-        // беру текст из ЕditText experience и определяю, какая там цифра. В зависимости от цифры добаляю определённое слово
-        holder.experience.setText(apps.get(position).getExperience());
-        Log.d("EXP", apps.get(position).getExperience());
-        if (apps.get(position).getExperience().equals("0")) {
-            // записываю в эту стринговую переменную например "  Опыт: 4" + " лет". ("лет" или "год" зависит от значения цифры: если "0", то "лет", если "1", то "год" и т.д.)
-            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " лет");
-            // устанавливаю этому стринговому полю стиль, который мы задавали ранее и который равен чёрному цвету,
-            // начало (первая буква которую мы закрасим в этот цвет) и
-            // конец (последняя буква, которую мы закрасим в этот цвет).
-            // В результате должно получится так, что "  Опыт:" нарисовано фиолетовым цветом, а " 4 года" чёрным, чтобы было легче ориентироваться
-            // присваиваем этот текст EditText-у
-            holder.experience.setText(textExp);
-        } else if (apps.get(position).getExperience().equals("1")) {
-            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " год");
-            holder.experience.setText(textExp);
-        } else if (apps.get(position).getExperience().equals("2") || apps.get(position).getExperience().equals("3") || holder.experience.getText().toString().equals("4")) {
-            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " года");
-            holder.experience.setText(textExp);
-        } else {
-            textExp = new SpannableStringBuilder(apps.get(position).getExperience() + " лет");
-            holder.experience.setText(textExp);
-        }
+        String textExp = viewPublic.getResources().getQuantityString(R.plurals.plurals,
+                Integer.parseInt(apps.get(position).experience), Integer.parseInt(apps.get(position).experience));
+        holder.experience.setText(textExp);
 
-        // это, казалось бы, нормально работает, но во всех заявках появляется одинаковый статус налиция опыта
-        // здесь ситуация обстоит так же, но теперь закрашивается слово "есть" или "нет", опять же чтобы было легко ориентироваться
-        //holder.experience.setText(apps.get(position).getExperience());
-        // с этим всё ок
-        holder.example.setText(apps.get(position).getExample());
-        holder.user.setText(apps.get(position).getUser());
-        holder.appId.setText(apps.get(position).getAppId());
-        holder.mainName.setText(apps.get(position).getMainName());
-        holder.ambition.setText(apps.get(position).getAmbition());
+        holder.example.setText(apps.get(position).example);
+        holder.user.setText(apps.get(position).creator);
+        holder.appId.setText(apps.get(position).applicationId);
+        holder.mainName.setText(apps.get(position).name);
+        holder.ambition.setText(apps.get(position).purpose);
 
         View.OnClickListener oclBtn3 = new View.OnClickListener() {
             @Override
@@ -147,11 +115,11 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
                             // да, здесь всё так же работает на maxId(ещё не поменял)
                             // (для этого проекта сущствует своя собственная база, которая ещё не отредактирована)
                             holder.star.setImageResource(android.R.drawable.btn_star_big_on);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + holder.appId.getText().toString()).setValue("true");
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + holder.appId.getText().toString()).setValue("true");
                             starFlag = true;
                         } else {
                             holder.star.setImageResource(android.R.drawable.btn_star_big_off);
-                            mDatabase.child("client" + userId).child("favourites").child("favourite" + holder.appId.getText().toString()).removeValue();
+                            mDatabase.child("users").child(userId).child("favourites").child("favourite" + holder.appId.getText().toString()).removeValue();
                             starFlag = false;
                         }
                     }
@@ -190,7 +158,9 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
             public void onClick(View v) {
                 // если есть слушатель, передаем ему действие
                 if (listener != null)
-                    listener.onShowMoreClick(holder.appId.getText().toString());
+                    Log.d("APPID", holder.appId.getText().toString());
+                    applicationID = holder.appId.getText().toString();
+                    listener.onShowMoreClick(applicationID);
             }
         };
         holder.more.setOnClickListener(oclBtn0);
@@ -201,17 +171,10 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
                 ValueEventListener listenerAtOnceUser = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("users").getChildren();
-
-                        for (DataSnapshot aSnapshotIterable : snapshotIterable) {
-                            if (dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("login").getValue().toString().equals(holder.user)) {
-                                userI = aSnapshotIterable.getKey().toString();
-                            }
-                        }
-                        if (userI != null) {
+                        if (userId != null) {
                             AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                            builder.setTitle(dataSnapshot.child("users").child(userI).child("login").getValue().toString())
-                                    .setMessage(dataSnapshot.child("users").child(userI).child("description").getValue().toString())
+                            builder.setTitle(dataSnapshot.child("users").child(userId).child("login").getValue().toString())
+                                    .setMessage(dataSnapshot.child("users").child(userId).child("description").getValue().toString())
                                     .setCancelable(false)
                                     .setNegativeButton("Понятно",
                                             new DialogInterface.OnClickListener() {

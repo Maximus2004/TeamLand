@@ -26,11 +26,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.UUID;
+
 public class CreateApplication extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
     public static final String TAG = "CreateApplication";
     public static final String PARAM_USER_NAME = TAG + ".username";
 
-    String item, item2;
+    String item, item2, id;
     Button btn, btnReady, btn2;
     TextView t2, t3, t11, t4, t5, t6, text, t8;
     EditText purposeEditText;
@@ -97,6 +99,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             @Override
             public void onClick(View v) {
                 initialization(); // инициализирую переменные
+                id = UUID.randomUUID().toString();
 
                 checkingPurpose();
                 checkingCan();
@@ -219,7 +222,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     private void writeNewApplication(String applicationId, String creator,
                                      String example, String experience, String name, String purpose, String section, String hashs, String other, String phone, String vk, String can, String descriptionApplication) {
         Application application = new Application(applicationId, creator, example, experience, name, purpose, section, hashs, other, phone, vk, can, descriptionApplication);
-        mDatabase.child("applications").child("application" + applicationId).setValue(application);
+        mDatabase.child("applications").child(id).setValue(application);
     }
 
     @Override
@@ -402,8 +405,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                    writeNewApplication(dataSnapshot.child("applications").child("maxId").getValue().toString(), dataSnapshot.child("users").child(userI3).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
-                    mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
+                    writeNewApplication(id, dataSnapshot.child("users").child(userI3).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+                    //mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
                 }
 
                 @Override

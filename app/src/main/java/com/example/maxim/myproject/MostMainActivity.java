@@ -63,7 +63,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     String item;
     String userName = null;
     String realUserName = null;
-    int pos, bigId, bigIdBack, bigIdBackApp;
+    int pos;
     int publishTheLast, publishTheFirst = 0;
     boolean flag, flagSearch = true;
     EditText searchEditText;
@@ -127,9 +127,6 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         setupTitle();
         setupLists();
 
-        //настройка bigId
-        setupBigId();
-
         // заполняем списки информацией
         //fillData();
         fillDataAllOther();
@@ -163,24 +160,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         toast.show();
     }
 
-    void setupBigId() {
-        ValueEventListener listenerAtOnceBigId = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                DataSnapshot appTable = dataSnapshot.child("applications");
-                int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
-                bigId = maxId;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        };
-        mDatabase.addListenerForSingleValueEvent(listenerAtOnceBigId);
-    }
-
-    private void fillDataAllOther(){
+    private void fillDataAllOther() {
         MainAdapter adapterAll = new MainAdapter(appsAll, userName);
         // выставляем слушателя в адаптер (слушатель – наше активити)
         adapterAll.setUserActionListener(MostMainActivity.this);
@@ -205,7 +185,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
         // выставляем слушателя в адаптер (слушатель – наше активити)
         adapterApps.setUserActionListener(MostMainActivity.this);
         rv6.setAdapter(adapterApps);
-        MainAdapter adapterOther = new MainAdapter(appsOthers, userName);
+        MainAdapterForOther adapterOther = new MainAdapterForOther(appsOthers, userName);
         // выставляем слушателя в адаптер (слушатель – наше активити)
         adapterOther.setUserActionListener(MostMainActivity.this);
         rv7.setAdapter(adapterOther);
@@ -502,10 +482,10 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                         burger.setImageResource(R.drawable.back2);
                         controlBurger = false;
 
-                        makeApplicationForSearchByHashtegs(searchText);
+                        //makeApplicationForSearchByHashtegs(searchText);
                     } else {
                         // выбран поиск по словам
-                        makeApplicationForSearchByWords(searchText);
+                        //makeApplicationForSearchByWords(searchText);
                         burger.setImageResource(R.drawable.back2);
                         controlBurger = false;
                     }
@@ -542,8 +522,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
     }
 
 
-
-    private void makeApplicationForSearchByHashtegs(final String searchText) {
+    /*private void makeApplicationForSearchByHashtegs(final String searchText) {
         // делим поисковый запрос на слова
         final String[] searchWords = searchText.split(" ");
 
@@ -552,10 +531,51 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String bigName, name, bigNameAmb;
                 DataSnapshot appTable = dataSnapshot.child("applications");
+                Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("applications").getChildren();
                 if (mCheckedItems[0] && mCheckedItems[1] && !mCheckedItems[2] && !mCheckedItems[3]) {
                     mapCountToIdsForHashtegs = new TreeMap<>(Collections.reverseOrder());
-                    int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
+                    //int maxId = Integer.parseInt(appTable.child("maxId").getValue().toString());
 
+                    for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                        DataSnapshot app = dataSnapshot.child("applications").child(aSnapshotIterable.getKey().toString());
+                        String appId = aSnapshotIterable.getKey().toString();
+                        AppModel appModel = app.getValue(AppModel.class);
+
+                        if (app.child("experience").getValue().toString().equals("0")
+                                && app.child("example").getValue().toString().equals("есть")) {
+                            DataSnapshot appTagsRaw = app.child("hashs");
+                            if (appTagsRaw.getValue() != null) {
+                                // разделяем их на отдельные слова по пробелу
+                                List<String> appTags = Arrays
+                                        .asList(appTagsRaw.getValue().toString()
+                                                .split(" ")
+                                        );
+
+                                // подсчитываем сколько из них подходит под поисковый запрос
+                                int foundTagsCount = 0;
+                                for (String word : searchWords) {
+                                    if (appTags.contains(word)) foundTagsCount++;
+                                }
+
+                                // сохраняем в мапу
+                                // value как список, так как у разных заявок может быть одинаковое количество совпадений
+                                if (foundTagsCount > 0) {
+                                    List<Integer> ids;
+                                    // смотрим, есть ли уже такое количество совпадений
+                                    // если есть, то добавляем в существующий список
+                                    if (mapCountToIdsForHashtegs.containsKey(foundTagsCount))
+                                        ids = mapCountToIdsForHashtegs.get(foundTagsCount);
+                                    else
+                                        ids = new ArrayList<>();
+
+                                    ids.add(appId);
+                                    mapCountToIdsForHashtegs.put(foundTagsCount, ids);
+                                }
+                            }
+                        }
+
+                        appsAll.add(appModel);
+                    }
                     // подсчитываем количество найденых тегов для заявок
                     for (int appIndex = 0; appIndex < maxId; appIndex++) {
                         // берем все теги заявки в исходном виде
@@ -1260,8 +1280,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                         bigName += name.charAt(j);
                                     }
                                     bigName += "...";
-                                }
-                                else
+                                } else
                                     bigName = appName.getValue().toString();
 
                                 if (appPurpose.getValue().toString().length() > 146) {
@@ -1271,8 +1290,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                         bigNameAmb += name.charAt(j);
                                     }
                                     bigNameAmb += "...";
-                                }
-                                else
+                                } else
                                     bigNameAmb = appPurpose.getValue().toString();
 
                                 appsAll.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1287,8 +1305,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1298,8 +1315,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsInternet.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1312,8 +1328,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1323,8 +1338,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsBuisness.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1337,8 +1351,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1348,8 +1361,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsGames.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1362,8 +1374,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1373,8 +1384,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsSites.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1387,8 +1397,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1398,8 +1407,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     apps.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -1412,8 +1420,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -1423,12 +1430,11 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
-                                    appsOthers.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
-                                            appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
+                                    appsOthers.add(new AdapterElementOther("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                            appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb, appSection.getValue().toString()));
                                 }
                             }
                         }
@@ -1457,7 +1463,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     // выставляем слушателя в адаптер (слушатель – наше активити)
                     adapterApps.setUserActionListener(MostMainActivity.this);
                     rv6.setAdapter(adapterApps);
-                    MainAdapter adapterOther = new MainAdapter(appsOthers, userName);
+                    MainAdapterForOther adapterOther = new MainAdapterForOther(appsOthers, userName);
                     // выставляем слушателя в адаптер (слушатель – наше активити)
                     adapterOther.setUserActionListener(MostMainActivity.this);
                     rv7.setAdapter(adapterOther);
@@ -2593,8 +2599,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                         bigName += name.charAt(j);
                                     }
                                     bigName += "...";
-                                }
-                                else
+                                } else
                                     bigName = appName.getValue().toString();
 
                                 if (appPurpose.getValue().toString().length() > 146) {
@@ -2604,8 +2609,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                         bigNameAmb += name.charAt(j);
                                     }
                                     bigNameAmb += "...";
-                                }
-                                else
+                                } else
                                     bigNameAmb = appPurpose.getValue().toString();
 
                                 appsAll.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2620,8 +2624,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2631,8 +2634,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsInternet.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2645,8 +2647,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2656,8 +2657,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsBuisness.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2670,8 +2670,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2681,8 +2680,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsGames.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2695,8 +2693,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2706,8 +2703,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     appsSites.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2720,8 +2716,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2731,8 +2726,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
                                     apps.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
@@ -2745,8 +2739,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigName += name.charAt(j);
                                         }
                                         bigName += "...";
-                                    }
-                                    else
+                                    } else
                                         bigName = appName.getValue().toString();
 
                                     if (appPurpose.getValue().toString().length() > 146) {
@@ -2756,12 +2749,11 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                                             bigNameAmb += name.charAt(j);
                                         }
                                         bigNameAmb += "...";
-                                    }
-                                    else
+                                    } else
                                         bigNameAmb = appPurpose.getValue().toString();
 
-                                    appsOthers.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
-                                            appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
+                                    appsOthers.add(new AdapterElementOther("  " + bigName, appCreator.getValue().toString(), String.valueOf(appId),
+                                            appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb, appSection.getValue().toString()));
                                 }
                             }
                         }
@@ -2790,7 +2782,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
                     // выставляем слушателя в адаптер (слушатель – наше активити)
                     adapterApps.setUserActionListener(MostMainActivity.this);
                     rv6.setAdapter(adapterApps);
-                    MainAdapter adapterOther = new MainAdapter(appsOthers, userName);
+                    MainAdapterForOther adapterOther = new MainAdapterForOther(appsOthers, userName);
                     // выставляем слушателя в адаптер (слушатель – наше активити)
                     adapterOther.setUserActionListener(MostMainActivity.this);
                     rv7.setAdapter(adapterOther);
@@ -2803,7 +2795,7 @@ public class MostMainActivity extends AppCompatActivity implements NavigationVie
             }
         };
         mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-    }
+    }*/
 
     int countLimit = 0;
 

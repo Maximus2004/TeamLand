@@ -34,4 +34,14 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
     <string name="avtorisation">Войти</string>
+
+    <!-- Этот код мы используем для проверки того, как выглядит реальное склонение -->
+    <plurals name="plurals">
+        <item quantity="zero">лет</item>
+        <item quantity="one">%1$d год</item>
+        <item quantity="two">%1$d года</item>
+        <item quantity="few">%1$d года</item>
+        <item quantity="many">%1$d лет</item>
+        <item quantity="other">%1$d лет</item>
+    </plurals>
 </resources>

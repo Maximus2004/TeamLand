@@ -4,11 +4,10 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -19,13 +18,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MyApplications extends AppCompatActivity implements MainAdapter.UserActionListener {
+public class MyApplications extends AppCompatActivity implements MainAdapterForMyAppl.UserActionListener {
     public static String TAG = "MyApplications";
     public static String PARAM_USER_NAME = TAG + ".userName";
     DatabaseReference mDatabase;
     String userId;
     RecyclerView rv;
-    String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,60 +39,33 @@ public class MyApplications extends AppCompatActivity implements MainAdapter.Use
         getSupportActionBar().setTitle("Мои заявки");
 
         rv = findViewById(R.id.recycler_view_myappl);
-        makeMonth();
+        rv.setLayoutManager(new LinearLayoutManager(this));
+        fillData();
     }
 
-    private void makeMonth() {
+    void fillData() {
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                showToast("onDataChange MyAppl");
                 DataSnapshot appTable = dataSnapshot.child("applications");
-                ArrayList<AdapterElement> apps = new ArrayList<AdapterElement>();
-                String bigName, name, bigNameAmb;
+                ArrayList<AppModel> apps = new ArrayList<AppModel>();
+                Iterable<DataSnapshot> snapshotIterable = dataSnapshot.child("applications").getChildren();
+                String user = dataSnapshot.child("users").child(userId).child("login").getValue().toString();
 
-                for (int i = 0; i < Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()); i++) {
-                    if (dataSnapshot.child("applications").child("application" + i).getValue() != null &&
-                            dataSnapshot.child("applications").child("application" + i).child("creator").getValue().toString()
-                                    .equals(dataSnapshot.child("users").child(userId).child("login").getValue().toString())) {
-                        DataSnapshot app = appTable.child("application" + i);
-                        DataSnapshot appName = app.child("name");
-                        DataSnapshot appPurpose = app.child("purpose");
-                        DataSnapshot appExp = app.child("experience");
-                        DataSnapshot appExample = app.child("example");
-                        DataSnapshot appCreator = app.child("creator");
-                        DataSnapshot appSection = app.child("section");
+                for (DataSnapshot aSnapshotIterable : snapshotIterable) {
+                    if (aSnapshotIterable.getKey().toString().equals("maxId")) break;
+                    String appId = aSnapshotIterable.getKey().toString();
+                    String creator = appTable.child(appId).child("creator").getValue().toString();
 
-                        if (appName.getValue() != null) {
+                    if (creator.equals(user)) {
+                        DataSnapshot app = dataSnapshot.child("applications").child(aSnapshotIterable.getKey().toString());
+                        AppModel appModel = app.getValue(AppModel.class);
 
-                            if (appName.getValue().toString().length() > 25) {
-                                bigName = "";
-                                name = appName.getValue().toString();
-                                for (int j = 0; j < 25; j++) {
-                                    bigName += name.charAt(j);
-                                }
-                                bigName += "...";
-                            } else
-                                bigName = appName.getValue().toString();
-
-                            if (appPurpose.getValue().toString().length() > 146) {
-                                bigNameAmb = "";
-                                name = appPurpose.getValue().toString();
-                                for (int j = 0; j < 146; j++) {
-                                    bigNameAmb += name.charAt(j);
-                                }
-                                bigNameAmb += "...";
-                            } else
-                                bigNameAmb = appPurpose.getValue().toString();
-
-                            showToast(bigName);
-                            apps.add(new AdapterElement("  " + bigName, appCreator.getValue().toString(), String.valueOf(i),
-                                    appExp.getValue().toString(), appExample.getValue().toString(), bigNameAmb));
-                        }
+                        apps.add(appModel);
                     }
                 }
 
-                MainAdapter adapter = new MainAdapter(apps, userId);
+                MainAdapterForMyAppl adapter = new MainAdapterForMyAppl(apps, userId);
                 // выставляем слушателя в адаптер (слушатель – наше активити)
                 adapter.setUserActionListener(MyApplications.this);
                 rv.setAdapter(adapter);
@@ -127,8 +98,8 @@ public class MyApplications extends AppCompatActivity implements MainAdapter.Use
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mDatabase.child("applications").child("application" + applicationId + "").removeValue();
-                makeMonth();
+                mDatabase.child("applications").child(applicationId).removeValue();
+                fillData();
             }
 
             @Override

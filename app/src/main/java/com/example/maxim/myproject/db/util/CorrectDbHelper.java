@@ -25,8 +25,9 @@ public class CorrectDbHelper {
 
     // не канонически правильная форма паттерна Singleton, но пользоваться можно
     // больше подробностей тут: https://refactoring.guru/ru/design-patterns/singleton
+    // единая сущность класса для всего приложения - один ра создаём и больше нигде не создаём, а только пользуемся
     // у sInstance префикс "s" – потому что есть "static"
-    private static volatile CorrectDbHelper sInstance = null;
+    private static volatile CorrectDbHelper sInstance = null; // volatile - переменная, изменённая в одном потоке, будет измненея и в другом
     private List<AppModel> mAppsList = null;
     // у mDatabase префикс "m" – потому что он является частью класса – "member"
     private DatabaseReference mDatabase;

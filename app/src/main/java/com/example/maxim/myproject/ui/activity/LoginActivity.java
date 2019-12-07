@@ -1,4 +1,4 @@
-package com.example.maxim.myproject;
+package com.example.maxim.myproject.ui.activity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -9,6 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.maxim.myproject.MainAdapter;
+import com.example.maxim.myproject.MainAdapterForOther;
+import com.example.maxim.myproject.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +37,7 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
         View.OnClickListener oclBtnRegistr = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, ActivityReg.class);
+                Intent intent = new Intent(LoginActivity.this, RegActivity.class);
                 startActivity(intent);
             }
         };
@@ -42,6 +45,7 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
     }
 
     private void setupButtonLogin() {
+        // увы, этого избежать нельзя, потому что к этому моменту ещё не существует Singleton-а
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,10 +70,10 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
 
     private void userRegistration() {
         if (!isUserRegistrated) {
-            Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, LeastMainActivity.class);
             startActivity(intent);
             // передаем логин пользователя в главное активити
-            intent.putExtra(MostMainActivity.PARAM_USER_ID, login.toString());
+            intent.putExtra(LeastMainActivity.PARAM_USER_ID, login.toString());
             // финишируем активити при успешной авторизации
             finish();
         }
@@ -92,29 +96,13 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
                     && dataSnapshot.child("users").child(aSnapshotIterable.getKey().toString()).child("password").getValue().equals(passT)) {
                 // нашли совпадение, останавливаем цикл
                 isUserRegistrated = false;
-                Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
-                intent.putExtra(MostMainActivity.PARAM_USER_ID, aSnapshotIterable.getKey().toString());
+                Intent intent = new Intent(LoginActivity.this, LeastMainActivity.class);
+                intent.putExtra(LeastMainActivity.PARAM_USER_ID, aSnapshotIterable.getKey().toString());
                 startActivity(intent);
                 showToast("Вход успешно выполнен", "");
                 break;
             }
         }
-
-
-        /*int maxId = Integer.parseInt(dataSnapshot.child("maxId").getValue().toString());
-        for (int i = 0; i < maxId; i++) {    //i < id
-            Object login = dataSnapshot.child("client" + i).child("login").getValue();
-            Object password = dataSnapshot.child("client" + i).child("password").getValue();
-            if (login != null && password != null && login.equals(loginT) && password.toString().equals(passT)) {
-                // нашли совпадение, останавливаем цикл
-                isUserRegistrated = false;
-                Intent intent = new Intent(LoginActivity.this, MostMainActivity.class);
-                intent.putExtra(MostMainActivity.PARAM_USER_ID, loginT);
-                startActivity(intent);
-                showToast("Вход успешно выполнен", "");
-                break;
-            }
-        }*/
         if (isUserRegistrated) {
             showToast("Вы не подключены к сети или такого пользователя не существует", "");
         }

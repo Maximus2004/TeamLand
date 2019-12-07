@@ -30,11 +30,11 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
     private ArrayList<AppModel> apps;
     private DatabaseReference mDatabase;
     private String userI;
-    UserActionListener listener;
+    private UserActionListener listener;
     private String userId;
     private boolean starFlag = false;
-    String applicationID = "";
-    View viewPublic;
+    private String applicationID = "";
+    private View viewPublic;
 
     public MainAdapterForMyAppl(ArrayList<AppModel> apps, String id) {
         this.apps = apps;
@@ -54,7 +54,6 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
         Button user;
         ImageButton star;
 
-        LinearLayout layoutOneAdapter;
         LinearLayout tab1;
 
         public AdapterViewHolder(View view) {
@@ -69,8 +68,6 @@ public class MainAdapterForMyAppl extends RecyclerView.Adapter<MainAdapterForMyA
             more = view.findViewById(R.id.buttonMore);
             star = view.findViewById(R.id.imageButton0);
             user = view.findViewById(R.id.userBtn);
-
-            layoutOneAdapter = view.findViewById(R.id.layoutOneAdapter);
 
             tab1 = view.findViewById(R.id.tab1);
         }

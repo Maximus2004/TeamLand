@@ -1,8 +1,11 @@
-package com.example.maxim.myproject;
+package com.example.maxim.myproject.ui.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+
+import com.example.maxim.myproject.R;
+
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +23,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maxim.myproject.Application;
+import com.example.maxim.myproject.db.util.CorrectDbHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,8 +66,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         setContentView(R.layout.create_application);
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // достаем информацию, переданную из MostMainActivity, если она есть
-        // если такого параметра нет, то будет null
         Intent intent = getIntent();
         userI3 = intent.getStringExtra(PARAM_USER_NAME);
 
@@ -210,8 +213,6 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //невозможно вызвать, т к. fillData() - не static
-                //MostMainActivity.fillData();
                 this.finish();
                 return true;
             default:
@@ -233,7 +234,7 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             isExample = false;
     }
 
-    void initialization(){
+    void initialization() {
         //прошу прощения за циферки в названиях переменных
         //в этих названиях есть определённая логика - номер textView совпадает с номером t
         mainCount++;
@@ -268,7 +269,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
         resOtherVar = other.getText().toString();
         resPurpose = purposeEditText.getText().toString();
     }
-    void checkingCan(){
+
+    void checkingCan() {
         for (int i = 0; i < resCan.length(); i++) {
             if (resCan.charAt(i) != ' ') {
                 u = true;
@@ -283,7 +285,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             t4.setTextColor(Color.BLACK);
         }
     }
-    void checkingDescription(){
+
+    void checkingDescription() {
         for (int i = 0; i < resOpis.length(); i++) {
             if (resOpis.charAt(i) != ' ') {
                 numberOfWords = true;
@@ -298,7 +301,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             t3.setTextColor(Color.BLACK);
         }
     }
-    void checkingExperience(){
+
+    void checkingExperience() {
         if (resOpis.equals("") || !op) {
             mainFlag = false;
             mainFlag2 = false;
@@ -308,7 +312,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             t5.setTextColor(Color.BLACK);
         }
     }
-    void checkingPurpose(){
+
+    void checkingPurpose() {
         String result = purposeEditText.getText().toString();
 
         if (purposeEditText.equals("") || result.equals("")) {
@@ -320,7 +325,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             t11.setTextColor(Color.BLACK);
         }
     }
-    void checkingNameOpit(){
+
+    void checkingNameOpit() {
         for (int i = 0; i < resName.length(); i++) {
             if (resName.charAt(i) != ' ') {
                 n = true;
@@ -340,7 +346,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             }
         }
     }
-    void checkingHashs(){
+
+    void checkingHashs() {
         for (int i = 0; i < resHash.length(); i++) {
             if (resHash.charAt(i) != ' ') {
                 hash = true;
@@ -364,7 +371,8 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             t6.setTextColor(Color.BLACK);
         }
     }
-    void finalCheckingContactsSections(){
+
+    void finalCheckingContactsSections() {
         int j = 0;
         for (int i = 0; i < resOtherVar.length(); i++) {
             if (resOtherVar.charAt(i) == ' ') {
@@ -401,23 +409,11 @@ public class CreateApplication extends AppCompatActivity implements CompoundButt
             } else if (pos == 0 && pos2 == 0) {
                 mainItem = resOtherVar;
             }
-            ValueEventListener listenerAtOnce = new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Toast.makeText(getApplicationContext(), "Зашёл в onDataChange", Toast.LENGTH_SHORT).show();
-                    writeNewApplication(id, dataSnapshot.child("users").child(userI3).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
-                    //mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(getApplicationContext(), "Зашёл в onCancelled", Toast.LENGTH_SHORT).show();
-                }
-            };
-
-            mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
-            finish();
+            writeNewApplication(id, CorrectDbHelper.dataSnapshot.child("users").child(userI3).child("login").getValue().toString(), exampleText, resOpit, resName, resPurpose, mainItem, resOther, resCont, resVK, resCan, resOpis, resHash);
+            //mDatabase.child("applications").child("maxId").setValue(Integer.parseInt(dataSnapshot.child("applications").child("maxId").getValue().toString()) + 1);
         }
+        finish();
     }
 }
+
 

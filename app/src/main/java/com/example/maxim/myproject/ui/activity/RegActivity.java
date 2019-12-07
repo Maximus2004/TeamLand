@@ -1,29 +1,28 @@
-package com.example.maxim.myproject;
+package com.example.maxim.myproject.ui.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import com.example.maxim.myproject.R;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maxim.myproject.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
-public class ActivityReg extends AppCompatActivity {
+public class RegActivity extends AppCompatActivity {
     boolean checkingSecondPasswordEdit = true;
     boolean checkingFirstPasswordEdit = true;
     boolean checkingNickPasswordEdit = true;
@@ -35,7 +34,6 @@ public class ActivityReg extends AppCompatActivity {
     boolean isLoginAlreadyInUse = true;
     String id;
     String loginTemp;
-    Map<String,Object> users;
     private DatabaseReference mDatabase;
 
     @Override
@@ -43,7 +41,6 @@ public class ActivityReg extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reg);
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        final HashMap<String,User> userMap = new HashMap<>();
 
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
@@ -57,6 +54,7 @@ public class ActivityReg extends AppCompatActivity {
                             "Форма заполена некорректно", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
+                    // увы, этого избежать нельзя, потому что к этому моменту ещё не существует Singleton-а
                     ValueEventListener listenerAtOnce = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -83,9 +81,9 @@ public class ActivityReg extends AppCompatActivity {
                                 nickText.setTextColor(Color.BLACK);
                                 writeNewUser(nickEditString, firstPasswordEditString, describtionEditString);
                                 //mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
-                                Intent intent2 = new Intent(ActivityReg.this, MostMainActivity.class);
-                                intent2.putExtra(MostMainActivity.PARAM_USER_ID, id);
-                                startActivity(intent2);
+                                Intent intent = new Intent(RegActivity.this, LeastMainActivity.class);
+                                intent.putExtra(LeastMainActivity.PARAM_USER_ID, id);
+                                startActivity(intent);
                                 // финишируем активити при успешной регистрации
                                 finish();
                             }
@@ -109,7 +107,7 @@ public class ActivityReg extends AppCompatActivity {
         View.OnClickListener oclBtn = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ActivityReg.this, LoginActivity.class);
+                Intent intent = new Intent(RegActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }

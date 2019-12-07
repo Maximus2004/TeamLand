@@ -1,8 +1,11 @@
-package com.example.maxim.myproject;
+package com.example.maxim.myproject.ui.activity;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.maxim.myproject.R;
+
+import com.example.maxim.myproject.DBHelper;
 
 public class SplashActivity extends AppCompatActivity {
 

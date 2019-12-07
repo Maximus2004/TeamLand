@@ -51,7 +51,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.AdapterViewHol
         Button user;
         ImageButton star;
 
-        LinearLayout layoutOneAdapter;
         LinearLayout tab1;
 
         public AdapterViewHolder(View view) {
@@ -67,8 +66,6 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.AdapterViewHol
             more = view.findViewById(R.id.buttonMore);
             star = view.findViewById(R.id.imageButton0);
             user = view.findViewById(R.id.userBtn);
-
-            layoutOneAdapter = view.findViewById(R.id.layoutOneAdapter);
 
             tab1 = view.findViewById(R.id.tab1);
         }

@@ -1,9 +1,10 @@
-package com.example.maxim.myproject;
+package com.example.maxim.myproject.ui.activity;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import com.example.maxim.myproject.R;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
-public class moreAboutApplication extends AppCompatActivity {
+public class MoreAboutApplicationActivity extends AppCompatActivity {
     public String mainapplicationID;
     TextView applicationDescription, name, purpose, can, experience, hashs, example, sector, phone, vk, otherContacts;
     DatabaseReference mDatabase;

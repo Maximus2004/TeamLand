@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.maxim.myproject">
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
@@ -13,35 +14,36 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".CreateApplication"
+            android:name=".ui.activity.CreateApplication"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ActivityReg"
-            android:windowSoftInputMode="adjustPan"></activity>
+            android:name=".ui.activity.LeastMainActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.activity.RegActivity"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
+            android:name=".ui.activity.LoginActivity"
             android:label="@string/title_activity_login"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"></activity>
-        <activity android:name=".Chosen" />
-        <activity android:name=".MyApplications" />
-        <activity
-            android:name=".MostMainActivity"
-            android:label="@string/title_activity_main3"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
-        <activity android:name=".moreAboutApplication" />
-        <activity
-            android:name=".SplashActivity"
-            android:theme="@style/SplashTheme">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".ui.activity.Chosen" />
+        <activity android:name=".ui.activity.MyApplications" />
+        <activity android:name=".ui.activity.MoreAboutApplicationActivity" />
+        <activity
+            android:name=".ui.activity.SplashActivity"
+            android:theme="@style/SplashTheme">
         </activity>
     </application>
 

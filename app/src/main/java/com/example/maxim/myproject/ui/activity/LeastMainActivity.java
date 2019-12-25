@@ -6,6 +6,7 @@ import com.example.maxim.myproject.R;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -18,6 +19,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,6 +35,7 @@ import com.example.maxim.myproject.db.FilterAppsResultListener;
 import com.example.maxim.myproject.model.AppModel;
 import com.example.maxim.myproject.model.AppSection;
 import com.example.maxim.myproject.ui.fragment.AppsAdapter;
+import com.example.maxim.myproject.db.FilterAppsResultListener;
 import com.example.maxim.myproject.ui.fragment.AppsListFragment;
 import com.example.maxim.myproject.db.util.CorrectDbHelper;
 import com.google.firebase.database.DataSnapshot;
@@ -42,13 +45,16 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class LeastMainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String TAG = "MostMainActivity";
     public static final String PARAM_USER_ID = TAG + ".username";
+    public static final String PARAM_SORT = "sort";
     String userId;
     EditText edit;
+    public static boolean[] chosen = new boolean[3];
     public static Boolean isSort = false;
 
     @Override
@@ -56,8 +62,11 @@ public class LeastMainActivity extends AppCompatActivity implements NavigationVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.drawer_layout);
 
-        Intent intent = getIntent();
-        userId = intent.getStringExtra(PARAM_USER_ID);
+        Intent intentUser = getIntent();
+        userId = intentUser.getStringExtra(PARAM_USER_ID);
+        Log.i("USERID", userId);
+        Intent intentSort = getIntent();
+        chosen = intentSort.getBooleanArrayExtra(PARAM_SORT);
         init();
     }
 
@@ -82,7 +91,7 @@ public class LeastMainActivity extends AppCompatActivity implements NavigationVi
         setupCreateAppButton();
 
         // измнение содержания nav_header
-        renameNavHeader();
+        //renameNavHeader();
 
         // настройка сортировки
         setupSort();
@@ -92,10 +101,11 @@ public class LeastMainActivity extends AppCompatActivity implements NavigationVi
         View.OnClickListener onSort = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isSort)
-                    isSort = true;
-                else
-                    isSort = false;
+                Intent intent = new Intent(LeastMainActivity.this, SortActivity.class);
+                startActivity(intent);
+                //finish();
+                //AppsListFragment.newInstance(AppSection.ALL, userId).loadDbData();
+                //CorrectDbHelper.getInstance().loadApps();
             }
         };
 
@@ -103,24 +113,23 @@ public class LeastMainActivity extends AppCompatActivity implements NavigationVi
         sort.setOnClickListener(onSort);
     }
 
-    private void renameNavHeader() {
-        // это вынужденные меры, т.к. на этом моменте ещё не сузествует Singleton-а
+    /*private void renameNavHeader() {
         ValueEventListener listenerAtOnce = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                TextView header = findViewById(R.id.headerTextView);
-                header.setText(dataSnapshot.child("users").child(userId).child("login").getValue().toString());
+                TextView headrenameNavHeaderer = (TextView) findViewById(R.id.headerTextView);
+                header.setText(Objects.requireNonNull(dataSnapshot.child("users").child(userId).child("login").getValue()).toString());
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "Возникла ошибка", Toast.LENGTH_SHORT);
                 toast.show();
             }
         };
         CorrectDbHelper.getDatabase().addListenerForSingleValueEvent(listenerAtOnce);
-    }
+    }*/
 
     private void setupNavigation() {
         // настройка тулбара

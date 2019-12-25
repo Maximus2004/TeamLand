@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.maxim.myproject.User;
+import com.example.maxim.myproject.db.util.CorrectDbHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -55,7 +56,7 @@ public class RegActivity extends AppCompatActivity {
                     toast.show();
                 } else {
                     // увы, этого избежать нельзя, потому что к этому моменту ещё не существует Singleton-а
-                    ValueEventListener listenerAtOnce = new ValueEventListener() {
+                    ValueEventListener listener = new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             // сбрасываем флаг
@@ -80,7 +81,6 @@ public class RegActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Регистрация успешно пройдена!", Toast.LENGTH_SHORT).show();
                                 nickText.setTextColor(Color.BLACK);
                                 writeNewUser(nickEditString, firstPasswordEditString, describtionEditString);
-                                //mDatabase.child("maxId").setValue(Integer.parseInt(dataSnapshot.child("maxId").getValue().toString()) + 1);
                                 Intent intent = new Intent(RegActivity.this, LeastMainActivity.class);
                                 intent.putExtra(LeastMainActivity.PARAM_USER_ID, id);
                                 startActivity(intent);
@@ -96,7 +96,7 @@ public class RegActivity extends AppCompatActivity {
                             toast.show();
                         }
                     };
-                    mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+                    CorrectDbHelper.getInstance().getDatabase().addValueEventListener(listener);
                 }
             }
         };

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.example.maxim.myproject.db.util.CorrectDbHelper;
 
 import com.example.maxim.myproject.MainAdapter;
 import com.example.maxim.myproject.MainAdapterForOther;
@@ -16,11 +17,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class LoginActivity extends AppCompatActivity implements MainAdapter.UserActionListener, MainAdapterForOther.UserActionListener {
     Button btnLogin;
-    private DatabaseReference mDatabase;
     boolean isUserRegistrated = true;
     EditText pass, login;
 
@@ -45,11 +44,10 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
     }
 
     private void setupButtonLogin() {
-        // увы, этого избежать нельзя, потому что к этому моменту ещё не существует Singleton-а
         View.OnClickListener oclBtnReg = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ValueEventListener listenerAtOnce = new ValueEventListener() {
+                ValueEventListener listener = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         checkingUser(dataSnapshot);
@@ -60,23 +58,11 @@ public class LoginActivity extends AppCompatActivity implements MainAdapter.User
                         showToast("Ошибка!", databaseError.toString());
                     }
                 };
-                mDatabase = FirebaseDatabase.getInstance().getReference();
-                mDatabase.addListenerForSingleValueEvent(listenerAtOnce);
+                CorrectDbHelper.getInstance().getDatabase().addValueEventListener(listener);
             }
         };
         btnLogin = findViewById(R.id.email_sign_in_button);
         btnLogin.setOnClickListener(oclBtnReg);
-    }
-
-    private void userRegistration() {
-        if (!isUserRegistrated) {
-            Intent intent = new Intent(LoginActivity.this, LeastMainActivity.class);
-            startActivity(intent);
-            // передаем логин пользователя в главное активити
-            intent.putExtra(LeastMainActivity.PARAM_USER_ID, login.toString());
-            // финишируем активити при успешной авторизации
-            finish();
-        }
     }
 
     private void checkingUser(DataSnapshot dataSnapshot) {

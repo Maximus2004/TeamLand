@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+
 import com.example.maxim.myproject.R;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,11 @@ import com.example.maxim.myproject.db.util.CorrectDbHelper;
 import com.example.maxim.myproject.model.AppModel;
 import com.example.maxim.myproject.model.AppSection;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.maxim.myproject.ui.activity.LeastMainActivity.chosen;
+import static com.example.maxim.myproject.ui.activity.LeastMainActivity.isSort;
 
 public class AppsListFragment extends Fragment {
 
@@ -46,7 +52,7 @@ public class AppsListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        // добавляем обработчик кнопки и сначала делаем сортировку, а потом апдейтим дату
         // инициализируем адаптер для recycler
         mAdapter = new AppsAdapter(userI);
         // настраиваем список
@@ -65,8 +71,10 @@ public class AppsListFragment extends Fragment {
 
     /**
      * Запрашиваем отфильтрованный по секции список заявок
+     * <p>
+     * Делаем всё то же самое в re
      */
-    private void loadDbData() {
+    public void loadDbData() {
         // достаем секции из параметров
         final AppSection section = (AppSection) getArguments().getSerializable(ARG_SECTION);
         // запрашиваем отфильтрованный список
@@ -78,10 +86,41 @@ public class AppsListFragment extends Fragment {
                         new FilterAppsResultListener() {
                             @Override
                             public void onFilterAppsResult(List<AppModel> list) {
-                                mAdapter.upDateData(list);
+                                // формируем новый список из нормальных заявок, подходящих и добавляем его в adapter
+                                List newList;
+                                if (chosen != null) {
+                                    for (boolean elem : chosen) {
+                                        if (elem) {
+                                            isSort = true;
+                                            break;
+                                        } else
+                                            isSort = false;
+                                    }
+                                }
+                                if (isSort) {
+                                    newList = filterAppsListByChosenSort(list);
+                                    mAdapter.upDateData(newList);
+                                } else
+                                    mAdapter.upDateData(list);
                             }
                         }
                 );
+    }
+
+    private List filterAppsListByChosenSort(List<AppModel> list) {
+        List<AppModel> tempList = new ArrayList<>();
+        for (AppModel elem : list) {
+            if (chosen[0] && elem.example.equals("есть") ||
+                    chosen[2] && elem.experience.equals("0") ||
+                    chosen[1] && !elem.phone.equals("") ||
+                    chosen[0] && elem.example.equals("есть") && chosen[2] && elem.experience.equals("0") ||
+                    chosen[2] && elem.experience.equals("0") && chosen[1] && !elem.phone.equals("") ||
+                    chosen[0] && elem.example.equals("есть") && chosen[1] && !elem.phone.equals("") ||
+                    chosen[0] && elem.example.equals("есть") &&
+                            chosen[2] && elem.experience.equals("0") && chosen[1] && !elem.phone.equals(""))
+                tempList.add(elem);
+        }
+        return tempList;
     }
 
     public AppSection getSection() {

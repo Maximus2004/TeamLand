@@ -14,7 +14,9 @@ public class AppModel {
     public String experience;
     public String example;
     public String section;
+    public String phone;
 
+    // добавим в неё ещё поля и не буде вызывать, если не нуджно
 //  "creator" -> "ncn"
 //        "hashs" -> "пробел"
 //        "other" -> ""

@@ -109,11 +109,7 @@ public class CorrectDbHelper {
         for (AppModel app : tempAllAps) {
             if (section == AppSection.ALL) {
                 // хотите все, держите все
-                if (isSort) {
-                    if (app.example.equals("есть"))
-                        filteredApps.add(app);
-                } else
-                    filteredApps.add(app);
+                filteredApps.add(app);
             }
             if (
                 // если фильтр "ДРУГИЕ"
@@ -121,14 +117,7 @@ public class CorrectDbHelper {
                             // не очень понятен смысл последнего условия
                             || app.section.equals(section.getName())
                     ) {
-                Log.i("EXAMPLE", app.example);
-                Log.i("APP", app.toString());
-                Log.i("isSort", isSort.toString());
-                if (isSort) {
-                    if (app.example.equals("есть"))
-                        filteredApps.add(app);
-                } else
-                    filteredApps.add(app);
+                filteredApps.add(app);
             }
         }
 

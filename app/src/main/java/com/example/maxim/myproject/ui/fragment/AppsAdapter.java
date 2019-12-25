@@ -49,7 +49,7 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.AdapterViewHol
     @NonNull
     @Override
     public AdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.one_adapter2, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
         return new AdapterViewHolder(view);
     }
 

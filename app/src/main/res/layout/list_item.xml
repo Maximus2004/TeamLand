@@ -1,168 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/tab1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#e9e5e5"
-    android:orientation="vertical">
+    android:layout_marginLeft="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/krugliye_ugli">
 
-
-    <android.support.constraint.ConstraintLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/applName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="new" />
+
+    <ImageButton
+        android:id="@+id/imageButton0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="8dp"
+        android:background="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/btn_star_big_on" />
+
+    <TextView
+        android:id="@+id/textView25"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="13dp"
+        android:gravity="top"
+        android:textColor="#710c65"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/applName"
+        android:text="Цель" />
+
+    <Button
+        android:id="@+id/userBtn"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:layout_gravity="top|center"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="8dp"
+        android:textColor="#001eff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/applName"
+        tools:text="Дм" />
+
+    <TextView
+        android:id="@+id/writeAdout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="7dp"
+        android:ellipsize="end"
+        android:maxLines="4"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/experience"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView25"
+        app:layout_constraintVertical_chainStyle="spread_inside"
+        tools:text="n kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjvn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv" />
+
+    <TextView
+        android:id="@+id/experience"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="8dp"
+        android:textColor="#710c65"
+        android:textSize="18sp"
+        android:translationY="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/examp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Опыт: " />
+
+    <TextView
+        android:id="@+id/applicationID"
+        android:layout_width="0dp"
+        android:layout_height="148dp"
+        android:gravity="top"
+        android:paddingBottom="20dp"
+        android:textColor="#000000"
+        android:textSize="0sp"
+        tools:text="text bdfb" />
+
+    <TextView
+        android:id="@+id/expView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:translationY="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/examp"
+        app:layout_constraintStart_toEndOf="@+id/experience"
+        tools:text="0 лет" />
+
+    <TextView
+        android:id="@+id/examp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/krugliye_ugli">
+        android:textColor="#710c65"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Пример работы: " />
 
-        <TextView
-            android:id="@+id/applName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:text="new"
-            android:textColor="#000"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toStartOf="@+id/imageButton0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/exampView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="8dp"
+        android:textColor="#000"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/examp"
+        tools:text="нет" />
 
-        <ImageButton
-            android:id="@+id/imageButton0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="8dp"
-            android:background="@null"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@android:drawable/btn_star_big_on" />
-
-        <TextView
-            android:id="@+id/textView25"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="13dp"
-            android:gravity="top"
-            android:text="Цель"
-            android:textColor="#710c65"
-            android:textSize="18sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/applName" />
-
-        <Button
-            android:id="@+id/userBtn"
-            style="@style/Widget.AppCompat.Button.Borderless.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="37dp"
-            android:layout_gravity="top|center"
-            android:layout_marginStart="140dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginEnd="8dp"
-            android:text="Дм"
-            android:textColor="#001eff"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/applName" />
-
-        <TextView
-            android:id="@+id/writeAdout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="17dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="7dp"
-            android:ellipsize="end"
-            android:maxLines="4"
-            android:text="n kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjvn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv sdkjfn kdjafn adfkjn kdakjn sdfkjv"
-            android:textColor="#000000"
-            android:textSize="17sp"
-            app:layout_constraintBottom_toTopOf="@+id/experience"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView25"
-            app:layout_constraintVertical_chainStyle="spread_inside" />
-
-        <TextView
-            android:id="@+id/experience"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginStart="8dp"
-            android:text="Опыт: "
-            android:textColor="#710c65"
-            android:textSize="18sp"
-            android:translationY="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/examp"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/applicationID"
-            android:layout_width="0dp"
-            android:layout_height="148dp"
-            android:gravity="top"
-            android:paddingBottom="20dp"
-            android:text="text bdfb"
-            android:textColor="#000000"
-            android:textSize="0sp" />
-
-        <TextView
-            android:id="@+id/expView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:text="0 лет"
-            android:textColor="#000"
-            android:textSize="18sp"
-            android:translationY="0dp"
-            app:layout_constraintBottom_toTopOf="@+id/examp"
-            app:layout_constraintStart_toEndOf="@+id/experience" />
-
-        <TextView
-            android:id="@+id/examp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="8dp"
-            android:text="Пример работы: "
-            android:textColor="#710c65"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/exampView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="8dp"
-            android:text="нет"
-            android:textColor="#000"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/examp" />
-
-        <Button
-            android:id="@+id/buttonMore"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="37dp"
-            android:layout_gravity="bottom|center_vertical|end"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="4dp"
-            android:text="Подробнее"
-            android:translationY="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </android.support.constraint.ConstraintLayout>
-</LinearLayout>
+    <Button
+        android:id="@+id/buttonMore"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="37dp"
+        android:layout_gravity="bottom|center_vertical|end"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="4dp"
+        android:translationY="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Подробнее" />
+</android.support.constraint.ConstraintLayout>
